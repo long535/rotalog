@@ -168,7 +168,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100">
-      <header className="flex items-center justify-between px-5 py-4 glass border-b border-gray-200/50 dark:border-gray-700/50 z-10">
+      <header className="flex items-center justify-between px-5 py-4 pt-safe glass border-b border-gray-200/50 dark:border-gray-700/50 z-10">
         <div className="flex items-center gap-3">
           <button onClick={handleCancel} className="p-2.5 hover:bg-gray-100/80 dark:hover:bg-gray-700/50 rounded-xl transition-all active:scale-95">
             <ArrowLeft size={20} className="text-gray-600 dark:text-gray-400" />

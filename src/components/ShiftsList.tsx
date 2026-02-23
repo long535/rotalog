@@ -193,7 +193,7 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100">
-      <header className="flex items-center justify-between px-5 py-4 glass border-b border-gray-200/50 dark:border-gray-700/50 z-10">
+      <header className="flex items-center justify-between px-5 py-4 pt-safe glass border-b border-gray-200/50 dark:border-gray-700/50 z-10">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">{t.appTitle}</h1>
         <div className="flex items-center gap-1">
           <button 
