@@ -7,6 +7,7 @@ export interface Shift {
   notes: string;
   isAnnualLeave?: boolean;
   annualLeaveHours?: number;
+  photoUrl?: string; // base64 data URL
 }
 
 export interface AppSettings {

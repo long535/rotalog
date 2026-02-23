@@ -51,7 +51,15 @@ export const translations = {
     importSuccess: '成功匯入 {count} 筆班次記錄！',
     importError: '無法解析 CSV 檔案，請確認格式是否正確。',
     clickDayHint: '點選星期幾以快速新增同週的班次',
-    weekDays: ['一', '二', '三', '四', '五', '六', '日']
+    weekDays: ['一', '二', '三', '四', '五', '六', '日'],
+    listView: '列表',
+    calendarView: '月曆',
+    hours: '小時',
+    addPhoto: '新增照片',
+    takePhoto: '拍照',
+    chooseFromGallery: '從相簿選擇',
+    removePhoto: '移除照片',
+    photo: '照片'
   },
   en: {
     appTitle: 'Shifts Tracker',
@@ -105,7 +113,15 @@ export const translations = {
     importSuccess: 'Successfully imported {count} shift records!',
     importError: 'Failed to parse CSV file. Please check the format.',
     clickDayHint: 'Click on a day to quickly add shifts in the same week',
-    weekDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    weekDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    listView: 'List',
+    calendarView: 'Calendar',
+    hours: 'hours',
+    addPhoto: 'Add Photo',
+    takePhoto: 'Take Photo',
+    chooseFromGallery: 'Choose from Gallery',
+    removePhoto: 'Remove Photo',
+    photo: 'Photo'
   }
 };
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Globe, DollarSign, Clock, Palette, Calculator } from 'lucide-react';
 import { AppSettings } from '../types';
 import { useTranslation } from '../i18n';
+import { haptic } from '../haptics';
 
 interface Props {
   settings: AppSettings;
@@ -14,20 +15,27 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
   const t = useTranslation(localSettings.language);
 
   const handleChange = (key: keyof AppSettings, value: any) => {
+    haptic.selection();
     setLocalSettings({ ...localSettings, [key]: value });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    await haptic.success();
     onSave(localSettings);
     onClose();
   };
 
+  const handleClose = async () => {
+    await haptic.light();
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={handleClose}>
       <div className="bg-white dark:bg-gray-800/95 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-in" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700/50">
           <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">{t.settingsTitle}</h2>
-          <button onClick={onClose} className="p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
+          <button onClick={handleClose} className="p-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
             <X size={20} />
           </button>
         </div>

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, Image, X } from 'lucide-react';
 import { format, parseISO, addDays, startOfWeek } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { Shift, AppSettings } from '../types';
 import { calculatePaidHours, calculateAnnualLeaveHours } from '../utils';
 import { useTranslation } from '../i18n';
+import { haptic } from '../haptics';
 
 interface Props {
   shift?: Shift;
@@ -28,6 +29,9 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
   const [notes, setNotes] = useState(shift ? shift.notes : '');
   const [isAnnualLeave, setIsAnnualLeave] = useState(shift ? !!shift.isAnnualLeave : false);
   const [annualLeaveHours, setAnnualLeaveHours] = useState(shift?.annualLeaveHours?.toString() || '');
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(shift?.photoUrl);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslation(settings.language);
 
   const referenceDate = parseISO(baseDate);
@@ -60,7 +64,8 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
 
   const finalPaidHours = isAnnualLeave && annualLeaveHours !== '' ? parseFloat(annualLeaveHours) || 0 : calculatedHours;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    await haptic.success();
     const shiftsToSave: Shift[] = selectedDates.map(dateStr => {
       return {
         id: isEditing ? shift.id : uuidv4(),
@@ -71,16 +76,101 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
         notes,
         isAnnualLeave,
         annualLeaveHours: isAnnualLeave ? (annualLeaveHours !== '' ? parseFloat(annualLeaveHours) : calculatedHours) : undefined,
+        photoUrl,
       };
     });
     onSave(shiftsToSave);
+  };
+
+  const handleTakePhoto = async () => {
+    await haptic.light();
+    setShowPhotoOptions(false);
+    try {
+      const { Camera } = await import('@capacitor/camera');
+      const { CameraResultType, CameraSource } = await import('@capacitor/camera');
+      
+      const permission = await Camera.requestPermissions({ permissions: ['camera'] });
+      
+      if (permission.camera !== 'granted') {
+        console.error('Camera permission not granted');
+        return;
+      }
+      
+      const photo = await Camera.getPhoto({
+        quality: 70,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+        saveToGallery: false,
+        correctOrientation: true,
+      });
+      setPhotoUrl(photo.dataUrl);
+    } catch (error: any) {
+      console.error('Camera error:', error);
+      if (error?.message) {
+        console.error('Error message:', error.message);
+      }
+    }
+  };
+
+  const handleChooseFromGallery = async () => {
+    await haptic.light();
+    setShowPhotoOptions(false);
+    try {
+      const { Camera } = await import('@capacitor/camera');
+      const { CameraResultType, CameraSource } = await import('@capacitor/camera');
+      
+      const photo = await Camera.getPhoto({
+        quality: 70,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Photos,
+      });
+      setPhotoUrl(photo.dataUrl);
+    } catch (error) {
+      console.error('Gallery error:', error);
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPhotoUrl(e.target?.result as string);
+        setShowPhotoOptions(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    await haptic.light();
+    setPhotoUrl(undefined);
+    setShowPhotoOptions(false);
+  };
+
+  const handleCancel = async () => {
+    await haptic.light();
+    onCancel();
+  };
+
+  const handleDateToggle = async (dateStr: string) => {
+    await haptic.selection();
+    if (selectedDates.includes(dateStr)) {
+      if (selectedDates.length > 1) {
+        setSelectedDates(selectedDates.filter(d => d !== dateStr).sort());
+      }
+    } else {
+      setSelectedDates([...selectedDates, dateStr].sort());
+    }
   };
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100">
       <header className="flex items-center justify-between px-5 py-4 glass border-b border-gray-200/50 dark:border-gray-700/50 z-10">
         <div className="flex items-center gap-3">
-          <button onClick={onCancel} className="p-2.5 hover:bg-gray-100/80 dark:hover:bg-gray-700/50 rounded-xl transition-all active:scale-95">
+          <button onClick={handleCancel} className="p-2.5 hover:bg-gray-100/80 dark:hover:bg-gray-700/50 rounded-xl transition-all active:scale-95">
             <ArrowLeft size={20} className="text-gray-600 dark:text-gray-400" />
           </button>
           <h1 className="text-xl font-bold">{isEditing ? t.editShift : t.addShift}</h1>
@@ -136,15 +226,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
                   return (
                     <button
                       key={dateStr}
-                      onClick={() => {
-                        if (isSelected) {
-                          if (selectedDates.length > 1) {
-                            setSelectedDates(selectedDates.filter(d => d !== dateStr).sort());
-                          }
-                        } else {
-                          setSelectedDates([...selectedDates, dateStr].sort());
-                        }
-                      }}
+                      onClick={() => handleDateToggle(dateStr)}
                       className={`flex-1 aspect-square max-w-[48px] rounded-2xl flex flex-col items-center justify-center text-sm transition-all duration-300 ${
                         isSelected 
                           ? 'gradient-primary text-white shadow-lg shadow-indigo-500/30 font-bold scale-105' 
@@ -280,6 +362,67 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
               placeholder={t.notesPlaceholder}
             />
           </div>
+        </div>
+
+        {/* Photo Card */}
+        <div className="bg-white dark:bg-gray-800/90 rounded-2xl p-5 card-shadow border border-gray-100/50 dark:border-gray-700/50 space-y-5">
+          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+              <Camera size={20} className="text-white" />
+            </div>
+            <span className="font-semibold text-lg">{t.photo}</span>
+          </div>
+          
+          {photoUrl ? (
+            <div className="relative">
+              <img 
+                src={photoUrl} 
+                alt="Shift photo" 
+                className="w-full h-48 object-cover rounded-xl"
+              />
+              <button
+                onClick={handleRemovePhoto}
+                className="absolute top-2 right-2 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-all"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <div className="relative">
+              <button
+                onClick={() => setShowPhotoOptions(!showPhotoOptions)}
+                className="w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all"
+              >
+                <Camera size={32} className="text-gray-400" />
+                <span className="text-sm text-gray-500 dark:text-gray-400">{t.addPhoto}</span>
+              </button>
+              
+              {showPhotoOptions && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden z-10 animate-scale-in">
+                  <button
+                    onClick={handleTakePhoto}
+                    className="w-full px-4 py-3.5 text-left text-sm font-medium flex items-center gap-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+                  >
+                    <Camera size={18} /> {t.takePhoto}
+                  </button>
+                  <button
+                    onClick={handleChooseFromGallery}
+                    className="w-full px-4 py-3.5 text-left text-sm font-medium flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                  >
+                    <Image size={18} /> {t.chooseFromGallery}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileSelect}
+          />
         </div>
       </div>
     </div>
