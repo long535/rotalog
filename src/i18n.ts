@@ -1,7 +1,7 @@
 export const translations = {
   zh: {
     appTitle: '班次記錄',
-    importCSV: '導入 CSV',
+    importCSV: '匯入 CSV',
     exportCSV: '導出 CSV',
     settings: '設定',
     filterAll: '全部',
@@ -48,7 +48,7 @@ export const translations = {
     ukTax: '英國稅務估算 (UK Tax)',
     ukTaxDesc: '自動估算 Tax, N.I., Pension',
     saveSettings: '儲存設定',
-    importSuccess: '成功導入 {count} 筆班次記錄！',
+    importSuccess: '成功匯入 {count} 筆班次記錄！',
     importError: '無法解析 CSV 檔案，請確認格式是否正確。',
     clickDayHint: '點選星期幾以快速新增同週的班次',
     weekDays: ['一', '二', '三', '四', '五', '六', '日']

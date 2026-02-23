@@ -84,7 +84,7 @@ export default function App() {
           directory: Directory.External,
           recursive: true
         });
-        alert('已保存到 Documents/' + filename);
+        alert('已儲存到 Documents/' + filename);
       } catch (err) {
         console.error('Export error:', err);
         try {
@@ -93,10 +93,10 @@ export default function App() {
             data: btoa(unescape(encodeURIComponent(csvContent))),
             directory: Directory.Documents
           });
-          alert('已保存: ' + filename);
+          alert('已儲存: ' + filename);
         } catch (err2) {
           console.error('Export fallback error:', err2);
-          alert('导出失败: ' + (err2 as Error).message);
+          alert('匯出失敗: ' + (err2 as Error).message);
         }
       }
     } else {
