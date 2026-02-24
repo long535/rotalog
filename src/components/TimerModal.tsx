@@ -3,7 +3,7 @@ import { X, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 import { TimerState } from '../types';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
-import { scheduleBreakTimer, cancelNotifications } from '../utils';
+import { scheduleBreakTimer, cancelAlarms } from '../utils';
 
 interface Props {
   timer: TimerState;
@@ -62,7 +62,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
     await haptic.medium();
     
     if (timer.notificationIds.length > 0) {
-      await cancelNotifications(timer.notificationIds);
+      await cancelAlarms(timer.notificationIds);
     }
     
     onStop();

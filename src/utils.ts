@@ -187,50 +187,44 @@ export async function scheduleBreakTimer(
   durationMinutes: number,
   lang: 'zh' | 'en' = 'zh'
 ): Promise<{ warningId: number; endId: number }> {
-  const hasPermission = await requestNotificationPermission();
-  if (!hasPermission) {
-    console.warn('Notification permission not granted');
-    return { warningId: -1, endId: -1 };
-  }
-
   const now = new Date();
   const warningTime = addSeconds(now, durationMinutes * 60 - 20);
   const endTime = addSeconds(now, durationMinutes * 60);
 
-  const warningId = generateNotificationId();
-  const endId = generateNotificationId();
-
-  const notifications: LocalNotificationSchema[] = [];
+  const warningId = generateAlarmId();
+  const endId = generateAlarmId();
 
   const warningTitle = lang === 'zh' ? '準備打卡' : 'Get Ready';
   const warningBody = lang === 'zh' ? '20 秒後午休結束' : 'Break ends in 20 seconds';
   const endTitle = lang === 'zh' ? '午休結束' : 'Break Ended';
   const endBody = lang === 'zh' ? '該上班了！' : 'Time to work!';
 
-  notifications.push({
-    id: warningId,
-    title: warningTitle,
-    body: warningBody,
-    schedule: { at: warningTime },
-    sound: undefined,
-    smallIcon: 'ic_stat_icon_config_sample',
-    largeIcon: 'ic_launcher',
-    channelId: 'break-timer',
-  });
+  if (!Capacitor.isNativePlatform()) {
+    console.log('Not native platform, skipping break timer alarm');
+    return { warningId, endId };
+  }
 
-  notifications.push({
-    id: endId,
-    title: endTitle,
-    body: endBody,
-    schedule: { at: endTime },
-    sound: undefined,
-    smallIcon: 'ic_stat_icon_config_sample',
-    largeIcon: 'ic_launcher',
-    channelId: 'break-timer',
-  });
+  const hasPermission = await requestAlarmPermission();
+  if (!hasPermission) {
+    console.warn('Alarm permission not granted');
+    return { warningId: -1, endId: -1 };
+  }
 
   try {
-    await LocalNotifications.schedule({ notifications });
+    await SystemAlarm.schedule({
+      id: warningId,
+      triggerAt: warningTime.toISOString(),
+      title: warningTitle,
+      body: warningBody,
+    });
+    
+    await SystemAlarm.schedule({
+      id: endId,
+      triggerAt: endTime.toISOString(),
+      title: endTitle,
+      body: endBody,
+    });
+    
     console.log(`Scheduled break timer: ${durationMinutes} minutes`);
   } catch (error) {
     console.error('Failed to schedule break timer:', error);
