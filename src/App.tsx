@@ -8,13 +8,13 @@ import SettingsModal from './components/SettingsModal';
 import { useAppStore } from './store';
 import { Shift } from './types';
 import { format, parseISO } from 'date-fns';
-import { calculateWages, calculateAnnualLeaveHours, getShiftPaidHours } from './utils';
+import { calculateWages, calculateAnnualLeaveHours, getShiftPaidHours, createNotificationChannels } from './utils';
 import { useTranslation } from './i18n';
 
 type View = 'LIST' | 'FORM';
 
 export default function App() {
-  const { shifts, settings, setSettings, addShift, addShifts, updateShift, deleteShift, duplicateShift } = useAppStore();
+  const { shifts, settings, setSettings, timer, startTimer, stopTimer, addShift, addShifts, updateShift, deleteShift, duplicateShift } = useAppStore();
   const [view, setView] = useState<View>('LIST');
   const [editingShift, setEditingShift] = useState<Shift | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
@@ -27,6 +27,12 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [settings.theme]);
+
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      createNotificationChannels();
+    }
+  }, []);
 
   const handleAdd = () => {
     setEditingShift(undefined);
@@ -226,6 +232,7 @@ export default function App() {
         <ShiftsList
           shifts={shifts}
           settings={settings}
+          timer={timer}
           onAdd={handleAdd}
           onEdit={handleEdit}
           onDelete={deleteShift}
@@ -233,6 +240,8 @@ export default function App() {
           onOpenSettings={() => setShowSettings(true)}
           onExport={handleExportCSV}
           onImport={handleImportCSV}
+          onStartTimer={startTimer}
+          onStopTimer={stopTimer}
         />
       ) : (
         <ShiftForm

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Shift, AppSettings } from './types';
+import { Shift, AppSettings, TimerState } from './types';
 
 const SHIFTS_KEY = 'shifts_data';
 const SETTINGS_KEY = 'shifts_settings';
+const TIMER_KEY = 'timer_state';
 
 const defaultSettings: AppSettings = {
   defaultHourlyWage: 50,
@@ -11,6 +12,14 @@ const defaultSettings: AppSettings = {
   theme: 'dark',
   enableUKTaxes: false,
   language: 'zh',
+  weekStartsOn: 1,
+};
+
+const defaultTimerState: TimerState = {
+  isActive: false,
+  startedAt: null,
+  durationMinutes: 0,
+  notificationIds: [],
 };
 
 export function useAppStore() {
@@ -22,6 +31,11 @@ export function useAppStore() {
   const [settings, setSettings] = useState<AppSettings>(() => {
     const saved = localStorage.getItem(SETTINGS_KEY);
     return saved ? JSON.parse(saved) : defaultSettings;
+  });
+
+  const [timer, setTimer] = useState<TimerState>(() => {
+    const saved = localStorage.getItem(TIMER_KEY);
+    return saved ? JSON.parse(saved) : defaultTimerState;
   });
 
   useEffect(() => {
@@ -37,6 +51,10 @@ export function useAppStore() {
     }
   }, [settings]);
 
+  useEffect(() => {
+    localStorage.setItem(TIMER_KEY, JSON.stringify(timer));
+  }, [timer]);
+
   const addShift = (shift: Shift) => setShifts([...shifts, shift]);
   const addShifts = (newShifts: Shift[]) => setShifts([...shifts, ...newShifts]);
   const updateShift = (updated: Shift) => setShifts(shifts.map(s => s.id === updated.id ? updated : s));
@@ -48,5 +66,30 @@ export function useAppStore() {
     }
   };
 
-  return { shifts, settings, setSettings, addShift, addShifts, updateShift, deleteShift, duplicateShift };
+  const startTimer = (durationMinutes: number, notificationIds: number[]) => {
+    setTimer({
+      isActive: true,
+      startedAt: new Date().toISOString(),
+      durationMinutes,
+      notificationIds,
+    });
+  };
+
+  const stopTimer = () => {
+    setTimer(defaultTimerState);
+  };
+
+  return { 
+    shifts, 
+    settings, 
+    setSettings, 
+    timer,
+    startTimer,
+    stopTimer,
+    addShift, 
+    addShifts, 
+    updateShift, 
+    deleteShift, 
+    duplicateShift 
+  };
 }

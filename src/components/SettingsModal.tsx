@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Globe, DollarSign, Clock, Palette, Calculator } from 'lucide-react';
+import { X, Globe, DollarSign, Clock, Palette, Calculator, Calendar } from 'lucide-react';
 import { AppSettings } from '../types';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
@@ -105,6 +105,25 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
               onChange={(e) => handleChange('defaultBreakMinutes', parseInt(e.target.value) || 0)}
               className="w-full p-3.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl input-modern focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white font-medium"
             />
+          </div>
+
+          {/* Week Starts On Setting */}
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 border border-gray-100 dark:border-gray-700/50">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                <Calendar size={18} className="text-white" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t.weekStartsOn}</label>
+            </div>
+            <select
+              value={localSettings.weekStartsOn ?? 1}
+              onChange={(e) => handleChange('weekStartsOn', parseInt(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6)}
+              className="w-full p-3.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl input-modern focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 dark:text-white font-medium"
+            >
+              {t.weekStartsOnOptions.map((label, index) => (
+                <option key={index} value={index}>{label}</option>
+              ))}
+            </select>
           </div>
 
           {/* Theme Setting */}

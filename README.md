@@ -46,6 +46,12 @@
 - **英國稅務估算** - 自動估算 Tax, N.I., Pension（可選）
 - **多日新增** - 一次新增多天的相同班次
 - **快速日期選擇** - 點選星期幾快速選擇同週班次
+- **一週的第一天** - 可設定週日或週一為一週的第一天
+
+#### 提醒與計時器
+- **上班提醒** - 設定上班前 1 小時 / 30 分鐘提醒通知
+- **午休計時器** - 60 / 30 分鐘快速計時，支援背景運作
+- **提前提醒** - 計時結束前 20 秒提醒準備打卡
 
 ---
 
@@ -113,6 +119,19 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 - 點擊 **<** / **>** 按鈕
 - 或在底部區域 **左右滑動**
 
+#### 設定上班提醒
+1. 新增或編輯班次
+2. 在「提醒」區塊勾選 1 小時前 / 30 分鐘前
+3. 儲存後，系統會在指定時間發送通知
+
+#### 使用午休計時器
+1. 點擊底部橘色計時器按鈕
+2. 選擇 60 分鐘或 30 分鐘
+3. 點擊開始
+4. 即使切換到其他 App（如 YouTube），計時仍會在背景運作
+5. 結束前 20 秒會收到「準備打卡」通知
+6. 計時結束會收到「午休結束」通知
+
 ---
 
 ## English
@@ -150,6 +169,12 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 - **UK Tax Estimation** - Auto estimate Tax, N.I., Pension (optional)
 - **Multi-day Entry** - Add same shift for multiple days at once
 - **Quick Date Selection** - Click weekday to quickly select same week shifts
+- **First Day of Week** - Customize whether week starts on Sunday or Monday
+
+#### Reminders & Timer
+- **Work Reminders** - Set notifications 1 hour / 30 min before shift starts
+- **Break Timer** - 60 / 30 min quick timer with background support
+- **Early Warning** - 20 seconds advance notice before timer ends
 
 ---
 
@@ -216,6 +241,19 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 #### Change Month
 - Tap **<** / **>** buttons
 - Or **swipe left/right** on the bottom area
+
+#### Set Work Reminders
+1. Add or edit a shift
+2. In the "Reminders" section, check 1 hour before / 30 min before
+3. After saving, notifications will be sent at the specified times
+
+#### Use Break Timer
+1. Tap the orange timer button at the bottom
+2. Select 60 minutes or 30 minutes
+3. Tap Start
+4. Timer runs in background even when switching to other apps (e.g., YouTube)
+5. 20 seconds before end, you'll receive a "Get Ready" notification
+6. When timer ends, you'll receive a "Break Ended" notification
 
 ---
 

@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, Image, X } from 'lucide-react';
+import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, Image, X, Bell } from 'lucide-react';
 import { format, parseISO, addDays, startOfWeek } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { Shift, AppSettings } from '../types';
-import { calculatePaidHours, calculateAnnualLeaveHours } from '../utils';
+import { calculatePaidHours, calculateAnnualLeaveHours, scheduleShiftReminders, cancelNotifications } from '../utils';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
 
@@ -31,11 +31,13 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
   const [annualLeaveHours, setAnnualLeaveHours] = useState(shift?.annualLeaveHours?.toString() || '');
   const [photoUrl, setPhotoUrl] = useState<string | undefined>(shift?.photoUrl);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [reminder1h, setReminder1h] = useState(shift?.reminders?.includes(60) ?? false);
+  const [reminder30m, setReminder30m] = useState(shift?.reminders?.includes(30) ?? false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslation(settings.language);
 
   const referenceDate = parseISO(baseDate);
-  const weekStart = startOfWeek(referenceDate, { weekStartsOn: 1 });
+  const weekStart = startOfWeek(referenceDate, { weekStartsOn: settings.weekStartsOn ?? 1 });
   const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
   const weekDayLabels = t.weekDays;
 
@@ -66,6 +68,11 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
 
   const handleSave = async () => {
     await haptic.success();
+    
+    const reminders: number[] = [];
+    if (reminder1h) reminders.push(60);
+    if (reminder30m) reminders.push(30);
+    
     const shiftsToSave: Shift[] = selectedDates.map(dateStr => {
       return {
         id: isEditing ? shift.id : uuidv4(),
@@ -77,8 +84,20 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
         isAnnualLeave,
         annualLeaveHours: isAnnualLeave ? (annualLeaveHours !== '' ? parseFloat(annualLeaveHours) : calculatedHours) : undefined,
         photoUrl,
+        reminders,
       };
     });
+
+    if (isEditing && shift.reminders && shift.reminders.length > 0) {
+      await cancelNotifications(shift.reminders.map((_, i) => parseInt(shift.id.slice(0, 8), 16) + i));
+    }
+
+    if (reminders.length > 0) {
+      for (const s of shiftsToSave) {
+        await scheduleShiftReminders(s.id, s.startTime, reminders, settings.language);
+      }
+    }
+
     onSave(shiftsToSave);
   };
 
@@ -423,6 +442,40 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
             className="hidden"
             onChange={handleFileSelect}
           />
+        </div>
+
+        {/* Reminders Card */}
+        <div className="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/30 dark:to-yellow-900/30 rounded-2xl p-5 card-shadow border border-orange-100/50 dark:border-orange-800/50 space-y-4">
+          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center">
+              <Bell size={20} className="text-white" />
+            </div>
+            <div>
+              <div className="font-semibold text-lg">{t.reminders}</div>
+              <div className="text-sm text-orange-600 dark:text-orange-300">{t.remindersDesc}</div>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl cursor-pointer hover:bg-orange-50 dark:hover:bg-gray-700/50 transition-all">
+              <input
+                type="checkbox"
+                checked={reminder1h}
+                onChange={(e) => setReminder1h(e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+              />
+              <span className="font-medium">{t.reminder1h}</span>
+            </label>
+            <label className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl cursor-pointer hover:bg-orange-50 dark:hover:bg-gray-700/50 transition-all">
+              <input
+                type="checkbox"
+                checked={reminder30m}
+                onChange={(e) => setReminder30m(e.target.checked)}
+                className="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+              />
+              <span className="font-medium">{t.reminder30m}</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>

@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, subWeeks, addWeeks, subMonths, addMonths, subYears, addYears, isSameDay, isToday, getDaysInMonth, getDay } from 'date-fns';
-import { Plus, Settings as SettingsIcon, Download, Upload, MoreVertical, Copy, Edit2, Trash2, ChevronLeft, ChevronRight, List, Calendar, Image } from 'lucide-react';
-import { Shift, AppSettings } from '../types';
+import { Plus, Settings as SettingsIcon, Download, Upload, MoreVertical, Copy, Edit2, Trash2, ChevronLeft, ChevronRight, List, Calendar, Image, Timer, Bell } from 'lucide-react';
+import { Shift, AppSettings, TimerState } from '../types';
 import { calculateWages, calculateAnnualLeaveHours, formatCurrency, getShiftPaidHours, calculateUKDeductions } from '../utils';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
+import TimerModal from './TimerModal';
 
 type FilterType = 'ALL' | 'WEEK' | 'MONTH' | 'YEAR';
 type ViewMode = 'LIST' | 'CALENDAR';
@@ -12,6 +13,7 @@ type ViewMode = 'LIST' | 'CALENDAR';
 interface Props {
   shifts: Shift[];
   settings: AppSettings;
+  timer: TimerState;
   onAdd: () => void;
   onEdit: (shift: Shift) => void;
   onDelete: (id: string) => void;
@@ -19,9 +21,11 @@ interface Props {
   onOpenSettings: () => void;
   onExport: () => void;
   onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onStartTimer: (durationMinutes: number, notificationIds: number[]) => void;
+  onStopTimer: () => void;
 }
 
-export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onExport, onImport }: Props) {
+export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onExport, onImport, onStartTimer, onStopTimer }: Props) {
   const [filter, setFilter] = useState<FilterType>('MONTH');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
@@ -29,6 +33,7 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | null>(null);
   const [expandedPhotoId, setExpandedPhotoId] = useState<string | null>(null);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [showTimer, setShowTimer] = useState(false);
   const t = useTranslation(settings.language);
 
   const filteredShifts = useMemo(() => {
@@ -36,8 +41,8 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
 
     let start: Date, end: Date;
     if (filter === 'WEEK') {
-      start = startOfWeek(currentDate, { weekStartsOn: 1 });
-      end = endOfWeek(currentDate, { weekStartsOn: 1 });
+      start = startOfWeek(currentDate, { weekStartsOn: settings.weekStartsOn ?? 1 });
+      end = endOfWeek(currentDate, { weekStartsOn: settings.weekStartsOn ?? 1 });
     } else if (filter === 'MONTH') {
       start = startOfMonth(currentDate);
       end = endOfMonth(currentDate);
@@ -86,7 +91,7 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
   const getDateRangeLabel = () => {
     if (filter === 'ALL') return t.filterAll;
     if (filter === 'WEEK') {
-      return `${format(startOfWeek(currentDate, { weekStartsOn: 1 }), 'MMM dd')} - ${format(endOfWeek(currentDate, { weekStartsOn: 1 }), 'MMM dd, yyyy')}`;
+      return `${format(startOfWeek(currentDate, { weekStartsOn: settings.weekStartsOn ?? 1 }), 'MMM dd')} - ${format(endOfWeek(currentDate, { weekStartsOn: settings.weekStartsOn ?? 1 }), 'MMM dd, yyyy')}`;
     }
     if (filter === 'MONTH') {
       return format(currentDate, 'MMMM yyyy');
@@ -164,7 +169,8 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
     const monthEnd = endOfMonth(currentDate);
     const daysInMonth = getDaysInMonth(currentDate);
     const startDay = getDay(monthStart);
-    const adjustedStartDay = startDay === 0 ? 6 : startDay - 1;
+    const weekStartsOn = settings.weekStartsOn ?? 1;
+    const adjustedStartDay = (startDay - weekStartsOn + 7) % 7;
 
     const days: (Date | null)[] = [];
     for (let i = 0; i < adjustedStartDay; i++) {
@@ -174,7 +180,7 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
       days.push(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
     }
     return days;
-  }, [currentDate]);
+  }, [currentDate, settings.weekStartsOn]);
 
   const getShiftsForDate = (date: Date) => {
     return shifts.filter(s => isSameDay(parseISO(s.startTime), date));
@@ -292,6 +298,14 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
                           <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
                           {format(parseISO(shift.startTime), 'HH:mm')} - {format(parseISO(shift.endTime), 'HH:mm')}
                         </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          {shift.reminders && shift.reminders.length > 0 && (
+                            <span className="flex items-center gap-1 text-xs text-orange-500">
+                              <Bell size={12} />
+                              {t.hasReminders}
+                            </span>
+                          )}
+                        </div>
                         {shift.notes && <div className="mt-2 text-xs text-gray-400 truncate max-w-[180px]">{shift.notes}</div>}
                         {shift.photoUrl && (
                           <button 
@@ -329,11 +343,15 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
           <div className="flex-1 overflow-y-auto p-4">
             <div className="bg-white dark:bg-gray-800/90 rounded-2xl p-4 card-shadow border border-gray-100/50 dark:border-gray-700/50">
               <div className="grid grid-cols-7 gap-1 mb-2">
-                {t.weekDays.map(day => (
-                  <div key={day} className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2">
-                    {day}
-                  </div>
-                ))}
+                {(() => {
+                  const weekStartsOn = settings.weekStartsOn ?? 1;
+                  const reorderedDays = [...t.weekDays.slice(weekStartsOn), ...t.weekDays.slice(0, weekStartsOn)];
+                  return reorderedDays.map(day => (
+                    <div key={day} className="text-center text-xs font-semibold text-gray-500 dark:text-gray-400 py-2">
+                      {day}
+                    </div>
+                  ));
+                })()}
               </div>
               <div className="grid grid-cols-7 gap-1">
                 {calendarDays.map((date, index) => {
@@ -486,7 +504,13 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
             </div>
           </div>
         )}
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-4 gap-4">
+          <button
+            onClick={async () => { await haptic.light(); setShowTimer(true); }}
+            className={`w-16 h-16 ${timer.isActive ? 'bg-gradient-to-br from-orange-500 to-red-500' : 'bg-gradient-to-br from-orange-400 to-yellow-400'} text-white rounded-2xl flex items-center justify-center z-10 shadow-lg ${timer.isActive ? 'shadow-orange-500/30 animate-pulse' : 'shadow-orange-400/30'} transition-all active:scale-95`}
+          >
+            <Timer size={28} />
+          </button>
           <button
             onClick={handleAdd}
             className="w-16 h-16 btn-fab text-white rounded-2xl flex items-center justify-center z-10 animate-bounce-in"
@@ -495,6 +519,16 @@ export default function ShiftsList({ shifts, settings, onAdd, onEdit, onDelete, 
           </button>
         </div>
       </div>
+      
+      {showTimer && (
+        <TimerModal
+          timer={timer}
+          language={settings.language}
+          onStart={onStartTimer}
+          onStop={onStopTimer}
+          onClose={() => setShowTimer(false)}
+        />
+      )}
       
       {menuOpenId && (
         <div className="fixed inset-0 z-10" onClick={() => setMenuOpenId(null)} />
