@@ -49,9 +49,10 @@
 - **一週的第一天** - 可設定週日或週一為一週的第一天
 
 #### 提醒與計時器
-- **上班提醒** - 設定上班前 1 小時 / 30 分鐘提醒通知
+- **上班提醒** - 設定上班前 1 小時 / 30 分鐘提醒通知（使用系統鬧鐘，關閉 APP 也會觸發）
 - **午休計時器** - 60 / 30 分鐘快速計時，支援背景運作
 - **提前提醒** - 計時結束前 20 秒提醒準備打卡
+- **系統鬧鐘整合** - 鬧鐘顯示在系統時鐘 App 中，支援全螢幕提醒
 
 ---
 
@@ -123,6 +124,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 1. 新增或編輯班次
 2. 在「提醒」區塊勾選 1 小時前 / 30 分鐘前
 3. 儲存後，系統會在指定時間發送通知
+4. 提醒會顯示在系統時鐘 App 的鬧鐘列表中，即使關閉 APP 也會觸發
 
 #### 使用午休計時器
 1. 點擊底部橘色計時器按鈕
@@ -172,9 +174,10 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 - **First Day of Week** - Customize whether week starts on Sunday or Monday
 
 #### Reminders & Timer
-- **Work Reminders** - Set notifications 1 hour / 30 min before shift starts
+- **Work Reminders** - Set notifications 1 hour / 30 min before shift starts (uses system alarms, works even when app is closed)
 - **Break Timer** - 60 / 30 min quick timer with background support
 - **Early Warning** - 20 seconds advance notice before timer ends
+- **System Alarm Integration** - Alarms appear in system clock app with fullscreen reminder UI
 
 ---
 
@@ -246,6 +249,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 1. Add or edit a shift
 2. In the "Reminders" section, check 1 hour before / 30 min before
 3. After saving, notifications will be sent at the specified times
+4. Reminders appear in system clock app alarm list, triggers even when app is closed
 
 #### Use Break Timer
 1. Tap the orange timer button at the bottom
