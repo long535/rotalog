@@ -188,20 +188,16 @@ export async function scheduleBreakTimer(
   lang: 'zh' | 'en' = 'zh'
 ): Promise<{ warningId: number; endId: number }> {
   const now = new Date();
-  const warningTime = addSeconds(now, durationMinutes * 60 - 20);
-  const endTime = addSeconds(now, durationMinutes * 60);
+  const endTime = addSeconds(now, durationMinutes * 60 - 20);
 
-  const warningId = generateAlarmId();
   const endId = generateAlarmId();
 
-  const warningTitle = lang === 'zh' ? '準備打卡' : 'Get Ready';
-  const warningBody = lang === 'zh' ? '20 秒後午休結束' : 'Break ends in 20 seconds';
   const endTitle = lang === 'zh' ? '午休結束' : 'Break Ended';
   const endBody = lang === 'zh' ? '該上班了！' : 'Time to work!';
 
   if (!Capacitor.isNativePlatform()) {
     console.log('Not native platform, skipping break timer alarm');
-    return { warningId, endId };
+    return { warningId: -1, endId };
   }
 
   const hasPermission = await requestAlarmPermission();
@@ -212,25 +208,18 @@ export async function scheduleBreakTimer(
 
   try {
     await SystemAlarm.schedule({
-      id: warningId,
-      triggerAt: warningTime.toISOString(),
-      title: warningTitle,
-      body: warningBody,
-    });
-    
-    await SystemAlarm.schedule({
       id: endId,
       triggerAt: endTime.toISOString(),
       title: endTitle,
       body: endBody,
     });
     
-    console.log(`Scheduled break timer: ${durationMinutes} minutes`);
+    console.log(`Scheduled break timer: ${durationMinutes - 0.333} minutes (ends at ${endTime.toISOString()})`);
   } catch (error) {
     console.error('Failed to schedule break timer:', error);
   }
 
-  return { warningId, endId };
+  return { warningId: -1, endId };
 }
 
 export async function cancelNotifications(notificationIds: number[]): Promise<void> {

@@ -45,17 +45,18 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
         }
       };
     } else {
-      setRemainingSeconds(selectedDuration * 60);
+      setRemainingSeconds(selectedDuration * 60 - 20);
     }
   }, [timer.isActive, timer.startedAt, timer.durationMinutes, selectedDuration]);
 
   const handleStart = async () => {
     await haptic.success();
     
-    const { warningId, endId } = await scheduleBreakTimer(selectedDuration, language);
-    const validIds = [warningId, endId].filter(id => id > 0);
+    const actualDuration = selectedDuration * 60 - 20;
+    const { endId } = await scheduleBreakTimer(selectedDuration, language);
+    const validIds = [endId].filter(id => id > 0);
     
-    onStart(selectedDuration, validIds);
+    onStart(Math.floor(actualDuration / 60), validIds);
   };
 
   const handleStop = async () => {
@@ -72,7 +73,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
     await haptic.selection();
     setSelectedDuration(minutes);
     if (!timer.isActive) {
-      setRemainingSeconds(minutes * 60);
+      setRemainingSeconds(minutes * 60 - 20);
     }
   };
 
@@ -88,7 +89,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
   };
 
   const progress = timer.isActive && timer.startedAt
-    ? ((timer.durationMinutes * 60 - remainingSeconds) / (timer.durationMinutes * 60)) * 100
+    ? ((timer.durationMinutes * 60 - 20 - remainingSeconds) / (timer.durationMinutes * 60 - 20)) * 100
     : 0;
 
   const circumference = 2 * Math.PI * 120;
@@ -154,7 +155,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
               </div>
               {timer.isActive && (
                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  {timer.durationMinutes} {t.min}
+                  {selectedDuration === 60 ? '59:40' : '29:40'} {t.min}
                 </div>
               )}
             </div>
@@ -170,7 +171,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                 }`}
               >
-                60 {t.min}
+                59:40
               </button>
               <button
                 onClick={() => handleSelectDuration(30)}
@@ -180,7 +181,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                 }`}
               >
-                30 {t.min}
+                29:40
               </button>
             </div>
           )}
