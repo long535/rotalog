@@ -3,7 +3,7 @@ import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, 
 import { format, parseISO, addDays, startOfWeek } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { Shift, AppSettings } from '../types';
-import { calculatePaidHours, calculateAnnualLeaveHours, scheduleShiftReminders, cancelNotifications } from '../utils';
+import { calculatePaidHours, calculateAnnualLeaveHours, scheduleShiftAlarms, cancelAlarms } from '../utils';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
 
@@ -88,13 +88,19 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
       };
     });
 
-    if (isEditing && shift.reminders && shift.reminders.length > 0) {
-      await cancelNotifications(shift.reminders.map((_, i) => parseInt(shift.id.slice(0, 8), 16) + i));
+    if (isEditing && shift.alarmIds && shift.alarmIds.length > 0) {
+      await cancelAlarms(shift.alarmIds);
     }
 
     if (reminders.length > 0) {
-      for (const s of shiftsToSave) {
-        await scheduleShiftReminders(s.id, s.startTime, reminders, settings.language);
+      for (let i = 0; i < shiftsToSave.length; i++) {
+        const alarmIds = await scheduleShiftAlarms(
+          shiftsToSave[i].id,
+          shiftsToSave[i].startTime,
+          reminders,
+          settings.language
+        );
+        shiftsToSave[i].alarmIds = alarmIds;
       }
     }
 

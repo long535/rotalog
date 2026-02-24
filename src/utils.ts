@@ -1,6 +1,8 @@
-import { differenceInMinutes, parseISO, addSeconds } from 'date-fns';
+import { differenceInMinutes, parseISO, addSeconds, subMinutes } from 'date-fns';
 import { Shift } from './types';
-import { LocalNotifications, ScheduleOptions, LocalNotificationSchema } from '@capacitor/local-notifications';
+import { LocalNotifications, LocalNotificationSchema } from '@capacitor/local-notifications';
+import { Capacitor } from '@capacitor/core';
+import SystemAlarm from './plugins/SystemAlarm';
 
 export function calculatePaidHours(startTime: string, endTime: string, breakMinutes: number): number {
   const start = parseISO(startTime);
@@ -66,6 +68,105 @@ export function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat('zh-HK', { style: 'currency', currency }).format(amount);
 }
 
+let alarmIdCounter = Date.now();
+
+export function generateAlarmId(): number {
+  return ++alarmIdCounter;
+}
+
+export async function requestAlarmPermission(): Promise<boolean> {
+  try {
+    if (!Capacitor.isNativePlatform()) {
+      return true;
+    }
+    const result = await SystemAlarm.hasPermission();
+    if (!result.granted) {
+      await SystemAlarm.requestPermission();
+      const recheck = await SystemAlarm.hasPermission();
+      return recheck.granted;
+    }
+    return true;
+  } catch (error) {
+    console.error('Failed to request alarm permission:', error);
+    return false;
+  }
+}
+
+export async function scheduleShiftAlarms(
+  shiftId: string,
+  startTime: string,
+  reminders: number[],
+  lang: 'zh' | 'en' = 'zh'
+): Promise<number[]> {
+  if (reminders.length === 0) return [];
+
+  if (!Capacitor.isNativePlatform()) {
+    console.log('Not native platform, skipping alarm scheduling');
+    return [];
+  }
+
+  const hasPermission = await requestAlarmPermission();
+  if (!hasPermission) {
+    console.warn('Alarm permission not granted');
+    return [];
+  }
+
+  const shiftStart = parseISO(startTime);
+  const alarmIds: number[] = [];
+
+  for (const minutesBefore of reminders) {
+    const triggerTime = subMinutes(shiftStart, minutesBefore);
+    
+    if (triggerTime <= new Date()) {
+      console.log(`Skipping alarm ${minutesBefore} min before - time has passed`);
+      continue;
+    }
+
+    const id = generateAlarmId();
+    
+    const title = lang === 'zh' ? '上班提醒' : 'Work Reminder';
+    const body = lang === 'zh' 
+      ? `還有 ${minutesBefore} 分鐘要上班！`
+      : `Shift starts in ${minutesBefore} minutes!`;
+
+    try {
+      const result = await SystemAlarm.schedule({
+        id,
+        triggerAt: triggerTime.toISOString(),
+        title,
+        body,
+        shiftId,
+      });
+      
+      if (result.success) {
+        alarmIds.push(id);
+        console.log(`Scheduled alarm ${id} for ${triggerTime.toISOString()}`);
+      } else {
+        console.error('Failed to schedule alarm:', result.error);
+      }
+    } catch (error) {
+      console.error('Failed to schedule alarm:', error);
+    }
+  }
+
+  return alarmIds;
+}
+
+export async function cancelAlarms(alarmIds: number[]): Promise<void> {
+  if (alarmIds.length === 0) return;
+
+  if (!Capacitor.isNativePlatform()) {
+    return;
+  }
+  
+  try {
+    await SystemAlarm.cancelAll({ ids: alarmIds });
+    console.log(`Cancelled ${alarmIds.length} alarms`);
+  } catch (error) {
+    console.error('Failed to cancel alarms:', error);
+  }
+}
+
 let notificationIdCounter = Date.now();
 
 export function generateNotificationId(): number {
@@ -79,76 +180,6 @@ export async function requestNotificationPermission(): Promise<boolean> {
   } catch (error) {
     console.error('Failed to request notification permission:', error);
     return false;
-  }
-}
-
-export async function scheduleShiftReminders(
-  shiftId: string,
-  startTime: string,
-  reminders: number[],
-  lang: 'zh' | 'en' = 'zh'
-): Promise<number[]> {
-  if (reminders.length === 0) return [];
-
-  const hasPermission = await requestNotificationPermission();
-  if (!hasPermission) {
-    console.warn('Notification permission not granted');
-    return [];
-  }
-
-  const shiftStart = parseISO(startTime);
-  const notifications: LocalNotificationSchema[] = [];
-  const notificationIds: number[] = [];
-
-  for (const minutesBefore of reminders) {
-    const triggerTime = new Date(shiftStart.getTime() - minutesBefore * 60 * 1000);
-    
-    if (triggerTime <= new Date()) continue;
-
-    const id = generateNotificationId();
-    notificationIds.push(id);
-
-    const title = lang === 'zh' ? '上班提醒' : 'Work Reminder';
-    const timeStr = lang === 'zh' 
-      ? `還有 ${minutesBefore} 分鐘要上班！`
-      : `Shift starts in ${minutesBefore} minutes!`;
-
-    notifications.push({
-      id,
-      title,
-      body: timeStr,
-      schedule: { at: triggerTime },
-      sound: undefined,
-      smallIcon: 'ic_stat_icon_config_sample',
-      largeIcon: 'ic_launcher',
-      channelId: 'shift-reminders',
-    });
-  }
-
-  if (notifications.length > 0) {
-    try {
-      await LocalNotifications.schedule({
-        notifications,
-      });
-      console.log(`Scheduled ${notifications.length} reminders for shift ${shiftId}`);
-    } catch (error) {
-      console.error('Failed to schedule reminders:', error);
-    }
-  }
-
-  return notificationIds;
-}
-
-export async function cancelNotifications(notificationIds: number[]): Promise<void> {
-  if (notificationIds.length === 0) return;
-  
-  try {
-    await LocalNotifications.cancel({
-      notifications: notificationIds.map(id => ({ id })),
-    });
-    console.log(`Cancelled ${notificationIds.length} notifications`);
-  } catch (error) {
-    console.error('Failed to cancel notifications:', error);
   }
 }
 
@@ -206,6 +237,19 @@ export async function scheduleBreakTimer(
   }
 
   return { warningId, endId };
+}
+
+export async function cancelNotifications(notificationIds: number[]): Promise<void> {
+  if (notificationIds.length === 0) return;
+  
+  try {
+    await LocalNotifications.cancel({
+      notifications: notificationIds.map(id => ({ id })),
+    });
+    console.log(`Cancelled ${notificationIds.length} notifications`);
+  } catch (error) {
+    console.error('Failed to cancel notifications:', error);
+  }
 }
 
 export async function createNotificationChannels(): Promise<void> {

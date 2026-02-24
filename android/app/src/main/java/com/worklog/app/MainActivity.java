@@ -12,6 +12,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 import com.getcapacitor.BridgeActivity;
+import com.worklog.app.plugins.SystemAlarmPlugin;
 
 public class MainActivity extends BridgeActivity {
     private static final int REQUEST_CODE_FILE_CHOOSER = 1001;
@@ -20,6 +21,7 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(SystemAlarmPlugin.class);
         super.onCreate(savedInstanceState);
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

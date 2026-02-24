@@ -1,14 +1,15 @@
 export interface Shift {
   id: string;
-  startTime: string; // ISO string
-  endTime: string; // ISO string
+  startTime: string;
+  endTime: string;
   breakMinutes: number;
   hourlyWage: number;
   notes: string;
   isAnnualLeave?: boolean;
   annualLeaveHours?: number;
-  photoUrl?: string; // base64 data URL
-  reminders?: number[]; // minutes before shift start, e.g. [60, 30]
+  photoUrl?: string;
+  reminders?: number[];
+  alarmIds?: number[];
 }
 
 export interface AppSettings {
