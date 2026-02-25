@@ -21,6 +21,7 @@ export interface ScheduleResult {
   alarmId?: number;
   triggerTime?: number;
   error?: string;
+  message?: string;
 }
 
 export interface CancelOptions {
@@ -42,10 +43,13 @@ export interface CancelAllResult {
 
 export interface PermissionResult {
   granted: boolean;
+  reason?: string;
 }
 
 export interface PermissionRequestResult {
   requested: boolean;
+  granted: boolean;
+  message?: string;
 }
 
 const SystemAlarm = registerPlugin<SystemAlarmPlugin>('SystemAlarm');

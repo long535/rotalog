@@ -3,7 +3,8 @@ import { X, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 import { TimerState } from '../types';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
-import { scheduleBreakTimer, cancelAlarms } from '../utils';
+import { scheduleBreakTimer, cancelAlarms, requestAlarmPermission } from '../utils';
+import { Capacitor } from '@capacitor/core';
 
 interface Props {
   timer: TimerState;
@@ -51,6 +52,17 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
 
   const handleStart = async () => {
     await haptic.success();
+    
+    // Check permission on native platform
+    if (Capacitor.isNativePlatform()) {
+      const hasPermission = await requestAlarmPermission();
+      if (!hasPermission) {
+        alert(language === 'zh' 
+          ? '需要鬧鐘權限才能使用計時器，請在設定中啟用「鬧鐘」權限。'
+          : 'Alarm permission required. Please enable "Alarms" permission in settings.');
+        return;
+      }
+    }
     
     const actualDuration = selectedDuration * 60 - 20;
     const { endId } = await scheduleBreakTimer(selectedDuration, language);

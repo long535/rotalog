@@ -79,12 +79,21 @@ export async function requestAlarmPermission(): Promise<boolean> {
     if (!Capacitor.isNativePlatform()) {
       return true;
     }
+    
     const result = await SystemAlarm.hasPermission();
+    console.log('Alarm permission check:', result);
+    
     if (!result.granted) {
-      await SystemAlarm.requestPermission();
+      console.log('Alarm permission not granted, requesting...');
+      const requestResult = await SystemAlarm.requestPermission();
+      console.log('Alarm permission request result:', requestResult);
+      
+      // Check again after requesting
       const recheck = await SystemAlarm.hasPermission();
+      console.log('Alarm permission recheck:', recheck);
       return recheck.granted;
     }
+    
     return true;
   } catch (error) {
     console.error('Failed to request alarm permission:', error);
@@ -107,7 +116,8 @@ export async function scheduleShiftAlarms(
 
   const hasPermission = await requestAlarmPermission();
   if (!hasPermission) {
-    console.warn('Alarm permission not granted');
+    console.warn('Alarm permission not granted - cannot schedule alarms');
+    alert(lang === 'zh' ? '需要鬧鐘權限才能設定提醒，請在設定中啟用。' : 'Alarm permission required. Please enable in settings.');
     return [];
   }
 
@@ -142,7 +152,8 @@ export async function scheduleShiftAlarms(
         alarmIds.push(id);
         console.log(`Scheduled alarm ${id} for ${triggerTime.toISOString()}`);
       } else {
-        console.error('Failed to schedule alarm:', result.error);
+        console.error('Failed to schedule alarm:', result.error, result.message);
+        alert(lang === 'zh' ? `設定提醒失敗: ${result.message}` : `Failed to set alarm: ${result.message}`);
       }
     } catch (error) {
       console.error('Failed to schedule alarm:', error);
@@ -202,19 +213,25 @@ export async function scheduleBreakTimer(
 
   const hasPermission = await requestAlarmPermission();
   if (!hasPermission) {
-    console.warn('Alarm permission not granted');
+    console.warn('Alarm permission not granted - cannot schedule break timer');
+    alert(lang === 'zh' ? '需要鬧鐘權限才能設定計時器，請在設定中啟用。' : 'Alarm permission required. Please enable in settings.');
     return { warningId: -1, endId: -1 };
   }
 
   try {
-    await SystemAlarm.schedule({
+    const result = await SystemAlarm.schedule({
       id: endId,
       triggerAt: endTime.toISOString(),
       title: endTitle,
       body: endBody,
     });
     
-    console.log(`Scheduled break timer: ${durationMinutes - 0.333} minutes (ends at ${endTime.toISOString()})`);
+    console.log('Break timer schedule result:', result);
+    
+    if (!result.success) {
+      console.error('Failed to schedule break timer:', result.error, result.message);
+      alert(lang === 'zh' ? `設定計時器失敗: ${result.message}` : `Failed to set timer: ${result.message}`);
+    }
   } catch (error) {
     console.error('Failed to schedule break timer:', error);
   }

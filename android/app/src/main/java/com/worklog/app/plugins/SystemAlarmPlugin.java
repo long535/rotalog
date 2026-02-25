@@ -45,11 +45,25 @@ public class SystemAlarmPlugin extends Plugin {
         }
 
         try {
+            // Check permission first
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (!alarmManager.canScheduleExactAlarms()) {
+                    JSObject result = new JSObject();
+                    result.put("success", false);
+                    result.put("error", "PERMISSION_NOT_GRANTED");
+                    result.put("message", "Exact alarm permission not granted. Please enable it in settings.");
+                    call.resolve(result);
+                    Log.w(TAG, "Cannot schedule alarm: exact alarm permission not granted");
+                    return;
+                }
+            }
+            
             long triggerTime = parseIsoTime(triggerAt);
             
             if (triggerTime <= System.currentTimeMillis()) {
                 JSObject result = new JSObject();
                 result.put("success", false);
+                result.put("error", "TIME_IN_PAST");
                 result.put("error", "Trigger time is in the past");
                 call.resolve(result);
                 return;
@@ -77,7 +91,7 @@ public class SystemAlarmPlugin extends Plugin {
             alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
 
             String formattedTime = formatTime(triggerTime);
-            Log.d(TAG, "Scheduled alarm " + id + " at " + formattedTime);
+            Log.d(TAG, "Scheduled alarm " + id + " at " + formattedTime + " (triggerTime=" + triggerTime + ", now=" + System.currentTimeMillis() + ")");
 
             JSObject result = new JSObject();
             result.put("success", true);
@@ -171,33 +185,67 @@ public class SystemAlarmPlugin extends Plugin {
     @PluginMethod
     public void hasPermission(PluginCall call) {
         boolean hasPermission = false;
+        String reason = "";
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             hasPermission = alarmManager.canScheduleExactAlarms();
+            reason = hasPermission ? "granted" : "not_granted_android12+";
+            Log.d(TAG, "Permission check (Android 12+): " + hasPermission);
         } else {
             hasPermission = true;
+            reason = "granted_pre_android12";
+            Log.d(TAG, "Permission check (pre-Android 12): granted");
         }
 
         JSObject result = new JSObject();
         result.put("granted", hasPermission);
+        result.put("reason", reason);
         call.resolve(result);
     }
 
     @PluginMethod
     public void requestPermission(PluginCall call) {
+        boolean hasPermission = false;
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!alarmManager.canScheduleExactAlarms()) {
+            hasPermission = alarmManager.canScheduleExactAlarms();
+            Log.d(TAG, "Current permission status: " + hasPermission);
+            
+            if (!hasPermission) {
                 try {
                     Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     getContext().startActivity(intent);
+                    Log.d(TAG, "Opened permission settings");
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to open settings: " + e.getMessage());
                 }
             }
+        } else {
+            hasPermission = true;
         }
+
+        // Re-check after a short delay (user returns from settings)
+        final boolean finalHasPermission = hasPermission;
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    boolean recheckPermission = true;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        recheckPermission = alarmManager.canScheduleExactAlarms();
+                    }
+                    Log.d(TAG, "Permission after settings: " + recheckPermission);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error rechecking permission: " + e.getMessage());
+                }
+            }
+        }, 1000);
 
         JSObject result = new JSObject();
         result.put("requested", true);
+        result.put("granted", hasPermission);
+        result.put("message", hasPermission ? "Permission already granted" : "Please enable exact alarm permission in settings");
         call.resolve(result);
     }
 
