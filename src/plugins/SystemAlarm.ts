@@ -22,6 +22,7 @@ export interface ScheduleResult {
   triggerTime?: number;
   error?: string;
   message?: string;
+  method?: string;
 }
 
 export interface CancelOptions {

@@ -45,17 +45,13 @@ public class SystemAlarmPlugin extends Plugin {
         }
 
         try {
-            // Check permission first
+            // Check permission first - log the result
+            boolean hasExactAlarmPermission = true;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (!alarmManager.canScheduleExactAlarms()) {
-                    JSObject result = new JSObject();
-                    result.put("success", false);
-                    result.put("error", "PERMISSION_NOT_GRANTED");
-                    result.put("message", "Exact alarm permission not granted. Please enable it in settings.");
-                    call.resolve(result);
-                    Log.w(TAG, "Cannot schedule alarm: exact alarm permission not granted");
-                    return;
-                }
+                hasExactAlarmPermission = alarmManager.canScheduleExactAlarms();
+                Log.d(TAG, "Android 12+ exact alarm permission: " + hasExactAlarmPermission);
+            } else {
+                Log.d(TAG, "Pre-Android 12 - using legacy exact alarm");
             }
             
             long triggerTime = parseIsoTime(triggerAt);
@@ -64,7 +60,7 @@ public class SystemAlarmPlugin extends Plugin {
                 JSObject result = new JSObject();
                 result.put("success", false);
                 result.put("error", "TIME_IN_PAST");
-                result.put("error", "Trigger time is in the past");
+                result.put("message", "Trigger time is in the past");
                 call.resolve(result);
                 return;
             }
@@ -83,12 +79,32 @@ public class SystemAlarmPlugin extends Plugin {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
 
-            AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(
-                triggerTime,
-                pendingIntent
-            );
-
-            alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
+            // Try setAlarmClock first (requires permission on Android 12+)
+            if (hasExactAlarmPermission) {
+                AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(
+                    triggerTime,
+                    pendingIntent
+                );
+                alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
+                Log.d(TAG, "Used setAlarmClock for alarm " + id);
+            } else {
+                // Fallback: try setExactAndAllowWhileIdle (less reliable but doesn't require exact alarm permission)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerTime,
+                        pendingIntent
+                    );
+                    Log.d(TAG, "Used setExactAndAllowWhileIdle fallback for alarm " + id);
+                } else {
+                    alarmManager.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerTime,
+                        pendingIntent
+                    );
+                    Log.d(TAG, "Used setExact fallback for alarm " + id);
+                }
+            }
 
             String formattedTime = formatTime(triggerTime);
             Log.d(TAG, "Scheduled alarm " + id + " at " + formattedTime + " (triggerTime=" + triggerTime + ", now=" + System.currentTimeMillis() + ")");
@@ -97,10 +113,12 @@ public class SystemAlarmPlugin extends Plugin {
             result.put("success", true);
             result.put("alarmId", id);
             result.put("triggerTime", triggerTime);
+            result.put("method", hasExactAlarmPermission ? "setAlarmClock" : "setExactAndAllowWhileIdle");
             call.resolve(result);
 
         } catch (Exception e) {
             Log.e(TAG, "Failed to schedule alarm: " + e.getMessage());
+            e.printStackTrace();
             call.reject("Failed to schedule alarm: " + e.getMessage());
         }
     }

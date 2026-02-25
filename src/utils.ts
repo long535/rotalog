@@ -114,11 +114,14 @@ export async function scheduleShiftAlarms(
     return [];
   }
 
-  const hasPermission = await requestAlarmPermission();
-  if (!hasPermission) {
-    console.warn('Alarm permission not granted - cannot schedule alarms');
-    alert(lang === 'zh' ? '需要鬧鐘權限才能設定提醒，請在設定中啟用。' : 'Alarm permission required. Please enable in settings.');
-    return [];
+  // Check and request permission
+  if (Capacitor.isNativePlatform()) {
+    const permResult = await SystemAlarm.hasPermission();
+    console.log('Alarm permission status:', permResult);
+    
+    if (!permResult.granted) {
+      await SystemAlarm.requestPermission();
+    }
   }
 
   const shiftStart = parseISO(startTime);
@@ -150,10 +153,9 @@ export async function scheduleShiftAlarms(
       
       if (result.success) {
         alarmIds.push(id);
-        console.log(`Scheduled alarm ${id} for ${triggerTime.toISOString()}`);
+        console.log(`Scheduled alarm ${id} for ${triggerTime.toISOString()}, method: ${result.method}`);
       } else {
         console.error('Failed to schedule alarm:', result.error, result.message);
-        alert(lang === 'zh' ? `設定提醒失敗: ${result.message}` : `Failed to set alarm: ${result.message}`);
       }
     } catch (error) {
       console.error('Failed to schedule alarm:', error);
@@ -211,11 +213,15 @@ export async function scheduleBreakTimer(
     return { warningId: -1, endId };
   }
 
-  const hasPermission = await requestAlarmPermission();
-  if (!hasPermission) {
-    console.warn('Alarm permission not granted - cannot schedule break timer');
-    alert(lang === 'zh' ? '需要鬧鐘權限才能設定計時器，請在設定中啟用。' : 'Alarm permission required. Please enable in settings.');
-    return { warningId: -1, endId: -1 };
+  // Always try to schedule - the plugin will handle permission fallbacks
+  if (Capacitor.isNativePlatform()) {
+    const permResult = await SystemAlarm.hasPermission();
+    console.log('Alarm permission status:', permResult);
+    
+    if (!permResult.granted) {
+      // Try to request permission anyway
+      await SystemAlarm.requestPermission();
+    }
   }
 
   try {
@@ -230,7 +236,6 @@ export async function scheduleBreakTimer(
     
     if (!result.success) {
       console.error('Failed to schedule break timer:', result.error, result.message);
-      alert(lang === 'zh' ? `設定計時器失敗: ${result.message}` : `Failed to set timer: ${result.message}`);
     }
   } catch (error) {
     console.error('Failed to schedule break timer:', error);

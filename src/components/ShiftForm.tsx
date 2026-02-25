@@ -3,10 +3,9 @@ import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, 
 import { format, parseISO, addDays, startOfWeek } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { Shift, AppSettings } from '../types';
-import { calculatePaidHours, calculateAnnualLeaveHours, scheduleShiftAlarms, cancelAlarms, requestAlarmPermission } from '../utils';
+import { calculatePaidHours, calculateAnnualLeaveHours, scheduleShiftAlarms, cancelAlarms } from '../utils';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
-import { Capacitor } from '@capacitor/core';
 
 interface Props {
   shift?: Shift;
@@ -73,17 +72,6 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
     const reminders: number[] = [];
     if (reminder1h) reminders.push(60);
     if (reminder30m) reminders.push(30);
-    
-    // Check permission before scheduling alarms
-    if (reminders.length > 0 && Capacitor.isNativePlatform()) {
-      const hasPermission = await requestAlarmPermission();
-      if (!hasPermission) {
-        alert(settings.language === 'zh' 
-          ? '需要鬧鐘權限才能設定提醒，請在設定中啟用「鬧鐘」權限。'
-          : 'Alarm permission required. Please enable "Alarms" permission in settings.');
-        return;
-      }
-    }
     
     const shiftsToSave: Shift[] = selectedDates.map(dateStr => {
       return {
