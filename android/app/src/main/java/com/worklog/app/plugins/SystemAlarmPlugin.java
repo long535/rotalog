@@ -33,16 +33,26 @@ public class SystemAlarmPlugin extends Plugin {
 
     @PluginMethod
     public void schedule(PluginCall call) {
-        Integer id = call.getInt("id");
+        long idLong = call.getLong("id");
+        // Fallback to getInt if getLong returns 0 (older Capacitor versions)
+        if (idLong == 0) {
+            Integer idInt = call.getInt("id");
+            if (idInt != null) {
+                idLong = idInt;
+            }
+        }
+        
         String triggerAt = call.getString("triggerAt");
         String title = call.getString("title", "提醒");
         String body = call.getString("body", "");
         String shiftId = call.getString("shiftId", "");
 
-        if (id == null || triggerAt == null) {
-            call.reject("id and triggerAt are required");
+        if ((idLong == 0 && triggerAt == null) || (idLong == 0) || triggerAt == null) {
+            call.reject("id and triggerAt are required, idLong=" + idLong);
             return;
         }
+
+        final long id = idLong;
 
         try {
             // Check permission first - log the result
@@ -72,9 +82,10 @@ public class SystemAlarmPlugin extends Plugin {
             intent.putExtra("body", body);
             intent.putExtra("shiftId", shiftId);
 
+            int alarmIdInt = (int) id;
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 getContext(),
-                id,
+                alarmIdInt,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
@@ -125,20 +136,29 @@ public class SystemAlarmPlugin extends Plugin {
 
     @PluginMethod
     public void cancel(PluginCall call) {
-        Integer id = call.getInt("id");
+        long idLong = call.getLong("id");
+        if (idLong == 0) {
+            Integer idInt = call.getInt("id");
+            if (idInt != null) {
+                idLong = idInt;
+            }
+        }
 
-        if (id == null) {
+        if (idLong == 0) {
             call.reject("id is required");
             return;
         }
+
+        final long id = idLong;
 
         try {
             Intent intent = new Intent(getContext(), AlarmReceiver.class);
             intent.setAction("com.worklog.app.ALARM_ACTION");
 
+            int alarmIdInt = (int) id;
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 getContext(),
-                id,
+                alarmIdInt,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
@@ -175,12 +195,12 @@ public class SystemAlarmPlugin extends Plugin {
                 Intent intent = new Intent(getContext(), AlarmReceiver.class);
                 intent.setAction("com.worklog.app.ALARM_ACTION");
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                    getContext(),
-                    id,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                );
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                getContext(),
+                (int) id,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
 
                 alarmManager.cancel(pendingIntent);
                 pendingIntent.cancel();

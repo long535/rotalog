@@ -68,7 +68,7 @@ export function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat('zh-HK', { style: 'currency', currency }).format(amount);
 }
 
-let alarmIdCounter = Date.now();
+let alarmIdCounter = 1;
 
 export function generateAlarmId(): number {
   return ++alarmIdCounter;
