@@ -34,12 +34,11 @@ public class SystemAlarmPlugin extends Plugin {
     @PluginMethod
     public void schedule(PluginCall call) {
         long idLong = call.getLong("id");
-        // Fallback to getInt if getLong returns 0 (older Capacitor versions)
-        if (idLong == 0) {
-            Integer idInt = call.getInt("id");
-            if (idInt != null) {
-                idLong = idInt;
-            }
+        
+        // If ID is 0 or negative, generate a valid ID using timestamp
+        if (idLong <= 0) {
+            idLong = System.currentTimeMillis() % 1000000 + 100;
+            Log.d(TAG, "Generated new alarm ID: " + idLong);
         }
         
         String triggerAt = call.getString("triggerAt");
@@ -47,24 +46,19 @@ public class SystemAlarmPlugin extends Plugin {
         String body = call.getString("body", "");
         String shiftId = call.getString("shiftId", "");
 
-        if ((idLong == 0 && triggerAt == null) || (idLong == 0) || triggerAt == null) {
-            call.reject("id and triggerAt are required, idLong=" + idLong);
+        if (triggerAt == null || triggerAt.isEmpty()) {
+            call.reject("triggerAt is required");
             return;
         }
 
         final long id = idLong;
 
         try {
-            // Check permission first - log the result
-            boolean hasExactAlarmPermission = true;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                hasExactAlarmPermission = alarmManager.canScheduleExactAlarms();
-                Log.d(TAG, "Android 12+ exact alarm permission: " + hasExactAlarmPermission);
-            } else {
-                Log.d(TAG, "Pre-Android 12 - using legacy exact alarm");
-            }
+            Log.d(TAG, "Scheduling alarm: id=" + id + ", triggerAt=" + triggerAt);
             
+            // Parse trigger time
             long triggerTime = parseIsoTime(triggerAt);
+            Log.d(TAG, "Parsed trigger time: " + triggerTime + ", current: " + System.currentTimeMillis());
             
             if (triggerTime <= System.currentTimeMillis()) {
                 JSObject result = new JSObject();
@@ -74,7 +68,15 @@ public class SystemAlarmPlugin extends Plugin {
                 call.resolve(result);
                 return;
             }
-
+            
+            // Check permission
+            boolean hasExactAlarmPermission = true;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                hasExactAlarmPermission = alarmManager.canScheduleExactAlarms();
+                Log.d(TAG, "Android 12+ exact alarm permission: " + hasExactAlarmPermission);
+            }
+            
+            // Create intent
             Intent intent = new Intent(getContext(), AlarmReceiver.class);
             intent.setAction("com.worklog.app.ALARM_ACTION");
             intent.putExtra("alarmId", id);
@@ -137,21 +139,20 @@ public class SystemAlarmPlugin extends Plugin {
     @PluginMethod
     public void cancel(PluginCall call) {
         long idLong = call.getLong("id");
-        if (idLong == 0) {
-            Integer idInt = call.getInt("id");
-            if (idInt != null) {
-                idLong = idInt;
-            }
-        }
-
-        if (idLong == 0) {
-            call.reject("id is required");
+        
+        // If ID is 0 or negative, just return success (nothing to cancel)
+        if (idLong <= 0) {
+            Log.d(TAG, "Cancel called with invalid ID: " + idLong + ", returning success");
+            JSObject result = new JSObject();
+            result.put("success", true);
+            call.resolve(result);
             return;
         }
 
         final long id = idLong;
 
         try {
+            Log.d(TAG, "Canceling alarm: id=" + id);
             Intent intent = new Intent(getContext(), AlarmReceiver.class);
             intent.setAction("com.worklog.app.ALARM_ACTION");
 
@@ -190,24 +191,34 @@ public class SystemAlarmPlugin extends Plugin {
         try {
             int cancelledCount = 0;
             for (int i = 0; i < ids.length(); i++) {
-                int id = ids.getInt(i);
-                
-                Intent intent = new Intent(getContext(), AlarmReceiver.class);
-                intent.setAction("com.worklog.app.ALARM_ACTION");
+                try {
+                    int id = ids.getInt(i);
+                    
+                    if (id <= 0) {
+                        Log.d(TAG, "Skipping invalid alarm ID: " + id);
+                        continue;
+                    }
+                    
+                    Intent intent = new Intent(getContext(), AlarmReceiver.class);
+                    intent.setAction("com.worklog.app.ALARM_ACTION");
 
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                    getContext(),
-                    id,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                );
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                        getContext(),
+                        id,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    );
 
-                alarmManager.cancel(pendingIntent);
-                pendingIntent.cancel();
-                cancelledCount++;
+                    alarmManager.cancel(pendingIntent);
+                    pendingIntent.cancel();
+                    cancelledCount++;
+                    Log.d(TAG, "Cancelled alarm: " + id);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error canceling alarm at index " + i + ": " + e.getMessage());
+                }
             }
 
-            Log.d(TAG, "Cancelled " + cancelledCount + " alarms");
+            Log.d(TAG, "Cancelled " + cancelledCount + " alarms total");
 
             JSObject result = new JSObject();
             result.put("success", true);

@@ -68,15 +68,14 @@ export function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat('zh-HK', { style: 'currency', currency }).format(amount);
 }
 
-let alarmIdCounter = 1;
+let alarmIdCounter = Math.floor(Math.random() * 900000) + 100000;
 
 export function generateAlarmId(): number {
-  const id = alarmIdCounter;
   alarmIdCounter++;
-  if (alarmIdCounter > 1000000) {
-    alarmIdCounter = 1;
+  if (alarmIdCounter > 999999) {
+    alarmIdCounter = 100000;
   }
-  return id;
+  return alarmIdCounter;
 }
 
 export async function requestAlarmPermission(): Promise<boolean> {
