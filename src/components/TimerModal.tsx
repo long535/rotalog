@@ -53,11 +53,10 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
     try {
       await haptic.success();
       
-      const actualDuration = selectedDuration * 60 - 20;
       const { endId } = await scheduleBreakTimer(selectedDuration, language);
       const validIds = [endId].filter(id => id > 0);
       
-      onStart(Math.floor(actualDuration / 60), validIds);
+      onStart(selectedDuration, validIds);
     } catch (error) {
       console.error('Error starting timer:', error);
     }
