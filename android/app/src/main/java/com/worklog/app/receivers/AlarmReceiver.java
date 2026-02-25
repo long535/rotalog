@@ -95,7 +95,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                 );
                 channel.setDescription("鬧鐘提醒通知");
                 channel.enableVibration(true);
-                channel.setVibrationPattern(new long[]{0, 500, 200, 500, 200, 500});
+                channel.setVibrationPattern(new long[]{0, 500, 200, 500, 200, 500, 500, 200, 500, 200, 500});
+                channel.setSound(android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM), null);
                 notificationManager.createNotificationChannel(channel);
             }
 
@@ -107,17 +108,26 @@ public class AlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
 
-            // Build notification
+            // Build ongoing notification that won't stop
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_popup_reminder)
                 .setContentTitle(title)
                 .setContentText(body)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true)
                 .setContentIntent(openAppPendingIntent)
-                .setVibrate(new long[]{0, 500, 200, 500, 200, 500})
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                .setVibrate(new long[]{0, 500, 200, 500, 200, 500, 500, 200, 500, 200, 500})
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setOngoing(true)  // Keep notification showing
+                .setOnlyAlertOnce(false)  // Alert every time
+                .setDefaults(NotificationCompat.DEFAULT_ALL);
+
+            // Play sound
+            android.net.Uri alarmSound = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM);
+            if (alarmSound != null) {
+                builder.setSound(alarmSound);
+            }
 
             // Fullscreen intent for lock screen
             Intent fullscreenIntent = new Intent(context, AlarmActivity.class);
@@ -132,7 +142,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             builder.setFullScreenIntent(fullscreenPendingIntent, true);
 
             notificationManager.notify(NOTIFICATION_ID, builder.build());
-            Log.d(TAG, "Notification shown");
+            Log.d(TAG, "Ongoing notification shown");
         } catch (Exception e) {
             Log.e(TAG, "Failed to show notification: " + e.getMessage());
         }

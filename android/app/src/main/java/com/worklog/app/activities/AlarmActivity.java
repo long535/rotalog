@@ -145,7 +145,8 @@ public class AlarmActivity extends AppCompatActivity {
             return;
         }
 
-        final long[] pattern = {0, 1000, 500};
+        // Continuous vibration pattern
+        final long[] pattern = {0, 1000, 500, 1000, 500, 1000, 500, 1000, 500};
         
         vibrationRunnable = new Runnable() {
             @Override
@@ -175,6 +176,16 @@ public class AlarmActivity extends AppCompatActivity {
     private void dismissAlarm() {
         Log.d(TAG, "Alarm dismissed");
         stopVibration();
+        
+        // Cancel the notification
+        try {
+            android.app.NotificationManager notificationManager = 
+                (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(1001);
+        } catch (Exception e) {
+            Log.e(TAG, "Error cancelling notification: " + e.getMessage());
+        }
+        
         finish();
     }
 
