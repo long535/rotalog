@@ -71,7 +71,12 @@ export function formatCurrency(amount: number, currency: string): string {
 let alarmIdCounter = 1;
 
 export function generateAlarmId(): number {
-  return ++alarmIdCounter;
+  const id = alarmIdCounter;
+  alarmIdCounter++;
+  if (alarmIdCounter > 1000000) {
+    alarmIdCounter = 1;
+  }
+  return id;
 }
 
 export async function requestAlarmPermission(): Promise<boolean> {
