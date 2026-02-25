@@ -98,18 +98,20 @@ public class SystemAlarmPlugin extends Plugin {
                 Log.d(TAG, "Android 12+ exact alarm permission: " + hasExactAlarmPermission);
             }
             
-            // Create intent
-            Intent intent = new Intent(getContext(), AlarmReceiver.class);
-            intent.setAction("com.worklog.app.ALARM_ACTION");
-            intent.putExtra("alarmId", id);
+            // Create intent with unique action
+            Intent intent = new Intent("com.worklog.app.ALARM_ACTION");
+            intent.setClass(getContext(), AlarmReceiver.class);
+            intent.putExtra("alarmId", (int) id);
             intent.putExtra("title", title);
             intent.putExtra("body", body);
             intent.putExtra("shiftId", shiftId);
+            intent.setData(android.net.Uri.parse("alarm:" + id));
 
-            int alarmIdInt = (int) id;
+            // Use fixed request code to ensure proper matching
+            int requestCode = 1001;
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 getContext(),
-                alarmIdInt,
+                requestCode,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
@@ -195,13 +197,17 @@ public class SystemAlarmPlugin extends Plugin {
 
         try {
             Log.d(TAG, "Canceling alarm: id=" + id);
-            Intent intent = new Intent(getContext(), AlarmReceiver.class);
-            intent.setAction("com.worklog.app.ALARM_ACTION");
+            // Use same intent structure as schedule
+            Intent intent = new Intent("com.worklog.app.ALARM_ACTION");
+            intent.setClass(getContext(), AlarmReceiver.class);
+            intent.putExtra("alarmId", (int) id);
+            intent.setData(android.net.Uri.parse("alarm:" + id));
 
-            int alarmIdInt = (int) id;
+            // Use same request code as schedule
+            int requestCode = 1001;
             PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 getContext(),
-                alarmIdInt,
+                requestCode,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
@@ -232,6 +238,9 @@ public class SystemAlarmPlugin extends Plugin {
 
         try {
             int cancelledCount = 0;
+            // Use same request code as schedule for all alarms
+            int requestCode = 1001;
+            
             for (int i = 0; i < ids.length(); i++) {
                 try {
                     int id = ids.getInt(i);
@@ -241,12 +250,14 @@ public class SystemAlarmPlugin extends Plugin {
                         continue;
                     }
                     
-                    Intent intent = new Intent(getContext(), AlarmReceiver.class);
-                    intent.setAction("com.worklog.app.ALARM_ACTION");
+                    Intent intent = new Intent("com.worklog.app.ALARM_ACTION");
+                    intent.setClass(getContext(), AlarmReceiver.class);
+                    intent.putExtra("alarmId", id);
+                    intent.setData(android.net.Uri.parse("alarm:" + id));
 
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(
                         getContext(),
-                        id,
+                        requestCode,
                         intent,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                     );

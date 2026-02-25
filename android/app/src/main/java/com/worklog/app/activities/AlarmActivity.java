@@ -35,35 +35,57 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setupWindowFlags();
+        try {
+            setupWindowFlags();
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up window flags: " + e.getMessage());
+        }
         
-        setContentView(R.layout.activity_alarm);
+        try {
+            setContentView(R.layout.activity_alarm);
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting content view: " + e.getMessage());
+            finish();
+            return;
+        }
 
-        String title = getIntent().getStringExtra("title");
-        String body = getIntent().getStringExtra("body");
-        int alarmId = getIntent().getIntExtra("alarmId", 0);
+        String title = "提醒";
+        String body = "時間到了！";
+        int alarmId = 0;
+        
+        try {
+            title = getIntent().getStringExtra("title");
+            body = getIntent().getStringExtra("body");
+            alarmId = getIntent().getIntExtra("alarmId", 0);
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting intent extras: " + e.getMessage());
+        }
 
         Log.d(TAG, "AlarmActivity created: id=" + alarmId + ", title=" + title);
 
-        TextView titleText = findViewById(R.id.alarmTitle);
-        TextView bodyText = findViewById(R.id.alarmBody);
-        timeText = findViewById(R.id.alarmTime);
-        Button dismissBtn = findViewById(R.id.dismissBtn);
+        try {
+            TextView titleText = findViewById(R.id.alarmTitle);
+            TextView bodyText = findViewById(R.id.alarmBody);
+            timeText = findViewById(R.id.alarmTime);
+            Button dismissBtn = findViewById(R.id.dismissBtn);
 
-        if (title != null) {
-            titleText.setText(title);
+            if (title != null) {
+                titleText.setText(title);
+            }
+            if (body != null) {
+                bodyText.setText(body);
+            }
+
+            updateTime();
+            startClockUpdate();
+
+            vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            startVibration();
+
+            dismissBtn.setOnClickListener(v -> dismissAlarm());
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing views: " + e.getMessage());
         }
-        if (body != null) {
-            bodyText.setText(body);
-        }
-
-        updateTime();
-        startClockUpdate();
-
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        startVibration();
-
-        dismissBtn.setOnClickListener(v -> dismissAlarm());
     }
 
     private void setupWindowFlags() {
