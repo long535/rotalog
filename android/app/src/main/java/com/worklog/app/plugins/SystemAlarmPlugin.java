@@ -33,7 +33,29 @@ public class SystemAlarmPlugin extends Plugin {
 
     @PluginMethod
     public void schedule(PluginCall call) {
-        long idLong = call.getLong("id");
+        // Get ID safely
+        long idLong = 0;
+        try {
+            // Try getLong first
+            Long idLongObj = call.getLong("id");
+            if (idLongObj != null) {
+                idLong = idLongObj;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting id as Long: " + e.getMessage());
+        }
+        
+        // If still 0, try getInt
+        if (idLong == 0) {
+            try {
+                Integer idIntObj = call.getInt("id");
+                if (idIntObj != null) {
+                    idLong = idIntObj;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error getting id as Int: " + e.getMessage());
+            }
+        }
         
         // If ID is 0 or negative, generate a valid ID using timestamp
         if (idLong <= 0) {
@@ -138,7 +160,27 @@ public class SystemAlarmPlugin extends Plugin {
 
     @PluginMethod
     public void cancel(PluginCall call) {
-        long idLong = call.getLong("id");
+        // Get ID safely
+        long idLong = 0;
+        try {
+            Long idLongObj = call.getLong("id");
+            if (idLongObj != null) {
+                idLong = idLongObj;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting id as Long: " + e.getMessage());
+        }
+        
+        if (idLong == 0) {
+            try {
+                Integer idIntObj = call.getInt("id");
+                if (idIntObj != null) {
+                    idLong = idIntObj;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error getting id as Int: " + e.getMessage());
+            }
+        }
         
         // If ID is 0 or negative, just return success (nothing to cancel)
         if (idLong <= 0) {
