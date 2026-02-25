@@ -51,6 +51,7 @@
 #### 提醒與計時器
 - **上班提醒** - 設定上班前 1 小時 / 30 分鐘提醒通知（使用系統鬧鐘，關閉 APP 也會觸發）
 - **午休計時器** - 60 / 30 分鐘快速計時，支援背景運作
+- **暫停/繼續** - 計時中可隨時暫停或繼續
 - **提前提醒** - 計時結束前 20 秒提醒準備打卡
 - **系統鬧鐘整合** - 鬧鐘顯示在系統時鐘 App 中，支援全螢幕提醒
 
@@ -128,11 +129,13 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 #### 使用午休計時器
 1. 點擊底部橘色計時器按鈕
-2. 選擇 60 分鐘或 30 分鐘
+2. 選擇 60 分鐘、30 分鐘或 1 分鐘（測試用）
 3. 點擊開始
 4. 即使切換到其他 App（如 YouTube），計時仍會在背景運作
-5. 結束前 20 秒會收到「準備打卡」通知
-6. 計時結束會收到「午休結束」通知
+5. 計時中可點擊「暫停」按鈕暫停計時
+6. 暫停後可點擊「繼續」恢復計時
+7. 結束前 20 秒會收到「準備打卡」通知
+8. 計時結束會收到「午休結束」通知
 
 ---
 
@@ -176,6 +179,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 #### Reminders & Timer
 - **Work Reminders** - Set notifications 1 hour / 30 min before shift starts (uses system alarms, works even when app is closed)
 - **Break Timer** - 60 / 30 min quick timer with background support
+- **Pause/Resume** - Pause and resume timer anytime
 - **Early Warning** - 20 seconds advance notice before timer ends
 - **System Alarm Integration** - Alarms appear in system clock app with fullscreen reminder UI
 
@@ -253,11 +257,13 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 #### Use Break Timer
 1. Tap the orange timer button at the bottom
-2. Select 60 minutes or 30 minutes
+2. Select 60 minutes, 30 minutes, or 1 minute (test mode)
 3. Tap Start
 4. Timer runs in background even when switching to other apps (e.g., YouTube)
-5. 20 seconds before end, you'll receive a "Get Ready" notification
-6. When timer ends, you'll receive a "Break Ended" notification
+5. Tap "Pause" to pause the timer anytime
+6. Tap "Resume" to continue from where you left off
+7. 20 seconds before end, you'll receive a "Get Ready" notification
+8. When timer ends, you'll receive a "Break Ended" notification
 
 ---
 

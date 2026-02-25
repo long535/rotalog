@@ -27,4 +27,6 @@ export interface TimerState {
   startedAt: string | null; // ISO string
   durationMinutes: number;
   notificationIds: number[];
+  isPaused: boolean;
+  pausedRemainingSeconds: number | null;
 }

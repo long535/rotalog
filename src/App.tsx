@@ -14,7 +14,7 @@ import { useTranslation } from './i18n';
 type View = 'LIST' | 'FORM';
 
 export default function App() {
-  const { shifts, settings, setSettings, timer, startTimer, stopTimer, addShift, addShifts, updateShift, deleteShift, duplicateShift } = useAppStore();
+  const { shifts, settings, setSettings, timer, startTimer, stopTimer, pauseTimer, resumeTimer, addShift, addShifts, updateShift, deleteShift, duplicateShift } = useAppStore();
   const [view, setView] = useState<View>('LIST');
   const [editingShift, setEditingShift] = useState<Shift | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
@@ -242,6 +242,8 @@ export default function App() {
           onImport={handleImportCSV}
           onStartTimer={startTimer}
           onStopTimer={stopTimer}
+          onPauseTimer={pauseTimer}
+          onResumeTimer={resumeTimer}
         />
       ) : (
         <ShiftForm

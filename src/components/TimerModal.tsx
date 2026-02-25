@@ -10,16 +10,23 @@ interface Props {
   language?: 'zh' | 'en';
   onStart: (durationMinutes: number, notificationIds: number[]) => void;
   onStop: () => void;
+  onPause: (remainingSeconds: number) => void;
+  onResume: () => void;
   onClose: () => void;
 }
 
-export default function TimerModal({ timer, language = 'zh', onStart, onStop, onClose }: Props) {
+export default function TimerModal({ timer, language = 'zh', onStart, onStop, onPause, onResume, onClose }: Props) {
   const t = useTranslation(language);
   const [selectedDuration, setSelectedDuration] = useState<number>(60);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    if (timer.isPaused && timer.pausedRemainingSeconds !== null) {
+      setRemainingSeconds(timer.pausedRemainingSeconds);
+      return;
+    }
+
     if (timer.isActive && timer.startedAt) {
       const startedAt = new Date(timer.startedAt).getTime();
       const totalSeconds = timer.durationMinutes * 60;
@@ -47,7 +54,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
     } else {
       setRemainingSeconds(selectedDuration * 60 - 20);
     }
-  }, [timer.isActive, timer.startedAt, timer.durationMinutes, selectedDuration]);
+  }, [timer.isActive, timer.startedAt, timer.durationMinutes, timer.isPaused, timer.pausedRemainingSeconds, selectedDuration]);
 
   const handleStart = async () => {
     try {
@@ -72,6 +79,16 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
     onStop();
   };
 
+  const handlePause = async () => {
+    await haptic.medium();
+    onPause(remainingSeconds);
+  };
+
+  const handleResume = async () => {
+    await haptic.success();
+    onResume();
+  };
+
   const handleSelectDuration = async (minutes: number) => {
     await haptic.selection();
     setSelectedDuration(minutes);
@@ -91,7 +108,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progress = timer.isActive && timer.startedAt
+  const progress = (timer.isActive || timer.isPaused) && (timer.startedAt || timer.pausedRemainingSeconds)
     ? ((timer.durationMinutes * 60 - 20 - remainingSeconds) / (timer.durationMinutes * 60 - 20)) * 100
     : 0;
 
@@ -156,11 +173,13 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
               <div className="text-5xl font-bold text-gray-900 dark:text-white font-mono">
                 {formatTime(remainingSeconds)}
               </div>
-              {timer.isActive && (
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  {selectedDuration === 60 ? '59:40' : selectedDuration === 30 ? '29:40' : '0:40'} {t.min}
-                </div>
-              )}
+          {(timer.isActive || timer.isPaused) && (
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {timer.isPaused ? t.timerPausedDesc : t.timerWarningDesc}
+              </p>
+            </div>
+          )}
             </div>
           </div>
 
@@ -200,7 +219,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
           )}
 
           <div className="flex gap-3 w-full">
-            {!timer.isActive ? (
+            {!timer.isActive && !timer.isPaused ? (
               <button
                 onClick={handleStart}
                 className="flex-1 py-4 gradient-primary text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
@@ -210,6 +229,23 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
               </button>
             ) : (
               <>
+                {timer.isPaused ? (
+                  <button
+                    onClick={handleResume}
+                    className="flex-1 py-4 gradient-primary text-white rounded-2xl font-bold text-lg shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    <Play size={24} fill="white" />
+                    {t.resumeTimer}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handlePause}
+                    className="flex-1 py-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-yellow-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    <Pause size={24} />
+                    {t.pauseTimer}
+                  </button>
+                )}
                 <button
                   onClick={handleStop}
                   className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-red-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2"

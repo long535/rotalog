@@ -23,9 +23,11 @@ interface Props {
   onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onStartTimer: (durationMinutes: number, notificationIds: number[]) => void;
   onStopTimer: () => void;
+  onPauseTimer: (remainingSeconds: number) => void;
+  onResumeTimer: () => void;
 }
 
-export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onExport, onImport, onStartTimer, onStopTimer }: Props) {
+export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onExport, onImport, onStartTimer, onStopTimer, onPauseTimer, onResumeTimer }: Props) {
   const [filter, setFilter] = useState<FilterType>('MONTH');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
@@ -526,6 +528,8 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
           language={settings.language}
           onStart={onStartTimer}
           onStop={onStopTimer}
+          onPause={onPauseTimer}
+          onResume={onResumeTimer}
           onClose={() => setShowTimer(false)}
         />
       )}

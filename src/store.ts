@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Shift, AppSettings, TimerState } from './types';
+import { cancelAlarms, scheduleBreakTimer } from './utils';
+import { useTranslation } from './i18n';
 
 const SHIFTS_KEY = 'shifts_data';
 const SETTINGS_KEY = 'shifts_settings';
@@ -20,6 +22,8 @@ const defaultTimerState: TimerState = {
   startedAt: null,
   durationMinutes: 0,
   notificationIds: [],
+  isPaused: false,
+  pausedRemainingSeconds: null,
 };
 
 export function useAppStore() {
@@ -79,6 +83,43 @@ export function useAppStore() {
     setTimer(defaultTimerState);
   };
 
+  const pauseTimer = async (remainingSeconds: number) => {
+    const currentTimer = timer;
+    if (currentTimer.notificationIds.length > 0) {
+      await cancelAlarms(currentTimer.notificationIds);
+    }
+    setTimer({
+      ...currentTimer,
+      isPaused: true,
+      pausedRemainingSeconds: remainingSeconds,
+      notificationIds: [],
+    });
+  };
+
+  const resumeTimer = async () => {
+    const currentTimer = timer;
+    if (!currentTimer.isPaused || currentTimer.pausedRemainingSeconds === null) return;
+
+    const lang = settings.language;
+    const remainingMinutes = Math.ceil(currentTimer.pausedRemainingSeconds / 60);
+    
+    try {
+      const { endId } = await scheduleBreakTimer(remainingMinutes, lang);
+      const validIds = [endId].filter(id => id > 0);
+      
+      setTimer({
+        isActive: true,
+        startedAt: new Date().toISOString(),
+        durationMinutes: remainingMinutes,
+        notificationIds: validIds,
+        isPaused: false,
+        pausedRemainingSeconds: null,
+      });
+    } catch (error) {
+      console.error('Failed to resume timer:', error);
+    }
+  };
+
   return { 
     shifts, 
     settings, 
@@ -86,6 +127,8 @@ export function useAppStore() {
     timer,
     startTimer,
     stopTimer,
+    pauseTimer,
+    resumeTimer,
     addShift, 
     addShifts, 
     updateShift, 
