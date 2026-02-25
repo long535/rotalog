@@ -195,12 +195,12 @@ public class SystemAlarmPlugin extends Plugin {
                 Intent intent = new Intent(getContext(), AlarmReceiver.class);
                 intent.setAction("com.worklog.app.ALARM_ACTION");
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                getContext(),
-                (int) id,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-            );
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    getContext(),
+                    id,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
 
                 alarmManager.cancel(pendingIntent);
                 pendingIntent.cancel();
