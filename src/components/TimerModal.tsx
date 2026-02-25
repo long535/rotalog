@@ -159,7 +159,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
               </div>
               {timer.isActive && (
                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  {selectedDuration === 60 ? '59:40' : '29:40'} {t.min}
+                  {selectedDuration === 60 ? '59:40' : selectedDuration === 30 ? '29:40' : '0:40'} {t.min}
                 </div>
               )}
             </div>
@@ -169,7 +169,7 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
             <div className="flex gap-3 mb-6">
               <button
                 onClick={() => handleSelectDuration(60)}
-                className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                className={`px-4 py-3 rounded-xl font-semibold transition-all ${
                   selectedDuration === 60
                     ? 'gradient-primary text-white shadow-lg shadow-indigo-500/30'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
@@ -179,13 +179,23 @@ export default function TimerModal({ timer, language = 'zh', onStart, onStop, on
               </button>
               <button
                 onClick={() => handleSelectDuration(30)}
-                className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                className={`px-4 py-3 rounded-xl font-semibold transition-all ${
                   selectedDuration === 30
                     ? 'gradient-primary text-white shadow-lg shadow-indigo-500/30'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                 }`}
               >
                 29:40
+              </button>
+              <button
+                onClick={() => handleSelectDuration(1)}
+                className={`px-4 py-3 rounded-xl font-semibold transition-all ${
+                  selectedDuration === 1
+                    ? 'gradient-primary text-white shadow-lg shadow-indigo-500/30'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                }`}
+              >
+                0:40
               </button>
             </div>
           )}
