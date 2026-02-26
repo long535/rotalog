@@ -37,7 +37,13 @@ export function useAppStore() {
 
   const [settings, setSettings] = useState<AppSettings>(() => {
     const saved = localStorage.getItem(SETTINGS_KEY);
-    return saved ? JSON.parse(saved) : defaultSettings;
+    const parsed = saved ? JSON.parse(saved) : defaultSettings;
+    return {
+      ...defaultSettings,
+      ...parsed,
+      jobs: parsed.jobs || [],
+      defaultJobId: parsed.defaultJobId || null,
+    };
   });
 
   const [timer, setTimer] = useState<TimerState>(() => {
@@ -125,33 +131,33 @@ export function useAppStore() {
 
   const addJob = (job: Omit<Job, 'id'>) => {
     const newJob: Job = { ...job, id: uuidv4() };
-    setSettings({
-      ...settings,
-      jobs: [...settings.jobs, newJob],
-    });
+    setSettings(prev => ({
+      ...prev,
+      jobs: [...prev.jobs, newJob],
+    }));
     return newJob;
   };
 
   const updateJob = (updated: Job) => {
-    setSettings({
-      ...settings,
-      jobs: settings.jobs.map(j => j.id === updated.id ? updated : j),
-    });
+    setSettings(prev => ({
+      ...prev,
+      jobs: prev.jobs.map(j => j.id === updated.id ? updated : j),
+    }));
   };
 
   const deleteJob = (id: string) => {
-    setSettings({
-      ...settings,
-      jobs: settings.jobs.filter(j => j.id !== id),
-      defaultJobId: settings.defaultJobId === id ? null : settings.defaultJobId,
-    });
+    setSettings(prev => ({
+      ...prev,
+      jobs: prev.jobs.filter(j => j.id !== id),
+      defaultJobId: prev.defaultJobId === id ? null : prev.defaultJobId,
+    }));
   };
 
   const setDefaultJob = (id: string | null) => {
-    setSettings({
-      ...settings,
+    setSettings(prev => ({
+      ...prev,
       defaultJobId: id,
-    });
+    }));
   };
 
   return { 

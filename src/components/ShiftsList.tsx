@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, subWeeks, addWeeks, subMonths, addMonths, subYears, addYears, isSameDay, isToday, getDaysInMonth, getDay } from 'date-fns';
-import { Plus, Settings as SettingsIcon, Download, Upload, MoreVertical, Copy, Edit2, Trash2, ChevronLeft, ChevronRight, List, Calendar, Image, Timer, Bell, Briefcase } from 'lucide-react';
+import { Plus, Settings as SettingsIcon, Download, Upload, MoreVertical, Copy, Edit2, Trash2, ChevronLeft, ChevronRight, List, Calendar, Image, Timer, Bell, Briefcase, Layers } from 'lucide-react';
 import { Shift, AppSettings, TimerState, Job } from '../types';
 import { calculateWages, calculateAnnualLeaveHours, formatCurrency, getShiftPaidHours, calculateUKDeductions } from '../utils';
 import { useTranslation } from '../i18n';
@@ -38,9 +38,107 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [showTimer, setShowTimer] = useState(false);
   const [jobFilter, setJobFilter] = useState<string | null>(null);
+  const [groupByJob, setGroupByJob] = useState(false);
   const t = useTranslation(settings.language);
 
   const localJobs = jobs.length > 0 ? jobs : settings.jobs;
+
+  const renderShiftCard = (shift: Shift, index: number) => {
+    const paidHours = getShiftPaidHours(shift);
+    const wages = calculateWages(paidHours, shift.hourlyWage);
+    const isMenuOpen = menuOpenId === shift.id;
+
+    return (
+      <div 
+        key={shift.id} 
+        className="bg-white dark:bg-gray-800/90 rounded-2xl p-4 card-shadow border border-gray-100/50 dark:border-gray-700/50 relative animate-slide-up transition-all duration-300 hover:card-shadow-lg"
+        style={{ animationDelay: `${index * 50}ms` }}
+      >
+        <div className="flex justify-between items-start mb-3">
+          <div className="font-semibold text-lg flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold">
+              {format(parseISO(shift.startTime), 'd')}
+            </div>
+            <div>
+              <div>{format(parseISO(shift.startTime), 'MMM, EEE')}</div>
+              {shift.isAnnualLeave && (
+                <span className="px-2.5 py-0.5 text-xs bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full font-medium">
+                  {t.annualLeave}
+                </span>
+              )}
+              {shift.jobId && (() => {
+                const job = localJobs.find(j => j.id === shift.jobId);
+                return job ? (
+                  <span className="ml-1 px-2 py-0.5 text-xs rounded-full font-medium flex items-center gap-1 inline-flex" style={{ backgroundColor: job.color + '20', color: job.color }}>
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: job.color }} />
+                    {job.name}
+                  </span>
+                ) : null;
+              })()}
+            </div>
+          </div>
+          <div className="relative">
+            <button onClick={() => handleMenuOpen(shift.id)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
+              <MoreVertical size={18} />
+            </button>
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-20 animate-scale-in overflow-hidden">
+                <button onClick={() => handleEdit(shift)} className="w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  <Edit2 size={16} className="text-indigo-500" /> {t.edit}
+                </button>
+                <button onClick={() => handleDuplicate(shift.id)} className="w-full text-left px-4 py-2.5 text-sm hover:bg-green-50 dark:hover:bg-green-900/20 flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                  <Copy size={16} className="text-green-500" /> {t.duplicate}
+                </button>
+                <button onClick={() => handleDelete(shift.id)} className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3">
+                  <Trash2 size={16} /> {t.delete}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-between items-end pt-2 border-t border-gray-100 dark:border-gray-700/50">
+          <div className="text-gray-500 dark:text-gray-400 text-sm flex-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
+              {format(parseISO(shift.startTime), 'HH:mm')} - {format(parseISO(shift.endTime), 'HH:mm')}
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              {shift.reminders && shift.reminders.length > 0 && (
+                <span className="flex items-center gap-1 text-xs text-orange-500">
+                  <Bell size={12} />
+                  {t.hasReminders}
+                </span>
+              )}
+            </div>
+            {shift.notes && <div className="mt-2 text-xs text-gray-400 truncate max-w-[180px]">{shift.notes}</div>}
+            {shift.photoUrl && (
+              <button 
+                onClick={() => setExpandedPhotoId(expandedPhotoId === shift.id ? null : shift.id)}
+                className="mt-2 flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-600"
+              >
+                <Image size={12} />
+                <span>{t.photo}</span>
+              </button>
+            )}
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{paidHours.toFixed(1)}<span className="text-sm font-normal ml-1">h</span></div>
+            <div className="text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{formatCurrency(wages, settings.currency)}</div>
+          </div>
+        </div>
+        {expandedPhotoId === shift.id && shift.photoUrl && (
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/50 animate-fade-in">
+            <img 
+              src={shift.photoUrl} 
+              alt="Shift photo" 
+              className="w-full h-40 object-cover rounded-xl cursor-pointer"
+              onClick={() => setExpandedPhotoId(null)}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const filteredShifts = useMemo(() => {
     if (filter === 'ALL') return [...shifts].sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
@@ -62,6 +160,17 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
       .filter(s => !jobFilter || s.jobId === jobFilter)
       .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
   }, [shifts, filter, currentDate, jobFilter]);
+
+  const groupedShifts = useMemo(() => {
+    if (!groupByJob || localJobs.length === 0) return null;
+    const groups: { [jobId: string]: Shift[] } = {};
+    filteredShifts.forEach(shift => {
+      const jobId = shift.jobId || 'no-job';
+      if (!groups[jobId]) groups[jobId] = [];
+      groups[jobId].push(shift);
+    });
+    return groups as { [jobId: string]: Shift[] };
+  }, [filteredShifts, groupByJob, localJobs]);
 
   const globalEarnedLeave = useMemo(() => {
     return shifts.filter(s => !s.isAnnualLeave).reduce((acc, s) => acc + calculateAnnualLeaveHours(getShiftPaidHours(s)), 0);
@@ -273,6 +382,17 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
                   {job.name}
                 </button>
               ))}
+              <button
+                onClick={() => { haptic.selection(); setGroupByJob(!groupByJob); }}
+                className={`px-4 py-1.5 whitespace-nowrap text-xs font-semibold rounded-full transition-all flex items-center gap-1.5 ${
+                  groupByJob
+                    ? 'bg-indigo-600 text-white' 
+                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/70 dark:hover:bg-gray-700/50'
+                }`}
+              >
+                <Layers size={12} />
+                {t.groupBy || 'Group'}
+              </button>
             </div>
           )}
 
@@ -283,103 +403,44 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
                 <div className="text-gray-400 dark:text-gray-500 text-lg">{t.noRecords}</div>
                 <div className="text-gray-400 dark:text-gray-500 text-sm mt-2">點擊 + 按鈕新增第一筆記錄</div>
               </div>
-            ) : (
-              filteredShifts.map((shift, index) => {
-                const paidHours = getShiftPaidHours(shift);
-                const wages = calculateWages(paidHours, shift.hourlyWage);
-                const isMenuOpen = menuOpenId === shift.id;
-
+            ) : groupByJob && groupedShifts ? (
+              (Object.entries(groupedShifts) as [string, Shift[]][]).map(([jobId, jobShifts]) => {
+                const job = jobId === 'no-job' ? null : localJobs.find(j => j.id === jobId);
+                const jobTotalHours = jobShifts.reduce((acc, s) => acc + getShiftPaidHours(s), 0);
+                const jobTotalWages = jobShifts.reduce((acc, s) => acc + calculateWages(getShiftPaidHours(s), s.hourlyWage), 0);
+                
                 return (
-                  <div 
-                    key={shift.id} 
-                    className="bg-white dark:bg-gray-800/90 rounded-2xl p-4 card-shadow border border-gray-100/50 dark:border-gray-700/50 relative animate-slide-up transition-all duration-300 hover:card-shadow-lg"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="font-semibold text-lg flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold">
-                          {format(parseISO(shift.startTime), 'd')}
-                        </div>
-                        <div>
-                          <div>{format(parseISO(shift.startTime), 'MMM, EEE')}</div>
-                          {shift.isAnnualLeave && (
-                            <span className="px-2.5 py-0.5 text-xs bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full font-medium">
-                              {t.annualLeave}
-                            </span>
-                          )}
-                          {shift.jobId && (() => {
-                            const job = localJobs.find(j => j.id === shift.jobId);
-                            return job ? (
-                              <span className="ml-1 px-2 py-0.5 text-xs rounded-full font-medium flex items-center gap-1 inline-flex" style={{ backgroundColor: job.color + '20', color: job.color }}>
-                                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: job.color }} />
-                                {job.name}
-                              </span>
-                            ) : null;
-                          })()}
-                        </div>
-                      </div>
-                      <div className="relative">
-                        <button onClick={() => handleMenuOpen(shift.id)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all">
-                          <MoreVertical size={18} />
-                        </button>
-                        {isMenuOpen && (
-                          <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 z-20 animate-scale-in overflow-hidden">
-                            <button onClick={() => handleEdit(shift)} className="w-full text-left px-4 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                              <Edit2 size={16} className="text-indigo-500" /> {t.edit}
-                            </button>
-                            <button onClick={() => handleDuplicate(shift.id)} className="w-full text-left px-4 py-2.5 text-sm hover:bg-green-50 dark:hover:bg-green-900/20 flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                              <Copy size={16} className="text-green-500" /> {t.duplicate}
-                            </button>
-                            <button onClick={() => handleDelete(shift.id)} className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3">
-                              <Trash2 size={16} /> {t.delete}
-                            </button>
-                          </div>
+                  <div key={jobId} className="space-y-3">
+                    <div className="flex items-center justify-between px-2 py-2 bg-gray-100 dark:bg-gray-800/50 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        {job ? (
+                          <>
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: job.color }} />
+                            <span className="font-semibold text-sm" style={{ color: job.color }}>{job.name}</span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-3 h-3 rounded-full bg-gray-400" />
+                            <span className="font-semibold text-sm text-gray-500">{t.noJob || 'No Job'}</span>
+                          </>
                         )}
                       </div>
-                    </div>
-                    <div className="flex justify-between items-end pt-2 border-t border-gray-100 dark:border-gray-700/50">
-                      <div className="text-gray-500 dark:text-gray-400 text-sm flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
-                          {format(parseISO(shift.startTime), 'HH:mm')} - {format(parseISO(shift.endTime), 'HH:mm')}
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          {shift.reminders && shift.reminders.length > 0 && (
-                            <span className="flex items-center gap-1 text-xs text-orange-500">
-                              <Bell size={12} />
-                              {t.hasReminders}
-                            </span>
-                          )}
-                        </div>
-                        {shift.notes && <div className="mt-2 text-xs text-gray-400 truncate max-w-[180px]">{shift.notes}</div>}
-                        {shift.photoUrl && (
-                          <button 
-                            onClick={() => setExpandedPhotoId(expandedPhotoId === shift.id ? null : shift.id)}
-                            className="mt-2 flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-600"
-                          >
-                            <Image size={12} />
-                            <span>{t.photo}</span>
-                          </button>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{paidHours.toFixed(1)}<span className="text-sm font-normal ml-1">h</span></div>
-                        <div className="text-sm font-semibold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">{formatCurrency(wages, settings.currency)}</div>
+                      <div className="text-xs text-gray-500">
+                        <span className="font-medium">{jobTotalHours.toFixed(1)}h</span>
+                        <span className="mx-1">·</span>
+                        <span className="font-medium text-green-600">{formatCurrency(jobTotalWages, settings.currency)}</span>
                       </div>
                     </div>
-                    {expandedPhotoId === shift.id && shift.photoUrl && (
-                      <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/50 animate-fade-in">
-                        <img 
-                          src={shift.photoUrl} 
-                          alt="Shift photo" 
-                          className="w-full h-40 object-cover rounded-xl cursor-pointer"
-                          onClick={() => setExpandedPhotoId(null)}
-                        />
-                      </div>
-                    )}
+                    {jobShifts.map((shift, index) => (
+                      renderShiftCard(shift, index)
+                    ))}
                   </div>
                 );
               })
+            ) : (
+              filteredShifts.map((shift, index) => (
+                renderShiftCard(shift, index)
+              ))
             )}
           </div>
         </>

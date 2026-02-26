@@ -33,6 +33,10 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
   const [jobWage, setJobWage] = useState('50');
   const [jobBreak, setJobBreak] = useState('60');
   const [jobColor, setJobColor] = useState(JOB_COLORS[0].value);
+
+  React.useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
   const t = useTranslation(localSettings.language);
 
   const localJobs = jobs.length > 0 ? jobs : localSettings.jobs;
@@ -83,6 +87,10 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
     if (editingJob) {
       if (onUpdateJob) {
         onUpdateJob({ ...jobData, id: editingJob.id });
+        setLocalSettings(prev => ({
+          ...prev,
+          jobs: prev.jobs.map(j => j.id === editingJob.id ? { ...jobData, id: editingJob.id } : j),
+        }));
       } else {
         const updatedJobs = localSettings.jobs.map(j => j.id === editingJob.id ? { ...jobData, id: editingJob.id } : j);
         setLocalSettings({ ...localSettings, jobs: updatedJobs });
@@ -91,6 +99,10 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
       const newJob = { ...jobData, id: uuidv4() };
       if (onAddJob) {
         onAddJob(jobData);
+        setLocalSettings(prev => ({
+          ...prev,
+          jobs: [...prev.jobs, newJob],
+        }));
       } else {
         setLocalSettings({ ...localSettings, jobs: [...localSettings.jobs, newJob] });
       }
@@ -102,6 +114,11 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
     await haptic.medium();
     if (onDeleteJob) {
       onDeleteJob(id);
+      setLocalSettings(prev => ({
+        ...prev,
+        jobs: prev.jobs.filter(j => j.id !== id),
+        defaultJobId: prev.defaultJobId === id ? null : prev.defaultJobId,
+      }));
     } else {
       const filtered = localSettings.jobs.filter(j => j.id !== id);
       setLocalSettings({
@@ -116,6 +133,10 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
     await haptic.selection();
     if (onSetDefaultJob) {
       onSetDefaultJob(id);
+      setLocalSettings(prev => ({
+        ...prev,
+        defaultJobId: id,
+      }));
     } else {
       setLocalSettings({ ...localSettings, defaultJobId: id });
     }

@@ -96,7 +96,8 @@ export const translations = {
     jobWage: '時薪',
     jobBreak: '預設休息時間 (分鐘)',
     noJobsYet: '尚未新增工作地點',
-    jobColor: '顏色'
+    jobColor: '顏色',
+    groupBy: '按工作分組',
   },
   en: {
     appTitle: 'Shifts Tracker',
@@ -195,7 +196,8 @@ export const translations = {
     jobWage: 'Hourly Wage',
     jobBreak: 'Default Break (minutes)',
     noJobsYet: 'No jobs added yet',
-    jobColor: 'Color'
+    jobColor: 'Color',
+    groupBy: 'Group by Job',
   }
 };
 

@@ -21,6 +21,7 @@
 - **薪資計算** - 根據時薪自動計算薪資
 - **年假追蹤** - 追蹤年假獲得與使用，顯示結餘
 - **多工作地點** - 可設定不同的工作地點，各自擁有獨立的時薪和休息時間設定
+- **工作分組顯示** - 可按工作地點分組顯示班次
 
 #### 檢視模式
 - **列表檢視** - 傳統列表方式顯示班次
@@ -150,6 +151,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 - **Wage Calculation** - Automatic wage calculation based on hourly rate
 - **Annual Leave Tracking** - Track earned and used annual leave with balance
 - **Multiple Jobs** - Manage different job locations with their own hourly wage and break time settings
+- **Group by Job** - Group shifts by job location for better organization
 
 #### View Modes
 - **List View** - Traditional list format for shifts
