@@ -81,7 +81,22 @@ export const translations = {
     remindersDesc: '上班前提醒',
     reminder1h: '1 小時前',
     reminder30m: '30 分鐘前',
-    hasReminders: '已設提醒'
+    hasReminders: '已設提醒',
+    jobs: '工作地點',
+    addJob: '新增工作地點',
+    editJob: '編輯工作地點',
+    jobName: '工作地點名稱',
+    jobNamePlaceholder: '輸入工作地點...',
+    noJob: '無',
+    allJobs: '全部工作地點',
+    defaultJob: '預設工作地點',
+    setAsDefault: '設為預設',
+    deleteJob: '刪除工作地點',
+    deleteJobConfirm: '確定要刪除此工作地點嗎？',
+    jobWage: '時薪',
+    jobBreak: '預設休息時間 (分鐘)',
+    noJobsYet: '尚未新增工作地點',
+    jobColor: '顏色'
   },
   en: {
     appTitle: 'Shifts Tracker',
@@ -165,7 +180,22 @@ export const translations = {
     remindersDesc: 'Remind before shift',
     reminder1h: '1 hour before',
     reminder30m: '30 min before',
-    hasReminders: 'Reminders set'
+    hasReminders: 'Reminders set',
+    jobs: 'Jobs',
+    addJob: 'Add Job',
+    editJob: 'Edit Job',
+    jobName: 'Job Name',
+    jobNamePlaceholder: 'Enter job name...',
+    noJob: 'None',
+    allJobs: 'All Jobs',
+    defaultJob: 'Default Job',
+    setAsDefault: 'Set as Default',
+    deleteJob: 'Delete Job',
+    deleteJobConfirm: 'Are you sure you want to delete this job?',
+    jobWage: 'Hourly Wage',
+    jobBreak: 'Default Break (minutes)',
+    noJobsYet: 'No jobs added yet',
+    jobColor: 'Color'
   }
 };
 

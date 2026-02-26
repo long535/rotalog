@@ -14,7 +14,7 @@ import { useTranslation } from './i18n';
 type View = 'LIST' | 'FORM';
 
 export default function App() {
-  const { shifts, settings, setSettings, timer, startTimer, stopTimer, pauseTimer, resumeTimer, addShift, addShifts, updateShift, deleteShift, duplicateShift } = useAppStore();
+  const { shifts, settings, setSettings, timer, startTimer, stopTimer, pauseTimer, resumeTimer, addShift, addShifts, updateShift, deleteShift, duplicateShift, addJob, updateJob, deleteJob, setDefaultJob } = useAppStore();
   const [view, setView] = useState<View>('LIST');
   const [editingShift, setEditingShift] = useState<Shift | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
@@ -244,6 +244,7 @@ export default function App() {
           onStopTimer={stopTimer}
           onPauseTimer={pauseTimer}
           onResumeTimer={resumeTimer}
+          jobs={settings.jobs}
         />
       ) : (
         <ShiftForm
@@ -251,6 +252,7 @@ export default function App() {
           settings={settings}
           onSave={handleSaveShifts}
           onCancel={() => setView('LIST')}
+          jobs={settings.jobs}
         />
       )}
 
@@ -259,6 +261,11 @@ export default function App() {
           settings={settings}
           onSave={setSettings}
           onClose={() => setShowSettings(false)}
+          jobs={settings.jobs}
+          onAddJob={addJob}
+          onUpdateJob={updateJob}
+          onDeleteJob={deleteJob}
+          onSetDefaultJob={setDefaultJob}
         />
       )}
     </div>

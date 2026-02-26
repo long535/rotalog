@@ -10,6 +10,15 @@ export interface Shift {
   photoUrl?: string;
   reminders?: number[];
   alarmIds?: number[];
+  jobId?: string | null;
+}
+
+export interface Job {
+  id: string;
+  name: string;
+  defaultHourlyWage: number;
+  defaultBreakMinutes: number;
+  color: string;
 }
 
 export interface AppSettings {
@@ -20,6 +29,8 @@ export interface AppSettings {
   enableUKTaxes?: boolean;
   language?: 'zh' | 'en';
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  jobs: Job[];
+  defaultJobId: string | null;
 }
 
 export interface TimerState {

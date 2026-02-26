@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, subWeeks, addWeeks, subMonths, addMonths, subYears, addYears, isSameDay, isToday, getDaysInMonth, getDay } from 'date-fns';
-import { Plus, Settings as SettingsIcon, Download, Upload, MoreVertical, Copy, Edit2, Trash2, ChevronLeft, ChevronRight, List, Calendar, Image, Timer, Bell } from 'lucide-react';
-import { Shift, AppSettings, TimerState } from '../types';
+import { Plus, Settings as SettingsIcon, Download, Upload, MoreVertical, Copy, Edit2, Trash2, ChevronLeft, ChevronRight, List, Calendar, Image, Timer, Bell, Briefcase } from 'lucide-react';
+import { Shift, AppSettings, TimerState, Job } from '../types';
 import { calculateWages, calculateAnnualLeaveHours, formatCurrency, getShiftPaidHours, calculateUKDeductions } from '../utils';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
@@ -25,9 +25,10 @@ interface Props {
   onStopTimer: () => void;
   onPauseTimer: (remainingSeconds: number) => void;
   onResumeTimer: () => void;
+  jobs?: Job[];
 }
 
-export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onExport, onImport, onStartTimer, onStopTimer, onPauseTimer, onResumeTimer }: Props) {
+export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onExport, onImport, onStartTimer, onStopTimer, onPauseTimer, onResumeTimer, jobs = [] }: Props) {
   const [filter, setFilter] = useState<FilterType>('MONTH');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
@@ -36,7 +37,10 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
   const [expandedPhotoId, setExpandedPhotoId] = useState<string | null>(null);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [showTimer, setShowTimer] = useState(false);
+  const [jobFilter, setJobFilter] = useState<string | null>(null);
   const t = useTranslation(settings.language);
+
+  const localJobs = jobs.length > 0 ? jobs : settings.jobs;
 
   const filteredShifts = useMemo(() => {
     if (filter === 'ALL') return [...shifts].sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
@@ -55,8 +59,9 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
 
     return shifts
       .filter(s => isWithinInterval(parseISO(s.startTime), { start, end }))
+      .filter(s => !jobFilter || s.jobId === jobFilter)
       .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
-  }, [shifts, filter, currentDate]);
+  }, [shifts, filter, currentDate, jobFilter]);
 
   const globalEarnedLeave = useMemo(() => {
     return shifts.filter(s => !s.isAnnualLeave).reduce((acc, s) => acc + calculateAnnualLeaveHours(getShiftPaidHours(s)), 0);
@@ -242,6 +247,35 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
             ))}
           </div>
 
+          {localJobs.length > 0 && (
+            <div className="flex overflow-x-auto px-4 py-2 border-b border-gray-200/50 dark:border-gray-700/50 hide-scrollbar gap-2">
+              <button
+                onClick={() => setJobFilter(null)}
+                className={`px-4 py-1.5 whitespace-nowrap text-xs font-semibold rounded-full transition-all ${
+                  jobFilter === null 
+                    ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800' 
+                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/70 dark:hover:bg-gray-700/50'
+                }`}
+              >
+                {t.allJobs}
+              </button>
+              {localJobs.map(job => (
+                <button
+                  key={job.id}
+                  onClick={() => setJobFilter(job.id)}
+                  className={`px-4 py-1.5 whitespace-nowrap text-xs font-semibold rounded-full transition-all flex items-center gap-1.5 ${
+                    jobFilter === job.id
+                      ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800' 
+                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/70 dark:hover:bg-gray-700/50'
+                  }`}
+                >
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: job.color }} />
+                  {job.name}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {filteredShifts.length === 0 ? (
               <div className="text-center py-16 animate-fade-in">
@@ -273,6 +307,15 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
                               {t.annualLeave}
                             </span>
                           )}
+                          {shift.jobId && (() => {
+                            const job = localJobs.find(j => j.id === shift.jobId);
+                            return job ? (
+                              <span className="ml-1 px-2 py-0.5 text-xs rounded-full font-medium flex items-center gap-1 inline-flex" style={{ backgroundColor: job.color + '20', color: job.color }}>
+                                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: job.color }} />
+                                {job.name}
+                              </span>
+                            ) : null;
+                          })()}
                         </div>
                       </div>
                       <div className="relative">

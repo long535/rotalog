@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Shift, AppSettings, TimerState } from './types';
+import { Shift, AppSettings, TimerState, Job } from './types';
 import { cancelAlarms, scheduleBreakTimer } from './utils';
 import { useTranslation } from './i18n';
+import { v4 as uuidv4 } from 'uuid';
 
 const SHIFTS_KEY = 'shifts_data';
 const SETTINGS_KEY = 'shifts_settings';
@@ -15,6 +16,8 @@ const defaultSettings: AppSettings = {
   enableUKTaxes: false,
   language: 'zh',
   weekStartsOn: 1,
+  jobs: [],
+  defaultJobId: null,
 };
 
 const defaultTimerState: TimerState = {
@@ -120,6 +123,37 @@ export function useAppStore() {
     }
   };
 
+  const addJob = (job: Omit<Job, 'id'>) => {
+    const newJob: Job = { ...job, id: uuidv4() };
+    setSettings({
+      ...settings,
+      jobs: [...settings.jobs, newJob],
+    });
+    return newJob;
+  };
+
+  const updateJob = (updated: Job) => {
+    setSettings({
+      ...settings,
+      jobs: settings.jobs.map(j => j.id === updated.id ? updated : j),
+    });
+  };
+
+  const deleteJob = (id: string) => {
+    setSettings({
+      ...settings,
+      jobs: settings.jobs.filter(j => j.id !== id),
+      defaultJobId: settings.defaultJobId === id ? null : settings.defaultJobId,
+    });
+  };
+
+  const setDefaultJob = (id: string | null) => {
+    setSettings({
+      ...settings,
+      defaultJobId: id,
+    });
+  };
+
   return { 
     shifts, 
     settings, 
@@ -133,6 +167,10 @@ export function useAppStore() {
     addShifts, 
     updateShift, 
     deleteShift, 
-    duplicateShift 
+    duplicateShift,
+    addJob,
+    updateJob,
+    deleteJob,
+    setDefaultJob,
   };
 }

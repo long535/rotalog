@@ -1,18 +1,41 @@
-import React from 'react';
-import { X, Globe, DollarSign, Clock, Palette, Calculator, Calendar } from 'lucide-react';
-import { AppSettings } from '../types';
+import React, { useState } from 'react';
+import { X, Globe, DollarSign, Clock, Palette, Calculator, Calendar, Plus, Trash2, Edit2, Check, Briefcase } from 'lucide-react';
+import { AppSettings, Job } from '../types';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
+import { v4 as uuidv4 } from 'uuid';
+
+const JOB_COLORS = [
+  { name: 'Blue', value: '#3B82F6' },
+  { name: 'Green', value: '#22C55E' },
+  { name: 'Orange', value: '#F97316' },
+  { name: 'Red', value: '#EF4444' },
+  { name: 'Purple', value: '#8B5CF6' },
+  { name: 'Pink', value: '#EC4899' },
+];
 
 interface Props {
   settings: AppSettings;
   onSave: (settings: AppSettings) => void;
   onClose: () => void;
+  jobs?: Job[];
+  onAddJob?: (job: Omit<Job, 'id'>) => void;
+  onUpdateJob?: (job: Job) => void;
+  onDeleteJob?: (id: string) => void;
+  onSetDefaultJob?: (id: string | null) => void;
 }
 
-export default function SettingsModal({ settings, onSave, onClose }: Props) {
+export default function SettingsModal({ settings, onSave, onClose, jobs = [], onAddJob, onUpdateJob, onDeleteJob, onSetDefaultJob }: Props) {
   const [localSettings, setLocalSettings] = React.useState<AppSettings>(settings);
+  const [showJobForm, setShowJobForm] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [jobName, setJobName] = useState('');
+  const [jobWage, setJobWage] = useState('50');
+  const [jobBreak, setJobBreak] = useState('60');
+  const [jobColor, setJobColor] = useState(JOB_COLORS[0].value);
   const t = useTranslation(localSettings.language);
+
+  const localJobs = jobs.length > 0 ? jobs : localSettings.jobs;
 
   const handleChange = (key: keyof AppSettings, value: any) => {
     haptic.selection();
@@ -28,6 +51,74 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
   const handleClose = async () => {
     await haptic.light();
     onClose();
+  };
+
+  const handleAddJob = () => {
+    setEditingJob(null);
+    setJobName('');
+    setJobWage(localSettings.defaultHourlyWage.toString());
+    setJobBreak(localSettings.defaultBreakMinutes.toString());
+    setJobColor(JOB_COLORS[0].value);
+    setShowJobForm(true);
+  };
+
+  const handleEditJob = (job: Job) => {
+    setEditingJob(job);
+    setJobName(job.name);
+    setJobWage(job.defaultHourlyWage.toString());
+    setJobBreak(job.defaultBreakMinutes.toString());
+    setJobColor(job.color);
+    setShowJobForm(true);
+  };
+
+  const handleSaveJob = async () => {
+    await haptic.success();
+    const jobData = {
+      name: jobName,
+      defaultHourlyWage: parseFloat(jobWage) || 0,
+      defaultBreakMinutes: parseInt(jobBreak) || 0,
+      color: jobColor,
+    };
+
+    if (editingJob) {
+      if (onUpdateJob) {
+        onUpdateJob({ ...jobData, id: editingJob.id });
+      } else {
+        const updatedJobs = localSettings.jobs.map(j => j.id === editingJob.id ? { ...jobData, id: editingJob.id } : j);
+        setLocalSettings({ ...localSettings, jobs: updatedJobs });
+      }
+    } else {
+      const newJob = { ...jobData, id: uuidv4() };
+      if (onAddJob) {
+        onAddJob(jobData);
+      } else {
+        setLocalSettings({ ...localSettings, jobs: [...localSettings.jobs, newJob] });
+      }
+    }
+    setShowJobForm(false);
+  };
+
+  const handleDeleteJob = async (id: string) => {
+    await haptic.medium();
+    if (onDeleteJob) {
+      onDeleteJob(id);
+    } else {
+      const filtered = localSettings.jobs.filter(j => j.id !== id);
+      setLocalSettings({
+        ...localSettings,
+        jobs: filtered,
+        defaultJobId: localSettings.defaultJobId === id ? null : localSettings.defaultJobId,
+      });
+    }
+  };
+
+  const handleSetDefaultJob = async (id: string | null) => {
+    await haptic.selection();
+    if (onSetDefaultJob) {
+      onSetDefaultJob(id);
+    } else {
+      setLocalSettings({ ...localSettings, defaultJobId: id });
+    }
   };
 
   return (
@@ -161,6 +252,120 @@ export default function SettingsModal({ settings, onSave, onClose }: Props) {
                 <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-gradient-to-r peer-checked:from-indigo-500 peer-checked:to-purple-500"></div>
               </label>
             </div>
+          </div>
+
+          {/* Jobs Section */}
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 border border-gray-100 dark:border-gray-700/50">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                  <Briefcase size={18} className="text-white" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t.jobs}</label>
+              </div>
+              <button
+                onClick={handleAddJob}
+                className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl hover:shadow-lg transition-all"
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+
+            {showJobForm && (
+              <div className="mb-4 p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                <input
+                  type="text"
+                  value={jobName}
+                  onChange={(e) => setJobName(e.target.value)}
+                  placeholder={t.jobNamePlaceholder}
+                  className="w-full p-3 mb-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white"
+                />
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <input
+                    type="number"
+                    value={jobWage}
+                    onChange={(e) => setJobWage(e.target.value)}
+                    placeholder={t.jobWage}
+                    className="p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white"
+                  />
+                  <input
+                    type="number"
+                    value={jobBreak}
+                    onChange={(e) => setJobBreak(e.target.value)}
+                    placeholder={t.jobBreak}
+                    className="p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div className="flex gap-2 mb-2">
+                  {JOB_COLORS.map((c) => (
+                    <button
+                      key={c.value}
+                      onClick={() => setJobColor(c.value)}
+                      className={`w-8 h-8 rounded-full transition-all ${jobColor === c.value ? 'ring-2 ring-offset-2 ring-indigo-500' : ''}`}
+                      style={{ backgroundColor: c.value }}
+                    />
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSaveJob}
+                    className="flex-1 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-medium"
+                  >
+                    <Check size={16} className="inline mr-1" />
+                    {editingJob ? t.editJob : t.addJob}
+                  </button>
+                  <button
+                    onClick={() => setShowJobForm(false)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium"
+                  >
+                    {t.delete}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {localJobs.length === 0 && !showJobForm ? (
+              <div className="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+                {t.noJobsYet}
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {localJobs.map((job) => (
+                  <div key={job.id} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: job.color }} />
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{job.name}</span>
+                      {localSettings.defaultJobId === job.id && (
+                        <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 px-1.5 py-0.5 rounded">{t.defaultJob}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {(onSetDefaultJob || true) && localSettings.defaultJobId !== job.id && (
+                        <button
+                          onClick={() => handleSetDefaultJob(job.id)}
+                          className="p-1.5 text-gray-400 hover:text-indigo-500 transition-colors"
+                          title={t.setAsDefault}
+                        >
+                          <Check size={14} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleEditJob(job)}
+                        className="p-1.5 text-gray-400 hover:text-blue-500 transition-colors"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteJob(job.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

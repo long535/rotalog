@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, Image, X, Bell } from 'lucide-react';
+import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, Image, X, Bell, Briefcase } from 'lucide-react';
 import { format, parseISO, addDays, startOfWeek } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import { Shift, AppSettings } from '../types';
+import { Shift, AppSettings, Job } from '../types';
 import { calculatePaidHours, calculateAnnualLeaveHours, scheduleShiftAlarms, cancelAlarms } from '../utils';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
@@ -12,20 +12,25 @@ interface Props {
   settings: AppSettings;
   onSave: (shifts: Shift[]) => void;
   onCancel: () => void;
+  jobs?: Job[];
 }
 
-export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) {
+export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = [] }: Props) {
   const isEditing = !!shift;
   const initialDate = shift ? format(parseISO(shift.startTime), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
   const initialTimeStart = shift ? format(parseISO(shift.startTime), 'HH:mm') : '10:00';
   const initialTimeEnd = shift ? format(parseISO(shift.endTime), 'HH:mm') : '20:00';
 
+  const localJobs = jobs.length > 0 ? jobs : settings.jobs;
+  const defaultJob = settings.defaultJobId ? localJobs.find(j => j.id === settings.defaultJobId) : null;
+
   const [baseDate, setBaseDate] = useState(initialDate);
   const [selectedDates, setSelectedDates] = useState<string[]>([initialDate]);
   const [timeStart, setTimeStart] = useState(initialTimeStart);
   const [timeEnd, setTimeEnd] = useState(initialTimeEnd);
-  const [breakMinutes, setBreakMinutes] = useState(shift ? shift.breakMinutes.toString() : settings.defaultBreakMinutes.toString());
-  const [hourlyWage, setHourlyWage] = useState(shift ? shift.hourlyWage.toString() : settings.defaultHourlyWage.toString());
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(shift?.jobId || defaultJob?.id || null);
+  const [breakMinutes, setBreakMinutes] = useState(shift ? shift.breakMinutes.toString() : (defaultJob?.defaultBreakMinutes?.toString() || settings.defaultBreakMinutes.toString()));
+  const [hourlyWage, setHourlyWage] = useState(shift ? shift.hourlyWage.toString() : (defaultJob?.defaultHourlyWage?.toString() || settings.defaultHourlyWage.toString()));
   const [notes, setNotes] = useState(shift ? shift.notes : '');
   const [isAnnualLeave, setIsAnnualLeave] = useState(shift ? !!shift.isAnnualLeave : false);
   const [annualLeaveHours, setAnnualLeaveHours] = useState(shift?.annualLeaveHours?.toString() || '');
@@ -35,6 +40,19 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
   const [reminder30m, setReminder30m] = useState(shift?.reminders?.includes(30) ?? false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslation(settings.language);
+
+  const selectedJob = selectedJobId ? localJobs.find(j => j.id === selectedJobId) : null;
+
+  const handleJobChange = (jobId: string | null) => {
+    setSelectedJobId(jobId);
+    if (jobId) {
+      const job = localJobs.find(j => j.id === jobId);
+      if (job) {
+        setHourlyWage(job.defaultHourlyWage.toString());
+        setBreakMinutes(job.defaultBreakMinutes.toString());
+      }
+    }
+  };
 
   const referenceDate = parseISO(baseDate);
   const weekStart = startOfWeek(referenceDate, { weekStartsOn: settings.weekStartsOn ?? 1 });
@@ -85,6 +103,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
         annualLeaveHours: isAnnualLeave ? (annualLeaveHours !== '' ? parseFloat(annualLeaveHours) : calculatedHours) : undefined,
         photoUrl,
         reminders,
+        jobId: selectedJobId,
       };
     });
 
@@ -327,6 +346,37 @@ export default function ShiftForm({ shift, settings, onSave, onCancel }: Props) 
               />
             </div>
           </div>
+
+          {localJobs.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{t.jobs}</label>
+              <div className="relative">
+                <select
+                  value={selectedJobId || ''}
+                  onChange={(e) => handleJobChange(e.target.value || null)}
+                  className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl input-modern focus:ring-2 focus:ring-indigo-500 outline-none text-lg appearance-none"
+                >
+                  <option value="">{t.noJob}</option>
+                  {localJobs.map((job) => (
+                    <option key={job.id} value={job.id}>
+                      {job.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-2">
+                  {selectedJob && (
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: selectedJob.color }} />
+                  )}
+                  <Briefcase size={18} className="text-gray-400" />
+                </div>
+              </div>
+              {selectedJob && (
+                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  {t.jobWage}: {settings.currency}{selectedJob.defaultHourlyWage}/h | {t.jobBreak}: {selectedJob.defaultBreakMinutes}{t.minutes}
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{t.breakTime}</label>
