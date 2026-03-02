@@ -2,6 +2,10 @@
 
 <div align="center">
 
+**版本 / Version:** 1.2.2
+
+**下載 / Download:** [app-debug.apk (7.3MB)](https://github.com/long535/worklog/releases/latest/download/app-debug.apk)
+
 **簡潔強大的工時與薪資追蹤工具**  
 **A simple yet powerful work hours and wage tracking app**
 
