@@ -1,8 +1,15 @@
 package com.worklog.app.activities;
 
+import android.app.AlarmManager;
 import android.app.KeyguardManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.Ringtone;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +26,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.worklog.app.R;
+import com.worklog.app.receivers.AlarmReceiver;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,6 +38,8 @@ public class AlarmActivity extends AppCompatActivity {
     private Handler handler;
     private Runnable vibrationRunnable;
     private TextView timeText;
+    private Ringtone ringtone;
+    private int alarmId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +61,11 @@ public class AlarmActivity extends AppCompatActivity {
 
         String title = "提醒";
         String body = "時間到了！";
-        int alarmId = 0;
         
         try {
             title = getIntent().getStringExtra("title");
             body = getIntent().getStringExtra("body");
-            alarmId = getIntent().getIntExtra("alarmId", 0);
+            this.alarmId = getIntent().getIntExtra("alarmId", 0);
         } catch (Exception e) {
             Log.e(TAG, "Error getting intent extras: " + e.getMessage());
         }
@@ -81,6 +90,7 @@ public class AlarmActivity extends AppCompatActivity {
 
             vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             startVibration();
+            startAlarmSound();
 
             dismissBtn.setOnClickListener(v -> dismissAlarm());
         } catch (Exception e) {
@@ -145,8 +155,7 @@ public class AlarmActivity extends AppCompatActivity {
             return;
         }
 
-        // Continuous vibration pattern
-        final long[] pattern = {0, 1000, 500, 1000, 500, 1000, 500, 1000, 500};
+        final long[] pattern = {0, 1000, 500};
         
         vibrationRunnable = new Runnable() {
             @Override
@@ -164,26 +173,142 @@ public class AlarmActivity extends AppCompatActivity {
         handler.post(vibrationRunnable);
     }
 
-    private void stopVibration() {
-        if (vibrator != null) {
-            vibrator.cancel();
+    private void startAlarmSound() {
+        try {
+            Uri alarmSound = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM);
+            if (alarmSound != null) {
+                ringtone = android.media.RingtoneManager.getRingtone(this, alarmSound);
+                if (ringtone != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        ringtone.setLooping(true);
+                    }
+                    AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build();
+                    ringtone.setAudioAttributes(audioAttributes);
+                    ringtone.play();
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to play alarm sound: " + e.getMessage());
         }
+    }
+
+    private void stopAlarmSound() {
+        Log.d(TAG, "stopAlarmSound called");
+        
+        // Stop local ringtone first
+        try {
+            if (ringtone != null) {
+                if (ringtone.isPlaying()) {
+                    ringtone.stop();
+                    Log.d(TAG, "Ringtone stopped");
+                }
+                ringtone = null;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to stop alarm sound: " + e.getMessage());
+        }
+        
+        // Stop alarm stream at system level
+        try {
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager != null) {
+                // Stop any playing alarm
+                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, 0, 0);
+                audioManager.setStreamMute(AudioManager.STREAM_ALARM, true);
+                new Handler().postDelayed(() -> {
+                    try {
+                        audioManager.setStreamMute(AudioManager.STREAM_ALARM, false);
+                    } catch (Exception e) {}
+                }, 200);
+                Log.d(TAG, "Audio manager stream muted");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error muting audio: " + e.getMessage());
+        }
+    }
+
+    private void stopVibration() {
+        Log.d(TAG, "stopVibration called");
         if (handler != null && vibrationRunnable != null) {
-            handler.removeCallbacks(vibrationRunnable);
+            try {
+                handler.removeCallbacks(vibrationRunnable);
+                Log.d(TAG, "Vibration callbacks removed");
+            } catch (Exception e) {
+                Log.e(TAG, "Error removing callbacks: " + e.getMessage());
+            }
+        }
+        if (vibrator != null) {
+            try {
+                vibrator.cancel();
+                Log.d(TAG, "Vibrator cancelled");
+            } catch (Exception e) {
+                Log.e(TAG, "Error cancelling vibrator: " + e.getMessage());
+            }
         }
     }
 
     private void dismissAlarm() {
-        Log.d(TAG, "Alarm dismissed");
-        stopVibration();
+        Log.d(TAG, "Alarm dismissed, alarmId=" + alarmId);
         
-        // Cancel the notification
+        // Cancel the notification FIRST (this stops notification sound/vibration)
         try {
             android.app.NotificationManager notificationManager = 
                 (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(1001);
+            Log.d(TAG, "Notification cancelled");
         } catch (Exception e) {
             Log.e(TAG, "Error cancelling notification: " + e.getMessage());
+        }
+        
+        // Stop local vibration and sound
+        stopVibration();
+        stopAlarmSound();
+        
+        // Cancel the specific alarm
+        if (alarmId > 0) {
+            try {
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent("com.worklog.app.ALARM_ACTION");
+                intent.setClass(this, AlarmReceiver.class);
+                intent.putExtra("alarmId", alarmId);
+                intent.setData(android.net.Uri.parse("alarm:" + alarmId));
+                
+                int requestCode = 1001;
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    this,
+                    requestCode,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
+                Log.d(TAG, "Cancelled alarm: " + alarmId);
+            } catch (Exception e) {
+                Log.e(TAG, "Error cancelling alarm: " + e.getMessage());
+            }
+        }
+        
+        // Set flag in SharedPreferences for frontend to check
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("worklog_prefs", Context.MODE_PRIVATE);
+            prefs.edit().putBoolean("alarmDismissed", true).apply();
+            Log.d(TAG, "Set alarmDismissed flag in SharedPreferences");
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting alarmDismissed flag: " + e.getMessage());
+        }
+        
+        // Send broadcast to notify MainActivity
+        try {
+            Intent broadcastIntent = new Intent("com.worklog.app.ALARM_DISMISSED");
+            broadcastIntent.putExtra("alarmId", alarmId);
+            sendBroadcast(broadcastIntent);
+            Log.d(TAG, "Sent ALARM_DISMISSED broadcast");
+        } catch (Exception e) {
+            Log.e(TAG, "Error sending broadcast: " + e.getMessage());
         }
         
         finish();
@@ -198,6 +323,7 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopVibration();
+        stopAlarmSound();
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }

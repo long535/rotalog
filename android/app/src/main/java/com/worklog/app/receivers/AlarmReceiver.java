@@ -6,6 +6,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -95,7 +98,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 );
                 channel.setDescription("鬧鐘提醒通知");
                 channel.enableVibration(true);
-                channel.setVibrationPattern(new long[]{0, 500, 200, 500, 200, 500, 500, 200, 500, 200, 500});
+                channel.setVibrationPattern(new long[]{0, 500, 200});
                 channel.setSound(android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM), null);
                 notificationManager.createNotificationChannel(channel);
             }
@@ -115,20 +118,24 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setContentText(body)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .setAutoCancel(true)
+                .setAutoCancel(false)
                 .setContentIntent(openAppPendingIntent)
-                .setVibrate(new long[]{0, 500, 200, 500, 200, 500, 500, 200, 500, 200, 500})
+                .setVibrate(new long[]{0, 500, 200})
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setOngoing(true)  // Keep notification showing
-                .setOnlyAlertOnce(false)  // Alert every time
+                .setOngoing(true)
+                .setOnlyAlertOnce(false)
+                .setTimeoutAfter(0)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
 
-            // Play sound
-            android.net.Uri alarmSound = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM);
+            // Play sound - use FLAG_INSISTENT for continuous repeat
+            Uri alarmSound = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM);
             if (alarmSound != null) {
                 builder.setSound(alarmSound);
             }
-
+            
+            // Add persistent flag for sound
+            builder.setPriority(NotificationCompat.PRIORITY_MAX);
+            
             // Fullscreen intent for lock screen
             Intent fullscreenIntent = new Intent(context, AlarmActivity.class);
             fullscreenIntent.putExtra("alarmId", alarmId);
@@ -140,6 +147,24 @@ public class AlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
             builder.setFullScreenIntent(fullscreenPendingIntent, true);
+            
+            // Play alarm sound in loop using Ringtone
+            try {
+                android.media.Ringtone ringtone = android.media.RingtoneManager.getRingtone(context, alarmSound);
+                if (ringtone != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        ringtone.setLooping(true);
+                    }
+                    AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build();
+                    ringtone.setAudioAttributes(audioAttributes);
+                    ringtone.play();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to play ringtone: " + e.getMessage());
+            }
 
             notificationManager.notify(NOTIFICATION_ID, builder.build());
             Log.d(TAG, "Ongoing notification shown");
@@ -152,11 +177,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         try {
             Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator != null && vibrator.hasVibrator()) {
-                long[] pattern = {0, 500, 200, 500, 200, 500};
+                long[] pattern = {0, 500, 200};
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
+                    vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
                 } else {
-                    vibrator.vibrate(pattern, -1);
+                    vibrator.vibrate(pattern, 0);
                 }
             }
         } catch (Exception e) {

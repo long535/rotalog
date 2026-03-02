@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
+import { App as CapApp } from '@capacitor/app';
+import { Preferences } from '@capacitor/preferences';
 import ShiftsList from './components/ShiftsList';
 import ShiftForm from './components/ShiftForm';
 import SettingsModal from './components/SettingsModal';
 import { useAppStore } from './store';
 import { Shift } from './types';
 import { format, parseISO } from 'date-fns';
-import { calculateWages, calculateAnnualLeaveHours, getShiftPaidHours, createNotificationChannels } from './utils';
+import { calculateWages, calculateAnnualLeaveHours, getShiftPaidHours, createNotificationChannels, cancelAlarms } from './utils';
 import { useTranslation } from './i18n';
 
 type View = 'LIST' | 'FORM';
@@ -33,6 +35,48 @@ export default function App() {
       createNotificationChannels();
     }
   }, []);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const stopAlarmTimer = async () => {
+      console.log('stopAlarmTimer called');
+      if (timer.isActive && timer.notificationIds.length > 0) {
+        await cancelAlarms(timer.notificationIds);
+        stopTimer();
+        console.log('Timer stopped due to alarm dismissed');
+      }
+    };
+
+    (window as any).stopAlarmTimer = stopAlarmTimer;
+
+    const checkAndStopTimer = async () => {
+      try {
+        const { value } = await Preferences.get({ key: 'alarmDismissed' });
+        if (value === 'true') {
+          await Preferences.remove({ key: 'alarmDismissed' });
+          if (timer.isActive && timer.notificationIds.length > 0) {
+            await cancelAlarms(timer.notificationIds);
+            stopTimer();
+            console.log('Timer stopped due to alarm dismissed');
+          }
+        }
+      } catch (e) {
+        console.error('Error checking alarmDismissed:', e);
+      }
+    };
+
+    const listener = CapApp.addListener('resume', () => {
+      checkAndStopTimer();
+    });
+
+    // Also check immediately when component mounts
+    checkAndStopTimer();
+
+    return () => {
+      listener.then(l => l.remove());
+    };
+  }, [timer, stopTimer]);
 
   const handleAdd = () => {
     setEditingShift(undefined);
