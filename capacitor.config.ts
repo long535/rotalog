@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.worklog.app',
-  appName: 'Worklog',
+  appId: 'com.rotalog.app',
+  appName: 'Rotalog',
   webDir: 'dist',
   android: {
     allowMixedContent: true,
