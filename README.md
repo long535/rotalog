@@ -1,4 +1,4 @@
-# Worklog - 班次記錄器 / Shift Tracker
+# Rotalog - 班次記錄器 / Shift Tracker
 
 <div align="center">
 
