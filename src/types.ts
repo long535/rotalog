@@ -25,7 +25,7 @@ export interface AppSettings {
   defaultHourlyWage: number;
   currency: string;
   defaultBreakMinutes: number;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'color01' | 'color02';
   enableUKTaxes?: boolean;
   language?: 'zh' | 'en';
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;

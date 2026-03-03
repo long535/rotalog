@@ -57,10 +57,9 @@ export function useAppStore() {
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    if (settings.theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    document.documentElement.classList.remove('dark', 'color01', 'color02');
+    if (settings.theme !== 'light') {
+      document.documentElement.classList.add(settings.theme);
     }
   }, [settings]);
 

@@ -253,6 +253,8 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
             >
               <option value="light">{t.themeLight}</option>
               <option value="dark">{t.themeDark}</option>
+              <option value="color01">{t.themeColor01}</option>
+              <option value="color02">{t.themeColor02}</option>
             </select>
           </div>
 

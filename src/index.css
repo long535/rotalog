@@ -164,3 +164,168 @@
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* Color01 (EVA Theme - Unit 02) */
+:root.color01 {
+  --color-primary: #F97316;
+  --color-primary-from: #F97316;
+  --color-primary-to: #FB923C;
+  --color-accent: #EF4444;
+  --color-warning: #EF4444;
+  --color-bg: #0F0F14;
+  --color-bg-secondary: #1A1A24;
+  --color-bg-card: #252532;
+  --color-text: #FFFFFF;
+  --color-text-secondary: #D4D4D8;
+  --color-border: #3F3F50;
+  --color-input-bg: #1A1A24;
+}
+
+:root.color01 body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+:root.color01 .dark\:bg-gray-800\/95 {
+  background-color: var(--color-bg-card) !important;
+}
+
+:root.color01 .dark\:bg-gray-900\/50 {
+  background-color: var(--color-bg-secondary) !important;
+}
+
+:root.color01 .dark\:text-gray-100,
+:root.color01 .dark\:text-gray-200,
+:root.color01 .dark\:text-gray-300,
+:root.color01 .text-gray-900 {
+  color: var(--color-text) !important;
+}
+
+:root.color01 .dark\:text-gray-400,
+:root.color01 .dark\:text-gray-500,
+:root.color01 .text-gray-500,
+:root.color01 .text-gray-600 {
+  color: var(--color-text-secondary) !important;
+}
+
+:root.color01 input,
+:root.color01 select,
+:root.color01 textarea {
+  color: var(--color-text) !important;
+}
+
+:root.color01 .dark\:border-gray-700\/50,
+:root.color01 .dark\:border-gray-700 {
+  border-color: var(--color-border) !important;
+}
+
+:root.color01 .dark\:bg-gray-800 {
+  background-color: var(--color-bg-card) !important;
+}
+
+:root.color01 .dark\:bg-gray-900 {
+  background-color: var(--color-bg) !important;
+}
+
+:root.color01 .gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-to) 100%);
+}
+
+:root.color01 .btn-fab {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-to) 100%);
+  box-shadow: 0 8px 24px -4px rgba(249, 115, 22, 0.5);
+}
+
+:root.color01 .btn-fab:hover {
+  box-shadow: 0 12px 32px -4px rgba(249, 115, 22, 0.6);
+}
+
+:root.color01 .from-indigo-500.to-purple-500,
+:root.color01 .from-indigo-600.to-purple-600,
+:root.color01 .from-indigo-400.to-purple-400 {
+  --tw-gradient-from: var(--color-primary) !important;
+  --tw-gradient-to: var(--color-accent) !important;
+}
+
+:root.color01 .dark\:from-indigo-400.dark\:to-purple-400 {
+  --tw-gradient-from: var(--color-primary) !important;
+  --tw-gradient-to: var(--color-accent) !important;
+}
+
+/* Color02 (Gundam Theme - RX-78-2) */
+:root.color02 {
+  --color-primary: #3B82F6;
+  --color-primary-from: #3B82F6;
+  --color-primary-to: #60A5FA;
+  --color-accent: #EF4444;
+  --color-warning: #DC2626;
+  --color-bg: #F8FAFC;
+  --color-bg-secondary: #F1F5F9;
+  --color-bg-card: #FFFFFF;
+  --color-text: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+  --color-input-bg: #F8FAFC;
+}
+
+:root.color02 body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+:root.color02 .dark\:bg-gray-800\/95 {
+  background-color: var(--color-bg-card) !important;
+}
+
+:root.color02 .dark\:bg-gray-900\/50 {
+  background-color: var(--color-bg-secondary) !important;
+}
+
+:root.color02 .dark\:text-gray-100,
+:root.color02 .dark\:text-gray-200,
+:root.color02 .dark\:text-gray-300 {
+  color: var(--color-text) !important;
+}
+
+:root.color02 .dark\:text-gray-400,
+:root.color02 .dark\:text-gray-500 {
+  color: var(--color-text-secondary) !important;
+}
+
+:root.color02 .dark\:border-gray-700\/50,
+:root.color02 .dark\:border-gray-700 {
+  border-color: var(--color-border) !important;
+}
+
+:root.color02 .dark\:bg-gray-800 {
+  background-color: var(--color-bg-card) !important;
+}
+
+:root.color02 .dark\:bg-gray-900 {
+  background-color: var(--color-bg) !important;
+}
+
+:root.color02 .gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-to) 100%);
+}
+
+:root.color02 .btn-fab {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-to) 100%);
+  box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.5);
+}
+
+:root.color02 .btn-fab:hover {
+  box-shadow: 0 12px 32px -4px rgba(59, 130, 246, 0.6);
+}
+
+:root.color02 .from-indigo-500.to-purple-500,
+:root.color02 .from-indigo-600.to-purple-600,
+:root.color02 .from-indigo-400.to-purple-400 {
+  --tw-gradient-from: var(--color-primary) !important;
+  --tw-gradient-to: var(--color-accent) !important;
+}
+
+:root.color02 .dark\:from-indigo-400.dark\:to-purple-400 {
+  --tw-gradient-from: var(--color-primary) !important;
+  --tw-gradient-to: var(--color-accent) !important;
+}
