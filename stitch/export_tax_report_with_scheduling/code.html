@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4a8fd9",
+                        "success": "#98d7c2",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#121920",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-primary/10">
+<a class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined text-slate-700 dark:text-slate-300">arrow_back</span>
+</a>
+<h1 class="text-lg font-semibold tracking-tight">Export Tax Report</h1>
+<div class="w-10"></div> <!-- Spacer for balance -->
+</header>
+<main class="flex-1 overflow-y-auto px-4 py-6 space-y-8 max-w-2xl mx-auto w-full">
+<!-- Date Range Selection -->
+<section class="space-y-3">
+<h2 class="text-sm font-semibold uppercase tracking-widest text-primary/80 px-1">Date Range</h2>
+<div class="bg-white dark:bg-slate-800/50 rounded-xl p-5 shadow-sm border border-primary/5">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-xs text-slate-500 font-medium">From</label>
+<div class="flex items-center gap-2 p-3 bg-background-light dark:bg-slate-900 rounded-lg border border-primary/10">
+<span class="material-symbols-outlined text-sm text-primary">calendar_today</span>
+<span class="text-sm font-medium">Oct 01, 2023</span>
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-xs text-slate-500 font-medium">To</label>
+<div class="flex items-center gap-2 p-3 bg-background-light dark:bg-slate-900 rounded-lg border border-primary/10">
+<span class="material-symbols-outlined text-sm text-primary">calendar_today</span>
+<span class="text-sm font-medium">Dec 31, 2023</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Export Format -->
+<section class="space-y-3">
+<h2 class="text-sm font-semibold uppercase tracking-widest text-primary/80 px-1">Export Format</h2>
+<div class="flex gap-3">
+<label class="flex-1 cursor-pointer group">
+<input checked="" class="hidden peer" name="format" type="radio"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-transparent bg-white dark:bg-slate-800/50 shadow-sm peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-3xl text-slate-400 group-peer-checked:text-primary mb-2">picture_as_pdf</span>
+<span class="text-sm font-medium">PDF Report</span>
+</div>
+</label>
+<label class="flex-1 cursor-pointer group">
+<input class="hidden peer" name="format" type="radio"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-transparent bg-white dark:bg-slate-800/50 shadow-sm peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-3xl text-slate-400 group-peer-checked:text-primary mb-2">csv</span>
+<span class="text-sm font-medium">CSV Sheet</span>
+</div>
+</label>
+</div>
+</section>
+<!-- Content Selection -->
+<section class="space-y-3">
+<h2 class="text-sm font-semibold uppercase tracking-widest text-primary/80 px-1">Content to Include</h2>
+<div class="bg-white dark:bg-slate-800/50 rounded-xl overflow-hidden shadow-sm border border-primary/5">
+<label class="flex items-center justify-between p-4 border-b border-primary/5 cursor-pointer hover:bg-primary/5 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary/60">payments</span>
+<span class="text-sm font-medium">Earnings Breakdown</span>
+</div>
+<input checked="" class="w-5 h-5 rounded text-primary focus:ring-primary/20 border-slate-300" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-4 border-b border-primary/5 cursor-pointer hover:bg-primary/5 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary/60">account_balance</span>
+<span class="text-sm font-medium">Tax Deductions</span>
+</div>
+<input checked="" class="w-5 h-5 rounded text-primary focus:ring-primary/20 border-slate-300" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between p-4 cursor-pointer hover:bg-primary/5 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary/60">history</span>
+<span class="text-sm font-medium">Shift History</span>
+</div>
+<input class="w-5 h-5 rounded text-primary focus:ring-primary/20 border-slate-300" type="checkbox"/>
+</label>
+</div>
+</section><section class="space-y-3">
+<h2 class="text-sm font-semibold uppercase tracking-widest text-primary/80 px-1">Schedule Report</h2>
+<div class="bg-white dark:bg-slate-800/50 rounded-xl p-5 shadow-sm border border-primary/5 space-y-5">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm font-medium">Automatic Reports</p>
+<p class="text-xs text-slate-500">Get reports sent to your email automatically</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="space-y-2 pt-2 border-t border-primary/5">
+<label class="text-xs text-slate-500 font-medium">Frequency</label>
+<div class="grid grid-cols-2 gap-3">
+<label class="cursor-pointer group">
+<input checked="" class="hidden peer" name="frequency" type="radio"/>
+<div class="text-center py-2 px-4 rounded-lg border border-primary/10 bg-background-light dark:bg-slate-900 text-sm font-medium peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary transition-all">
+            Monthly
+          </div>
+</label>
+<label class="cursor-pointer group">
+<input class="hidden peer" name="frequency" type="radio"/>
+<div class="text-center py-2 px-4 rounded-lg border border-primary/10 bg-background-light dark:bg-slate-900 text-sm font-medium peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary transition-all">
+            Quarterly
+          </div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Report Preview Placeholder -->
+<section class="space-y-3">
+<h2 class="text-sm font-semibold uppercase tracking-widest text-primary/80 px-1">Preview</h2>
+<div class="relative bg-white dark:bg-slate-800/50 rounded-xl p-6 shadow-sm border border-primary/5 min-h-[160px] flex flex-col justify-center items-center gap-4 text-center">
+<div class="w-full max-w-[240px] space-y-2 opacity-30">
+<div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mx-auto"></div>
+<div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+<div class="h-3 bg-slate-100 dark:bg-slate-800 rounded w-5/6 mx-auto"></div>
+<div class="grid grid-cols-3 gap-2 pt-2">
+<div class="h-8 bg-slate-50 dark:bg-slate-900 rounded"></div>
+<div class="h-8 bg-slate-50 dark:bg-slate-900 rounded"></div>
+<div class="h-8 bg-slate-50 dark:bg-slate-900 rounded"></div>
+</div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="bg-success/10 text-success px-4 py-2 rounded-full flex items-center gap-2 border border-success/20">
+<span class="material-symbols-outlined text-lg">verified</span>
+<span class="text-xs font-semibold">Ready to export</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Primary Action -->
+<div class="pt-4">
+<button class="w-full bg-primary text-white font-semibold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined">ios_share</span>
+                Generate &amp; Export Report
+            </button>
+<p class="text-center text-xs text-slate-400 mt-4">Report generation may take a few moments</p>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="sticky bottom-0 bg-white dark:bg-background-dark border-t border-primary/10 px-6 py-3 flex items-center justify-between">
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">schedule</span>
+<span class="text-[10px] font-medium">Shifts</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">receipt_long</span>
+<span class="text-[10px] font-medium">Tax</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</nav>
+</body></html>

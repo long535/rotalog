@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4a8fd9",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#121920",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "1.25rem",
+                        "xl": "1.875rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        .soft-shadow {
+            box-shadow: 0 4px 20px -2px rgba(74, 144, 217, 0.08);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-slate-100">
+<div class="max-w-md mx-auto min-h-screen bg-white dark:bg-background-dark shadow-xl flex flex-col">
+<header class="sticky top-0 z-10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 py-4 flex items-center gap-4">
+<button class="p-2 hover:bg-primary/10 rounded-full transition-colors text-slate-900 dark:text-slate-100">
+<span class="material-symbols-outlined block">arrow_back</span>
+</button>
+<h1 class="text-xl font-semibold tracking-tight">Tax Settings</h1>
+</header>
+<main class="flex-1 px-6 pb-24">
+<section class="mt-8">
+<h2 class="text-sm font-bold uppercase tracking-widest text-primary mb-4">Tax Configuration</h2>
+<div class="space-y-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-slate-600 dark:text-slate-400">Income Tax Rate (%)</label>
+<input class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-lg h-14 px-4 focus:ring-2 focus:ring-primary/50 transition-all text-lg font-medium" placeholder="e.g. 20" type="text" value="20.00"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-slate-600 dark:text-slate-400">National Insurance Rate (%)</label>
+<input class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-lg h-14 px-4 focus:ring-2 focus:ring-primary/50 transition-all text-lg font-medium" placeholder="e.g. 12" type="text" value="12.00"/>
+</div>
+<div class="flex items-center justify-between py-2">
+<div>
+<p class="font-medium">Automatic Calculation</p>
+<p class="text-xs text-slate-500">Enable AI-based tax estimation</p>
+</div>
+<label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-slate-200 dark:bg-slate-700 p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary transition-all">
+<div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+<input checked="" class="invisible absolute" type="checkbox"/>
+</label>
+</div>
+</div>
+</section>
+<div class="h-px bg-slate-100 dark:bg-slate-800 my-10"></div>
+<section>
+<h2 class="text-sm font-bold uppercase tracking-widest text-primary mb-4">Deductions &amp; Contributions</h2>
+<div class="space-y-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-slate-600 dark:text-slate-400">Pension Contribution (%)</label>
+<input class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-lg h-14 px-4 focus:ring-2 focus:ring-primary/50 transition-all text-lg font-medium" placeholder="5.0" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-slate-600 dark:text-slate-400">Other Fixed Deductions</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
+<input class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-lg h-14 pl-10 pr-4 focus:ring-2 focus:ring-primary/50 transition-all text-lg font-medium" placeholder="0.00" type="text"/>
+</div>
+</div>
+</div>
+</section>
+<div class="h-px bg-slate-100 dark:bg-slate-800 my-10"></div>
+<section>
+<h2 class="text-sm font-bold uppercase tracking-widest text-primary mb-4">Financial Year</h2>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-slate-600 dark:text-slate-400">Start Month</label>
+<div class="relative group">
+<select class="appearance-none w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-lg h-14 px-4 pr-10 focus:ring-2 focus:ring-primary/50 transition-all font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
+<option value="1">January</option>
+<option value="2">February</option>
+<option value="3">March</option>
+<option selected="" value="4">April</option>
+<option value="5">May</option>
+<option value="6">June</option>
+<option value="7">July</option>
+<option value="8">August</option>
+<option value="9">September</option>
+<option value="10">October</option>
+<option value="11">November</option>
+<option value="12">December</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+</section>
+</main>
+<footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-6 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
+<button class="w-full bg-primary text-white font-semibold h-14 rounded-lg soft-shadow hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">save</span>
+                Save Changes
+            </button>
+</footer>
+</div>
+</body></html>

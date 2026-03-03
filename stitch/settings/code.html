@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rotalog - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4a8fd9",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#121920",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="max-w-4xl mx-auto px-6 py-12 lg:py-24">
+<header class="mb-16 flex items-center justify-between">
+<div>
+<h1 class="text-4xl font-semibold tracking-tight">Settings</h1>
+<p class="text-slate-500 dark:text-slate-400 mt-2">Manage your account and app preferences.</p>
+</div>
+<div class="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+<span class="material-icons-outlined text-primary">settings</span>
+</div>
+</header>
+<main class="space-y-12">
+<!-- Profile Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-slate-200 dark:border-slate-800">
+<div class="space-y-1">
+<h2 class="text-lg font-medium">Profile</h2>
+<p class="text-sm text-slate-500 dark:text-slate-400">Update your personal identity details.</p>
+</div>
+<div class="md:col-span-2 space-y-6">
+<div class="flex items-center space-x-6 mb-4">
+<img alt="Profile" class="h-20 w-20 rounded-full object-cover ring-4 ring-white dark:ring-slate-900" data-alt="Professional male portrait for profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAark3DYZig1H9LM9wqhqYqpMv0DmfoFB9ZZoWwx-3N90RIhCPJsmatyI0dG6zqInbisbBhEWZy_fphUe_d-qPPMOCaCWAFngyNxJkmdE7jWlRcOpVtIdOL67wVnlwpPZCQ-YvxzggNFc7G5gFjEbE_xjxQDbC_d5tYhk53Sm9zoc-FjL0gXOdM6t9jrnNuvXVsRKmvVFiHCFkTflg7WEDUSv-LPrKSIG38DRp0U_YSGkbsZqdBDAqR--YAEjGyi6kK28P5itkEJ5zE"/>
+<button class="px-4 py-2 text-sm font-medium border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            Change Avatar
+                        </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-sm font-medium ml-1">Display Name</label>
+<input class="w-full px-4 py-3 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/50 outline-none transition-all" type="text" value="Arata Suzuki"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-medium ml-1">Email Address</label>
+<input class="w-full px-4 py-3 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/50 outline-none transition-all" type="email" value="arata@rotalog.jp"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Appearance Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-slate-200 dark:border-slate-800">
+<div class="space-y-1">
+<h2 class="text-lg font-medium">Appearance</h2>
+<p class="text-sm text-slate-500 dark:text-slate-400">Customize how Rotalog looks on your screen.</p>
+</div>
+<div class="md:col-span-2 space-y-8">
+<div class="space-y-4">
+<label class="text-sm font-medium block">Color Accent</label>
+<div class="flex flex-wrap gap-4">
+<button class="w-12 h-12 rounded-full bg-[#4a8fd9] ring-offset-4 ring-2 ring-primary relative flex items-center justify-center">
+<span class="material-icons-outlined text-white text-sm">check</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-[#6366f1] ring-offset-4 ring-slate-100 dark:ring-slate-900 transition-transform hover:scale-105"></button>
+<button class="w-12 h-12 rounded-full bg-[#10b981] ring-offset-4 ring-slate-100 dark:ring-slate-900 transition-transform hover:scale-105"></button>
+<button class="w-12 h-12 rounded-full bg-[#f43f5e] ring-offset-4 ring-slate-100 dark:ring-slate-900 transition-transform hover:scale-105"></button>
+<button class="w-12 h-12 rounded-full bg-[#f59e0b] ring-offset-4 ring-slate-100 dark:ring-slate-900 transition-transform hover:scale-105"></button>
+</div>
+</div>
+<div class="space-y-4">
+<label class="text-sm font-medium block">Interface Theme</label>
+<div class="grid grid-cols-2 gap-4">
+<button class="p-4 rounded border-2 border-primary bg-white text-left space-y-2">
+<div class="h-20 w-full bg-slate-50 rounded-lg flex items-center justify-center border border-slate-100">
+<div class="w-2/3 h-2 bg-slate-200 rounded-full"></div>
+</div>
+<span class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Light Mode</span>
+</button>
+<button class="p-4 rounded border-2 border-transparent bg-slate-900 text-left space-y-2">
+<div class="h-20 w-full bg-slate-800 rounded-lg flex items-center justify-center border border-slate-700">
+<div class="w-2/3 h-2 bg-slate-600 rounded-full"></div>
+</div>
+<span class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Dark Mode</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Notifications Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-slate-200 dark:border-slate-800">
+<div class="space-y-1">
+<h2 class="text-lg font-medium">Notifications</h2>
+<p class="text-sm text-slate-500 dark:text-slate-400">Decide what you want to be notified about.</p>
+</div>
+<div class="md:col-span-2 space-y-4">
+<div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
+<div class="flex items-center space-x-3">
+<span class="material-icons-outlined text-[#6366f1]">notifications</span>
+<span class="text-sm font-medium">Push Notifications</span>
+</div>
+<div class="w-12 h-6 bg-primary rounded-full relative">
+<div class="absolute right-1 top-1 h-4 w-4 bg-white rounded-full"></div>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
+<div class="flex items-center space-x-3">
+<span class="material-icons-outlined text-[#6366f1]">mail_outline</span>
+<span class="text-sm font-medium">Weekly Reports via Email</span>
+</div>
+<div class="w-12 h-6 bg-slate-200 dark:bg-slate-700 rounded-full relative">
+<div class="absolute left-1 top-1 h-4 w-4 bg-white rounded-full"></div>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
+<div class="flex items-center space-x-3">
+<span class="material-icons-outlined text-[#6366f1]">campaign</span>
+<span class="text-sm font-medium">Feature Announcements</span>
+</div>
+<div class="w-12 h-6 bg-primary rounded-full relative">
+<div class="absolute right-1 top-1 h-4 w-4 bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Export Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12">
+<div class="space-y-1">
+<h2 class="text-lg font-medium">Data &amp; Export</h2>
+<p class="text-sm text-slate-500 dark:text-slate-400">Take your data with you or clear your history.</p>
+</div>
+<div class="md:col-span-2">
+<div class="bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 p-8 rounded-lg">
+<div class="flex items-start space-x-4">
+<div class="p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+<span class="material-icons-outlined text-[#6366f1]">sim_card_download</span>
+</div>
+<div class="flex-1">
+<h3 class="font-medium mb-1">Export Activity Log</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Download a complete CSV or JSON archive of all your Rotalog entries from the last 12 months.</p>
+<div class="flex space-x-3">
+<button class="bg-[#6366f1] text-white px-6 py-2.5 rounded text-sm font-medium hover:opacity-90 transition-opacity">
+                                        Export as CSV
+                                    </button>
+<button class="px-6 py-2.5 rounded text-sm font-medium border border-[#6366f1]/20 text-[#6366f1] hover:bg-white transition-colors">
+                                        Export JSON
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
+<button class="text-red-500 text-sm font-medium hover:underline flex items-center">
+<span class="material-icons-outlined text-sm mr-2">delete_forever</span>
+                            Delete all account data
+                        </button>
+</div>
+</div>
+</section>
+</main>
+<footer class="mt-12 flex justify-end space-x-4">
+<button class="px-8 py-3 rounded-full text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+                Cancel Changes
+            </button>
+<button class="px-10 py-3 rounded-full bg-primary text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all">
+                Save All Settings
+            </button>
+</footer>
+</div>
+</body></html>

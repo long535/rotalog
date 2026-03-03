@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4a8fd9", // Theme primary
+                        "action": "#98D8C1", // Soft mint green for primary action as requested
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#121920",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .time-picker-column {
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-slate-200 font-display text-slate-900">
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+<!-- Bottom Sheet / Modal Container -->
+<div class="bg-white w-full max-w-lg rounded-t-lg sm:rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+<!-- BottomSheetHandle for mobile -->
+<div class="flex h-6 w-full items-center justify-center sm:hidden">
+<div class="h-1.5 w-12 rounded-full bg-slate-200"></div>
+</div>
+<!-- Header -->
+<div class="px-6 pt-4 pb-2 flex items-center justify-between">
+<h2 class="text-2xl font-bold text-slate-800">Add Shift</h2>
+<button class="text-slate-400 hover:text-slate-600">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Form Content -->
+<div class="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+<!-- Job Selection -->
+<div class="mb-6">
+<label class="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">Job Assignment</label>
+<div class="relative">
+<select class="w-full appearance-none bg-slate-50 border-none rounded-xl px-4 py-4 text-slate-800 focus:ring-2 focus:ring-primary/20 transition-all font-medium">
+<option value="longdan">LongDan</option>
+<option value="dpd">DPD Logistics</option>
+<option value="royal">Royal Mail</option>
+<option value="other">Other</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Date Picker Section -->
+<div class="mb-6">
+<label class="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">Shift Date</label>
+<div class="bg-slate-50 rounded-xl p-4">
+<div class="flex items-center justify-between mb-4">
+<button class="p-2 hover:bg-white rounded-full transition-colors"><span class="material-symbols-outlined text-slate-600">chevron_left</span></button>
+<span class="font-bold text-slate-800 text-lg">October 2023</span>
+<button class="p-2 hover:bg-white rounded-full transition-colors"><span class="material-symbols-outlined text-slate-600">chevron_right</span></button>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2">
+<div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center">
+<!-- Placeholder days -->
+<div class="aspect-square flex items-center justify-center text-slate-300">24</div>
+<div class="aspect-square flex items-center justify-center text-slate-300">25</div>
+<div class="aspect-square flex items-center justify-center text-slate-300">26</div>
+<div class="aspect-square flex items-center justify-center text-slate-300">27</div>
+<div class="aspect-square flex items-center justify-center text-slate-300">28</div>
+<div class="aspect-square flex items-center justify-center text-slate-300">29</div>
+<div class="aspect-square flex items-center justify-center text-slate-300">30</div>
+<button class="aspect-square flex items-center justify-center rounded-full hover:bg-white text-slate-700 font-medium">1</button>
+<button class="aspect-square flex items-center justify-center rounded-full hover:bg-white text-slate-700 font-medium">2</button>
+<button class="aspect-square flex items-center justify-center rounded-full hover:bg-white text-slate-700 font-medium">3</button>
+<button class="aspect-square flex items-center justify-center rounded-full hover:bg-white text-slate-700 font-medium">4</button>
+<button class="aspect-square flex items-center justify-center rounded-full bg-primary text-white font-bold shadow-lg shadow-primary/30">5</button>
+<button class="aspect-square flex items-center justify-center rounded-full hover:bg-white text-slate-700 font-medium">6</button>
+<button class="aspect-square flex items-center justify-center rounded-full hover:bg-white text-slate-700 font-medium">7</button>
+</div>
+</div>
+</div>
+<!-- Time Pickers -->
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div>
+<label class="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">Start Time</label>
+<div class="flex bg-slate-50 rounded-xl p-2 relative h-32 overflow-hidden time-picker-column">
+<div class="flex-1 flex flex-col items-center justify-start overflow-y-auto py-10 scrollbar-hide">
+<span class="text-slate-300 font-medium py-2">07</span>
+<span class="text-slate-800 font-bold py-2 text-xl">08</span>
+<span class="text-slate-300 font-medium py-2">09</span>
+</div>
+<div class="flex items-center text-slate-400 font-bold">:</div>
+<div class="flex-1 flex flex-col items-center justify-start overflow-y-auto py-10 scrollbar-hide">
+<span class="text-slate-300 font-medium py-2">00</span>
+<span class="text-slate-800 font-bold py-2 text-xl">30</span>
+<span class="text-slate-300 font-medium py-2">45</span>
+</div>
+<div class="absolute inset-x-2 top-1/2 -translate-y-1/2 h-10 border-y border-primary/20 pointer-events-none"></div>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">End Time</label>
+<div class="flex bg-slate-50 rounded-xl p-2 relative h-32 overflow-hidden time-picker-column">
+<div class="flex-1 flex flex-col items-center justify-start overflow-y-auto py-10 scrollbar-hide">
+<span class="text-slate-300 font-medium py-2">16</span>
+<span class="text-slate-800 font-bold py-2 text-xl">17</span>
+<span class="text-slate-300 font-medium py-2">18</span>
+</div>
+<div class="flex items-center text-slate-400 font-bold">:</div>
+<div class="flex-1 flex flex-col items-center justify-start overflow-y-auto py-10 scrollbar-hide">
+<span class="text-slate-300 font-medium py-2">15</span>
+<span class="text-slate-800 font-bold py-2 text-xl">00</span>
+<span class="text-slate-300 font-medium py-2">30</span>
+</div>
+<div class="absolute inset-x-2 top-1/2 -translate-y-1/2 h-10 border-y border-primary/20 pointer-events-none"></div>
+</div>
+</div>
+</div>
+<!-- Shift Type -->
+<div class="mb-8">
+<label class="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">Shift Type</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold text-sm">Regular Shift</button>
+<button class="px-4 py-2 rounded-full border-2 border-slate-100 bg-slate-50 text-slate-500 font-semibold text-sm hover:border-slate-200">Overtime</button>
+<button class="px-4 py-2 rounded-full border-2 border-slate-100 bg-slate-50 text-slate-500 font-semibold text-sm hover:border-slate-200">Annual Leave</button>
+<button class="px-4 py-2 rounded-full border-2 border-slate-100 bg-slate-50 text-slate-500 font-semibold text-sm hover:border-slate-200">Sick Leave</button>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="p-6 border-t border-slate-50 flex gap-4 bg-white">
+<button class="flex-1 py-4 px-6 rounded-[24px] bg-slate-100 text-slate-600 font-bold hover:bg-slate-200 transition-colors">
+                    Cancel
+                </button>
+<button class="flex-1 py-4 px-6 rounded-[24px] bg-action text-emerald-900 font-bold shadow-lg shadow-emerald-100 hover:brightness-105 transition-all">
+                    Save Shift
+                </button>
+</div>
+</div>
+</div>
+</body></html>

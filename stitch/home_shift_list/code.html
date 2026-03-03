@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4a8fd9",
+                        "sakura": "#fce4ec",
+                        "indigo-soft": "#e8eaf6",
+                        "mint-soft": "#e8f5e9",
+                        "accent-pink": "#f06292",
+                        "accent-indigo": "#3f51b5",
+                        "accent-mint": "#66bb6a",
+                        "background-light": "#ffffff",
+                        "background-dark": "#121920",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "1.25rem", // 20px
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<title>Rotalog - Shift Tracker</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light font-display text-slate-900 antialiased">
+<!-- Header / Nav -->
+<header class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-100">
+<div class="flex items-center justify-between px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">calendar_month</span>
+<h1 class="text-xl font-bold tracking-tight text-slate-800">Rotalog</h1>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full bg-slate-50 border border-slate-100">
+<span class="material-symbols-outlined text-slate-600">account_circle</span>
+</button>
+</div>
+<!-- Tabs -->
+<div class="flex px-6 space-x-8">
+<a class="relative pb-3 text-sm font-semibold text-primary" href="#">
+                All
+                <span class="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full"></span>
+</a>
+<a class="pb-3 text-sm font-medium text-slate-400 hover:text-slate-600" href="#">Week</a>
+<a class="pb-3 text-sm font-medium text-slate-400 hover:text-slate-600" href="#">Month</a>
+</div>
+</header>
+<main class="p-6 pb-32">
+<div class="mb-6">
+<h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Upcoming Shifts</h2>
+<div class="flex flex-col gap-4">
+<!-- Shift Card 1 -->
+<div class="group relative flex items-center justify-between p-5 bg-white rounded-lg shadow-sm border border-slate-50 hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-slate-400">Oct 24 (Thu)</span>
+<span class="size-2 rounded-full bg-accent-pink"></span>
+</div>
+<div class="text-lg font-bold text-slate-800">10:00 - 19:00</div>
+<div class="flex items-center gap-2 text-sm text-slate-500">
+<span>Coffee Shop</span>
+<span class="size-1 rounded-full bg-slate-300"></span>
+<span class="font-medium text-primary">8.0 hrs</span>
+</div>
+</div>
+<div class="size-12 rounded-lg bg-sakura flex items-center justify-center">
+<span class="material-symbols-outlined text-accent-pink">coffee</span>
+</div>
+</div>
+<!-- Shift Card 2 -->
+<div class="group relative flex items-center justify-between p-5 bg-white rounded-lg shadow-sm border border-slate-50 hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-slate-400">Oct 25 (Fri)</span>
+<span class="size-2 rounded-full bg-accent-indigo"></span>
+</div>
+<div class="text-lg font-bold text-slate-800">09:00 - 17:00</div>
+<div class="flex items-center gap-2 text-sm text-slate-500">
+<span>Library</span>
+<span class="size-1 rounded-full bg-slate-300"></span>
+<span class="font-medium text-primary">7.5 hrs</span>
+</div>
+</div>
+<div class="size-12 rounded-lg bg-indigo-soft flex items-center justify-center">
+<span class="material-symbols-outlined text-accent-indigo">menu_book</span>
+</div>
+</div>
+<!-- Shift Card 3 -->
+<div class="group relative flex items-center justify-between p-5 bg-white rounded-lg shadow-sm border border-slate-50 hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-slate-400">Oct 27 (Sun)</span>
+<span class="size-2 rounded-full bg-accent-mint"></span>
+</div>
+<div class="text-lg font-bold text-slate-800">14:00 - 22:00</div>
+<div class="flex items-center gap-2 text-sm text-slate-500">
+<span>Garden Center</span>
+<span class="size-1 rounded-full bg-slate-300"></span>
+<span class="font-medium text-primary">8.0 hrs</span>
+</div>
+</div>
+<div class="size-12 rounded-lg bg-mint-soft flex items-center justify-center">
+<span class="material-symbols-outlined text-accent-mint">potted_plant</span>
+</div>
+</div>
+<!-- Shift Card 4 -->
+<div class="group relative flex items-center justify-between p-5 bg-white rounded-lg shadow-sm border border-slate-50 hover:shadow-md transition-shadow">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-slate-400">Oct 28 (Mon)</span>
+<span class="size-2 rounded-full bg-accent-pink"></span>
+</div>
+<div class="text-lg font-bold text-slate-800">10:00 - 15:00</div>
+<div class="flex items-center gap-2 text-sm text-slate-500">
+<span>Coffee Shop</span>
+<span class="size-1 rounded-full bg-slate-300"></span>
+<span class="font-medium text-primary">5.0 hrs</span>
+</div>
+</div>
+<div class="size-12 rounded-lg bg-sakura flex items-center justify-center">
+<span class="material-symbols-outlined text-accent-pink">local_cafe</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-6 size-14 bg-primary text-white rounded-full shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-105 transition-transform active:scale-95 z-20">
+<span class="material-symbols-outlined text-2xl">add</span>
+</button>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-100 px-6 pb-6 pt-3 flex justify-between items-center z-10">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-1 text-2xl">home</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">history</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">History</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">bar_chart</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Stats</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">settings</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Settings</span>
+</a>
+</nav>
+<!-- Aesthetic Decorative Element -->
+<div class="fixed top-0 right-0 p-8 opacity-10 pointer-events-none">
+<svg fill="none" height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
+<circle class="text-accent-pink" cx="50" cy="50" r="40" stroke="currentColor" stroke-width="2"></circle>
+<path class="text-accent-pink" d="M50 10V90M10 50H90" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</div>
+</body></html>
