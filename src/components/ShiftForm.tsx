@@ -95,7 +95,11 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
   const handleDateSelect = async (date: Date) => {
     await haptic.selection();
     const dateStr = format(date, 'yyyy-MM-dd');
-    setSelectedDates([dateStr]);
+    if (selectedDates.includes(dateStr)) {
+      setSelectedDates(selectedDates.filter(d => d !== dateStr));
+    } else {
+      setSelectedDates([...selectedDates, dateStr]);
+    }
     setBaseDate(dateStr);
   };
 

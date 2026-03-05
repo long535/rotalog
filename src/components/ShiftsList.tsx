@@ -271,7 +271,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartX - touchEndX;
     
-    if (Math.abs(diff) > 50) {
+    if (Math.abs(diff) > 100) {
       if (diff > 0) {
         handleNext();
       } else {
@@ -318,6 +318,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
   const handleBottomNav = async (page: BottomNavPage) => {
     await haptic.selection();
     if (page === 'home') {
+      setCurrentDate(new Date());
       if (onBackToList) onBackToList();
     } else if (page === 'settings') {
       onOpenSettings();
@@ -332,7 +333,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
   return (
     <div className="flex flex-col h-full bg-[var(--color-bg-light)] text-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-100">
+      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-100 pt-safe">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             {pageView === 'HISTORY' || pageView === 'STATS' ? (
@@ -349,19 +350,14 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
           </div>
           <div className="flex items-center gap-1">
             {pageView === 'LIST' && (
-              <>
-                <button 
-                  onClick={() => handleViewModeChange(viewMode === 'LIST' ? 'CALENDAR' : 'LIST')} 
-                  className="p-2 hover:bg-slate-50 rounded-full transition-colors"
-                  title={viewMode === 'LIST' ? t.calendarView : t.listView}
-                >
-                  {viewMode === 'LIST' ? <Calendar size={18} className="text-slate-600" /> : <List size={18} className="text-slate-600" />}
-                </button>
-              </>
+              <button 
+                onClick={() => handleBottomNav('stats')}
+                className="p-2 hover:bg-slate-50 rounded-full transition-colors"
+                title="Statistics"
+              >
+                <span className="material-symbols-outlined text-slate-600">bar_chart</span>
+              </button>
             )}
-            <button onClick={onOpenSettings} className="p-2 hover:bg-slate-50 rounded-full transition-colors" title={t.settings}>
-              <SettingsIcon size={18} className="text-slate-600" />
-            </button>
           </div>
         </div>
         
@@ -518,7 +514,9 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
         ) : viewMode === 'LIST' ? (
           <div className="p-4">
             <div className="mb-6">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Upcoming Shifts</h2>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
+                {filter === 'ALL' ? 'All Shifts' : filter === 'WEEK' ? `${format(startOfWeek(currentDate), 'MMM d')} - ${format(endOfWeek(currentDate), 'MMM d')}` : format(currentDate, 'MMMM yyyy')} Shifts
+              </h2>
               <div className="flex flex-col gap-3">
                 {filteredShifts.length === 0 ? (
                   <div className="text-center py-16 animate-fade-in">
@@ -719,11 +717,11 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
             <span className="text-xs font-bold uppercase tracking-wider">History</span>
           </button>
           <button 
-            onClick={() => handleBottomNav('stats')}
-            className={`flex flex-col items-center gap-0.5 ${bottomNavPage === 'stats' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
+            onClick={() => handleViewModeChange(viewMode === 'LIST' ? 'CALENDAR' : 'LIST')}
+            className={`flex flex-col items-center gap-0.5 ${viewMode === 'CALENDAR' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <span className="material-symbols-outlined text-xl">bar_chart</span>
-            <span className="text-xs font-bold uppercase tracking-wider">Stats</span>
+            <span className="material-symbols-outlined text-xl">calendar_month</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Calendar</span>
           </button>
           <button 
             onClick={() => handleBottomNav('settings')}
