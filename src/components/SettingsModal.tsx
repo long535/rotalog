@@ -355,7 +355,7 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
                   <div key={job.id} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: job.color }} />
-                      <span className="text-sm font-medium text-slate-700 truncate">{job.name}</span>
+                      <span className="text-xs font-medium text-slate-700 truncate">{job.name}</span>
                       {localSettings.defaultJobId === job.id && (
                         <span className="text-[10px] bg-[var(--color-primary)]/10 text-[var(--color-primary)] px-1.5 py-0.5 rounded-full flex-shrink-0">Default</span>
                       )}
@@ -400,7 +400,7 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
                   <span className="material-symbols-outlined text-[var(--color-primary)]">sim_card_download</span>
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <h4 className="font-medium text-slate-800 text-sm">Export Data</h4>
+                  <h4 className="font-medium text-slate-800 text-xs truncate">Export Data</h4>
                   <p className="text-xs text-slate-500 truncate">Download CSV of all shifts</p>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 flex-shrink-0">chevron_right</span>
@@ -417,7 +417,7 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
                   <span className="material-symbols-outlined text-green-500">upload</span>
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <h4 className="font-medium text-slate-800 text-sm">Import Data</h4>
+                  <h4 className="font-medium text-slate-800 text-xs truncate">Import Data</h4>
                   <p className="text-xs text-slate-500 truncate">Import shifts from CSV</p>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 flex-shrink-0">chevron_right</span>
@@ -433,6 +433,7 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
           >
             {t.saveSettings}
           </button>
+          <div className="text-center mt-3 text-xs text-slate-400">Version 1.3.3</div>
         </div>
       </div>
     </div>
