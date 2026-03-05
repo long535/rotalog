@@ -227,6 +227,9 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
 
   const handleViewModeChange = async (mode: ViewMode) => {
     await haptic.selection();
+    if (pageView !== 'LIST' && mode === 'CALENDAR') {
+      if (onBackToList) onBackToList();
+    }
     setViewMode(mode);
     if (mode === 'CALENDAR') {
       setFilter('MONTH');
