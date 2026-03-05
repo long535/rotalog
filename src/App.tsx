@@ -13,7 +13,7 @@ import { format, parseISO } from 'date-fns';
 import { calculateWages, calculateAnnualLeaveHours, getShiftPaidHours, createNotificationChannels, cancelAlarms } from './utils';
 import { useTranslation } from './i18n';
 
-type View = 'LIST' | 'FORM';
+type View = 'LIST' | 'FORM' | 'HISTORY' | 'STATS';
 
 export default function App() {
   const { shifts, settings, setSettings, timer, startTimer, stopTimer, pauseTimer, resumeTimer, addShift, addShifts, updateShift, deleteShift, duplicateShift, addJob, updateJob, deleteJob, setDefaultJob } = useAppStore();
@@ -272,18 +272,20 @@ export default function App() {
 
   return (
     <div className="h-screen w-full max-w-md mx-auto bg-white dark:bg-gray-900 shadow-2xl overflow-hidden relative sm:border-x sm:border-gray-200 dark:sm:border-gray-800">
-      {view === 'LIST' ? (
+      {view === 'LIST' || view === 'HISTORY' || view === 'STATS' ? (
         <ShiftsList
           shifts={shifts}
           settings={settings}
           timer={timer}
+          pageView={view}
           onAdd={handleAdd}
           onEdit={handleEdit}
           onDelete={deleteShift}
           onDuplicate={handleDuplicate}
           onOpenSettings={() => setShowSettings(true)}
-          onExport={handleExportCSV}
-          onImport={handleImportCSV}
+          onShowHistory={() => setView('HISTORY')}
+          onShowStats={() => setView('STATS')}
+          onBackToList={() => setView('LIST')}
           onStartTimer={startTimer}
           onStopTimer={stopTimer}
           onPauseTimer={pauseTimer}
@@ -310,6 +312,8 @@ export default function App() {
           onUpdateJob={updateJob}
           onDeleteJob={deleteJob}
           onSetDefaultJob={setDefaultJob}
+          onExport={handleExportCSV}
+          onImport={handleImportCSV}
         />
       )}
     </div>

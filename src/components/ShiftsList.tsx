@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, subWeeks, addWeeks, subMonths, addMonths, subYears, addYears, isSameDay, isToday, getDaysInMonth, getDay } from 'date-fns';
-import { Plus, Settings as SettingsIcon, Download, Upload, MoreVertical, Copy, Edit2, Trash2, ChevronLeft, ChevronRight, List, Calendar, Image, Timer, Bell, Briefcase, Layers, Home, BarChart3, History } from 'lucide-react';
+import { Plus, Settings as SettingsIcon, MoreVertical, Copy, Edit2, Trash2, List, Calendar, History } from 'lucide-react';
 import { Shift, AppSettings, TimerState, Job } from '../types';
 import { calculateWages, calculateAnnualLeaveHours, formatCurrency, getShiftPaidHours, calculateUKDeductions } from '../utils';
 import { useTranslation } from '../i18n';
@@ -9,19 +9,22 @@ import TimerModal from './TimerModal';
 
 type FilterType = 'ALL' | 'WEEK' | 'MONTH' | 'YEAR';
 type ViewMode = 'LIST' | 'CALENDAR';
+type PageView = 'LIST' | 'HISTORY' | 'STATS';
 type BottomNavPage = 'home' | 'history' | 'stats' | 'settings';
 
 interface Props {
   shifts: Shift[];
   settings: AppSettings;
   timer: TimerState;
+  pageView?: PageView;
   onAdd: () => void;
   onEdit: (shift: Shift) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onOpenSettings: () => void;
-  onExport: () => void;
-  onImport: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onShowHistory?: () => void;
+  onShowStats?: () => void;
+  onBackToList?: () => void;
   onStartTimer: (durationMinutes: number, notificationIds: number[]) => void;
   onStopTimer: () => void;
   onPauseTimer: (remainingSeconds: number) => void;
@@ -35,7 +38,7 @@ const JOB_COLORS = [
   { name: 'Mint', value: '#e8f5e9', accent: '#66bb6a' },
 ];
 
-export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onExport, onImport, onStartTimer, onStopTimer, onPauseTimer, onResumeTimer, jobs = [] }: Props) {
+export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST', onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onShowHistory, onShowStats, onBackToList, onStartTimer, onStopTimer, onPauseTimer, onResumeTimer, jobs = [] }: Props) {
   const [filter, setFilter] = useState<FilterType>('MONTH');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
@@ -314,8 +317,14 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
 
   const handleBottomNav = async (page: BottomNavPage) => {
     await haptic.selection();
-    if (page === 'settings') {
+    if (page === 'home') {
+      if (onBackToList) onBackToList();
+    } else if (page === 'settings') {
       onOpenSettings();
+    } else if (page === 'history' && onShowHistory) {
+      onShowHistory();
+    } else if (page === 'stats' && onShowStats) {
+      onShowStats();
     }
     setBottomNavPage(page);
   };
@@ -324,39 +333,46 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
     <div className="flex flex-col h-full bg-[var(--color-bg-light)] text-slate-900">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[var(--color-primary)] text-2xl">calendar_month</span>
-            <h1 className="text-xl font-bold tracking-tight text-slate-800">Rotalog</h1>
+            {pageView === 'HISTORY' || pageView === 'STATS' ? (
+              <button onClick={onBackToList} className="p-1.5 hover:bg-slate-50 rounded-full transition-colors">
+                <span className="material-symbols-outlined text-slate-600">arrow_back</span>
+              </button>
+            ) : null}
+            <span className="material-symbols-outlined text-[var(--color-primary)] text-xl">
+              {pageView === 'HISTORY' ? 'history' : pageView === 'STATS' ? 'bar_chart' : 'calendar_month'}
+            </span>
+            <h1 className="text-lg font-bold tracking-tight text-slate-800">
+              {pageView === 'HISTORY' ? 'History' : pageView === 'STATS' ? 'Statistics' : 'Rotalog'}
+            </h1>
           </div>
-          <div className="flex items-center gap-2">
-            <label className="p-2.5 hover:bg-slate-50 rounded-full transition-colors cursor-pointer" title={t.importCSV}>
-              <Upload size={20} className="text-slate-600" />
-              <input type="file" accept=".csv" className="hidden" onChange={onImport} />
-            </label>
-            <button onClick={onExport} className="p-2.5 hover:bg-slate-50 rounded-full transition-colors" title={t.exportCSV}>
-              <Download size={20} className="text-slate-600" />
-            </button>
-            <button 
-              onClick={() => handleViewModeChange(viewMode === 'LIST' ? 'CALENDAR' : 'LIST')} 
-              className="p-2.5 hover:bg-slate-50 rounded-full transition-colors"
-              title={viewMode === 'LIST' ? t.calendarView : t.listView}
-            >
-              {viewMode === 'LIST' ? <Calendar size={20} className="text-slate-600" /> : <List size={20} className="text-slate-600" />}
-            </button>
-            <button onClick={onOpenSettings} className="p-2.5 hover:bg-slate-50 rounded-full transition-colors" title={t.settings}>
-              <SettingsIcon size={20} className="text-slate-600" />
+          <div className="flex items-center gap-1">
+            {pageView === 'LIST' && (
+              <>
+                <button 
+                  onClick={() => handleViewModeChange(viewMode === 'LIST' ? 'CALENDAR' : 'LIST')} 
+                  className="p-2 hover:bg-slate-50 rounded-full transition-colors"
+                  title={viewMode === 'LIST' ? t.calendarView : t.listView}
+                >
+                  {viewMode === 'LIST' ? <Calendar size={18} className="text-slate-600" /> : <List size={18} className="text-slate-600" />}
+                </button>
+              </>
+            )}
+            <button onClick={onOpenSettings} className="p-2 hover:bg-slate-50 rounded-full transition-colors" title={t.settings}>
+              <SettingsIcon size={18} className="text-slate-600" />
             </button>
           </div>
         </div>
         
-        {/* Tabs */}
-        <div className="flex px-6 space-x-8">
+        {/* Tabs - only show on LIST view */}
+        {pageView === 'LIST' && (
+        <div className="flex px-4 space-x-6 pb-2">
           {(['ALL', 'WEEK', 'MONTH'] as FilterType[]).map(f => (
             <button
               key={f}
               onClick={() => handleFilterChange(f)}
-              className={`relative pb-3 text-sm font-semibold transition-colors ${
+              className={`relative pb-2 text-xs font-semibold transition-colors ${
                 filter === f 
                   ? 'text-[var(--color-primary)]' 
                   : 'text-slate-400 hover:text-slate-600'
@@ -369,10 +385,11 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
             </button>
           ))}
         </div>
+        )}
       </header>
 
-      {/* Job Filter Pills */}
-      {localJobs.length > 0 && (
+      {/* Job Filter Pills - only show on LIST view */}
+      {pageView === 'LIST' && localJobs.length > 0 && (
         <div className="flex overflow-x-auto px-4 py-3 border-b border-slate-100 hide-scrollbar gap-2">
           <button
             onClick={() => setJobFilter(null)}
@@ -402,12 +419,107 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto pb-32" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        {viewMode === 'LIST' ? (
-          <div className="p-6">
+      <div className="flex-1 overflow-y-auto pb-28" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        {pageView === 'HISTORY' ? (
+          /* History View - All shifts with pagination style */
+          <div className="p-4">
+            <div className="mb-4">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">All Records</h2>
+              <div className="flex flex-col gap-3">
+                {shifts.length === 0 ? (
+                  <div className="text-center py-16 animate-fade-in">
+                    <div className="text-6xl mb-4">📝</div>
+                    <div className="text-slate-400 text-lg">{t.noRecords}</div>
+                  </div>
+                ) : (
+                  shifts
+                    .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
+                    .map((shift, index) => renderShiftCard(shift, index))
+                )}
+              </div>
+            </div>
+          </div>
+        ) : pageView === 'STATS' ? (
+          /* Stats View */
+          <div className="p-4 space-y-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Statistics</h2>
+            
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+                <div className="text-xs text-slate-500 mb-1">Total Hours</div>
+                <div className="text-2xl font-bold text-[var(--color-primary)]">
+                  {shifts.reduce((acc, s) => acc + getShiftPaidHours(s), 0).toFixed(1)}h
+                </div>
+              </div>
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+                <div className="text-xs text-slate-500 mb-1">Total Earnings</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {formatCurrency(shifts.reduce((acc, s) => acc + calculateWages(getShiftPaidHours(s), s.hourlyWage), 0), settings.currency)}
+                </div>
+              </div>
+            </div>
+
+            {/* By Job */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">By Job</h3>
+              {localJobs.length > 0 ? (
+                <div className="space-y-3">
+                  {localJobs.map(job => {
+                    const jobShifts = shifts.filter(s => s.jobId === job.id);
+                    const hours = jobShifts.reduce((acc, s) => acc + getShiftPaidHours(s), 0);
+                    const earnings = jobShifts.reduce((acc, s) => acc + calculateWages(getShiftPaidHours(s), s.hourlyWage), 0);
+                    return (
+                      <div key={job.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: job.color }} />
+                          <span className="text-sm text-slate-700">{job.name}</span>
+                          <span className="text-xs text-slate-400">({jobShifts.length})</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-medium">{hours.toFixed(1)}h</div>
+                          <div className="text-xs text-green-600">{formatCurrency(earnings, settings.currency)}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-sm text-slate-400">No jobs configured</div>
+              )}
+            </div>
+
+            {/* This Month */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">This Month</h3>
+              {(() => {
+                const now = new Date();
+                const monthShifts = shifts.filter(s => {
+                  const d = new Date(s.startTime);
+                  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                });
+                const hours = monthShifts.reduce((acc, s) => acc + getShiftPaidHours(s), 0);
+                const earnings = monthShifts.reduce((acc, s) => acc + calculateWages(getShiftPaidHours(s), s.hourlyWage), 0);
+                return (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-2xl font-bold">{hours.toFixed(1)}h</div>
+                      <div className="text-xs text-slate-500">Hours</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-green-600">{formatCurrency(earnings, settings.currency)}</div>
+                      <div className="text-xs text-slate-500">Earnings</div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        ) : viewMode === 'LIST' ? (
+          <div className="p-4">
             <div className="mb-6">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Upcoming Shifts</h2>
-              <div className="flex flex-col gap-4">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Upcoming Shifts</h2>
+              <div className="flex flex-col gap-3">
                 {filteredShifts.length === 0 ? (
                   <div className="text-center py-16 animate-fade-in">
                     <div className="text-6xl mb-4">📝</div>
@@ -561,17 +673,17 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
         )}
       </div>
 
-      {/* Summary Footer */}
-      <div className="fixed bottom-20 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-100 px-6 py-4 mx-auto max-w-md">
+      {/* Summary Footer - Only show on LIST view */}
+      <div className={`fixed bottom-20 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-100 px-4 py-3 mx-auto max-w-md ${pageView !== 'LIST' ? 'hidden' : ''}`}>
         <div className="flex justify-between items-center">
-          <div className="space-y-1">
-            <div className="text-3xl font-bold">{totalHours.toFixed(1)}<span className="text-lg font-normal ml-1">h</span></div>
+          <div className="space-y-0.5">
+            <div className="text-2xl font-bold">{totalHours.toFixed(1)}<span className="text-sm font-normal ml-1">h</span></div>
             <div className="text-xs text-slate-500">
               <span className="text-green-500">+{periodEarnedLeave.toFixed(1)}h</span> / <span className="text-orange-500">-{periodUsedLeave.toFixed(1)}h</span>
             </div>
           </div>
-          <div className="text-right space-y-1">
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(totalWages, settings.currency)}</div>
+          <div className="text-right space-y-0.5">
+            <div className="text-xl font-bold text-green-600">{formatCurrency(totalWages, settings.currency)}</div>
             {ukDeductions && filter !== 'ALL' && (
               <div className="text-xs text-slate-500">
                 Net: {formatCurrency(ukDeductions.netPay, settings.currency)}
@@ -581,44 +693,44 @@ export default function ShiftsList({ shifts, settings, timer, onAdd, onEdit, onD
         </div>
       </div>
 
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Only show on LIST view */}
       <button 
         onClick={handleAdd}
-        className="fixed bottom-24 right-6 size-14 bg-[var(--color-primary)] text-white rounded-full shadow-lg shadow-[var(--color-primary)]/30 flex items-center justify-center hover:scale-105 transition-transform active:scale-95 z-20"
+        className={`fixed bottom-24 left-1/2 -translate-x-1/2 size-12 bg-[var(--color-primary)] text-white rounded-full shadow-lg shadow-[var(--color-primary)]/30 flex items-center justify-center hover:scale-105 transition-transform active:scale-95 z-20 ${pageView !== 'LIST' ? 'hidden' : ''}`}
       >
-        <span className="material-symbols-outlined text-2xl">add</span>
+        <span className="material-symbols-outlined text-xl">add</span>
       </button>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-100 px-6 pb-safe pt-3 max-w-md mx-auto z-10">
+      <nav className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-100 px-4 pb-safe pt-2 max-w-md mx-auto z-10">
         <div className="flex justify-between items-center">
           <button 
             onClick={() => handleBottomNav('home')}
-            className={`flex flex-col items-center gap-1 ${bottomNavPage === 'home' ? 'text-[var(--color-primary)]' : 'text-slate-400'}`}
+            className={`flex flex-col items-center gap-0.5 ${bottomNavPage === 'home' ? 'text-[var(--color-primary)]' : 'text-slate-400'}`}
           >
-            <span className="material-symbols-outlined fill-[1] text-2xl">home</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider">Home</span>
+            <span className="material-symbols-outlined fill-[1] text-xl">home</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Home</span>
           </button>
           <button 
             onClick={() => handleBottomNav('history')}
-            className={`flex flex-col items-center gap-1 ${bottomNavPage === 'history' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex flex-col items-center gap-0.5 ${bottomNavPage === 'history' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <span className="material-symbols-outlined text-2xl">history</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider">History</span>
+            <span className="material-symbols-outlined text-xl">history</span>
+            <span className="text-xs font-bold uppercase tracking-wider">History</span>
           </button>
           <button 
             onClick={() => handleBottomNav('stats')}
-            className={`flex flex-col items-center gap-1 ${bottomNavPage === 'stats' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex flex-col items-center gap-0.5 ${bottomNavPage === 'stats' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <span className="material-symbols-outlined text-2xl">bar_chart</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider">Stats</span>
+            <span className="material-symbols-outlined text-xl">bar_chart</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Stats</span>
           </button>
           <button 
             onClick={() => handleBottomNav('settings')}
-            className={`flex flex-col items-center gap-1 ${bottomNavPage === 'settings' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex flex-col items-center gap-0.5 ${bottomNavPage === 'settings' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <span className="material-symbols-outlined text-2xl">settings</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider">Settings</span>
+            <span className="material-symbols-outlined text-xl">settings</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Settings</span>
           </button>
         </div>
       </nav>
