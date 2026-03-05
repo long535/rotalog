@@ -84,7 +84,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
   const finalPaidHours = isAnnualLeave && annualLeaveHours !== '' ? parseFloat(annualLeaveHours) || 0 : calculatedHours;
 
   const calendarDays = useMemo(() => {
-    const monthStart = startOfWeek(currentMonth, { weekStartsOn: 0 });
+    const monthStart = startOfWeek(currentMonth, { weekStartsOn: settings.weekStartsOn ?? 1 });
     const days: Date[] = [];
     for (let i = 0; i < 42; i++) {
       days.push(addDays(monthStart, i));
@@ -272,7 +272,13 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
             
             {/* Weekday Headers */}
             <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2">
-              <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+              {(() => {
+                const weekStartsOn = settings.weekStartsOn ?? 1;
+                const reorderedDays = [...t.weekDays.slice(weekStartsOn), ...t.weekDays.slice(0, weekStartsOn)];
+                return reorderedDays.map(day => (
+                  <div key={day}>{day}</div>
+                ));
+              })()}
             </div>
             
             {/* Calendar Grid */}
