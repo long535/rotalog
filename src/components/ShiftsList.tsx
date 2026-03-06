@@ -459,6 +459,34 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
               </div>
             </div>
 
+            {/* Leave & Overtime Summary */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* Annual Leave */}
+              <div className="bg-purple-50 rounded-xl p-3 border border-purple-100">
+                <div className="text-xs text-purple-600 mb-1">{t.annualLeave || 'Annual Leave'}</div>
+                <div className="text-lg font-bold text-purple-700">
+                  {shifts.filter(s => s.isAnnualLeave).reduce((acc, s) => acc + (s.annualLeaveHours || getShiftPaidHours(s)), 0).toFixed(1)}h
+                </div>
+                <div className="text-xs text-purple-400">Used</div>
+              </div>
+              {/* Sick Leave */}
+              <div className="bg-red-50 rounded-xl p-3 border border-red-100">
+                <div className="text-xs text-red-600 mb-1">{t.sickLeave || 'Sick Leave'}</div>
+                <div className="text-lg font-bold text-red-700">
+                  {shifts.filter(s => s.isSickLeave).reduce((acc, s) => acc + (s.sickLeaveHours || getShiftPaidHours(s)), 0).toFixed(1)}h
+                </div>
+                <div className="text-xs text-red-400">Used</div>
+              </div>
+              {/* Overtime */}
+              <div className="bg-orange-50 rounded-xl p-3 border border-orange-100">
+                <div className="text-xs text-orange-600 mb-1">{t.overtime || 'Overtime'}</div>
+                <div className="text-lg font-bold text-orange-700">
+                  {shifts.filter(s => s.isOvertime).reduce((acc, s) => acc + getShiftPaidHours(s), 0).toFixed(1)}h
+                </div>
+                <div className="text-xs text-orange-400">Total</div>
+              </div>
+            </div>
+
             {/* By Job */}
             <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
               <h3 className="text-sm font-semibold text-slate-700 mb-3">By Job</h3>
@@ -499,15 +527,34 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
                 });
                 const hours = monthShifts.reduce((acc, s) => acc + getShiftPaidHours(s), 0);
                 const earnings = monthShifts.reduce((acc, s) => acc + calculateWages(getShiftPaidHours(s), s.hourlyWage), 0);
+                const annualLeaveUsed = monthShifts.filter(s => s.isAnnualLeave).reduce((acc, s) => acc + (s.annualLeaveHours || getShiftPaidHours(s)), 0);
+                const sickLeaveUsed = monthShifts.filter(s => s.isSickLeave).reduce((acc, s) => acc + (s.sickLeaveHours || getShiftPaidHours(s)), 0);
+                const overtimeHours = monthShifts.filter(s => s.isOvertime).reduce((acc, s) => acc + getShiftPaidHours(s), 0);
                 return (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-2xl font-bold">{hours.toFixed(1)}h</div>
-                      <div className="text-xs text-slate-500">Hours</div>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-2xl font-bold">{hours.toFixed(1)}h</div>
+                        <div className="text-xs text-slate-500">Hours</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-green-600">{formatCurrency(earnings, settings.currency)}</div>
+                        <div className="text-xs text-slate-500">Earnings</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-2xl font-bold text-green-600">{formatCurrency(earnings, settings.currency)}</div>
-                      <div className="text-xs text-slate-500">Earnings</div>
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
+                      <div className="text-center">
+                        <div className="text-sm font-semibold text-purple-600">{annualLeaveUsed.toFixed(1)}h</div>
+                        <div className="text-xs text-slate-400">{t.annualLeave || 'Annual'}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm font-semibold text-red-600">{sickLeaveUsed.toFixed(1)}h</div>
+                        <div className="text-xs text-slate-400">{t.sickLeave || 'Sick'}</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm font-semibold text-orange-600">{overtimeHours.toFixed(1)}h</div>
+                        <div className="text-xs text-slate-400">{t.overtime || 'OT'}</div>
+                      </div>
                     </div>
                   </div>
                 );

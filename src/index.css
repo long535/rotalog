@@ -50,17 +50,17 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
-/* Dark Mode Overrides */
+/* Dark Mode Overrides - Improved */
 .dark {
-  --color-bg-light: #121920;
-  --color-bg-white: #1e293b;
-  --color-bg-card: #1e293b;
-  --color-bg-input: #0f172a;
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-  --color-border: #334155;
-  --color-border-light: #1e293b;
+  --color-bg-light: #0f1117;
+  --color-bg-white: #1a1d26;
+  --color-bg-card: #1a1d26;
+  --color-bg-input: #12141c;
+  --color-text-primary: #e4e6eb;
+  --color-text-secondary: #b0b3b8;
+  --color-text-muted: #6b7280;
+  --color-border: #2d3139;
+  --color-border-light: #252a34;
 }
 
 @layer utilities {
@@ -224,93 +224,6 @@
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-}
-
-/* Color01 (EVA Theme - Unit 02) */
-:root.color01 {
-  --color-primary: #F97316;
-  --color-primary-from: #F97316;
-  --color-primary-to: #FB923C;
-  --color-accent: #EF4444;
-  --color-warning: #EF4444;
-  --color-bg: #0F0F14;
-  --color-bg-secondary: #1A1A24;
-  --color-bg-card: #252532;
-  --color-text: #FFFFFF;
-  --color-text-secondary: #D4D4D8;
-  --color-border: #3F3F50;
-  --color-input-bg: #1A1A24;
-}
-
-:root.color01 body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-}
-
-:root.color01 .dark\:bg-gray-800\/95 {
-  background-color: var(--color-bg-card) !important;
-}
-
-:root.color01 .dark\:bg-gray-900\/50 {
-  background-color: var(--color-bg-secondary) !important;
-}
-
-:root.color01 .dark\:text-gray-100,
-:root.color01 .dark\:text-gray-200,
-:root.color01 .dark\:text-gray-300,
-:root.color01 .text-gray-900 {
-  color: var(--color-text) !important;
-}
-
-:root.color01 .dark\:text-gray-400,
-:root.color01 .dark\:text-gray-500,
-:root.color01 .text-gray-500,
-:root.color01 .text-gray-600 {
-  color: var(--color-text-secondary) !important;
-}
-
-:root.color01 input,
-:root.color01 select,
-:root.color01 textarea {
-  color: var(--color-text) !important;
-}
-
-:root.color01 .dark\:border-gray-700\/50,
-:root.color01 .dark\:border-gray-700 {
-  border-color: var(--color-border) !important;
-}
-
-:root.color01 .dark\:bg-gray-800 {
-  background-color: var(--color-bg-card) !important;
-}
-
-:root.color01 .dark\:bg-gray-900 {
-  background-color: var(--color-bg) !important;
-}
-
-:root.color01 .gradient-primary {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-to) 100%);
-}
-
-:root.color01 .btn-fab {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-to) 100%);
-  box-shadow: 0 8px 24px -4px rgba(249, 115, 22, 0.5);
-}
-
-:root.color01 .btn-fab:hover {
-  box-shadow: 0 12px 32px -4px rgba(249, 115, 22, 0.6);
-}
-
-:root.color01 .from-indigo-500.to-purple-500,
-:root.color01 .from-indigo-600.to-purple-600,
-:root.color01 .from-indigo-400.to-purple-400 {
-  --tw-gradient-from: var(--color-primary) !important;
-  --tw-gradient-to: var(--color-accent) !important;
-}
-
-:root.color01 .dark\:from-indigo-400.dark\:to-purple-400 {
-  --tw-gradient-from: var(--color-primary) !important;
-  --tw-gradient-to: var(--color-accent) !important;
 }
 
 /* Color02 (Gundam Theme - RX-78-2) */

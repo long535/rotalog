@@ -102,11 +102,12 @@ export default function App() {
   };
 
   const handleExportCSV = async () => {
-    const headers = ['Date', 'Start Time', 'End Time', 'Break (min)', 'Paid Hours', 'Is Annual Leave', 'Annual Leave Used (h)', 'Annual Leave Earned (h)', 'Hourly Wage', 'Wages', 'Notes'];
+    const headers = ['Date', 'Start Time', 'End Time', 'Break (min)', 'Paid Hours', 'Is Annual Leave', 'Annual Leave Used (h)', 'Annual Leave Earned (h)', 'Is Sick Leave', 'Sick Leave Used (h)', 'Is Overtime', 'Hourly Wage', 'Wages', 'Notes'];
     const rows = shifts.map(s => {
       const paidHours = getShiftPaidHours(s);
       const annualLeaveEarned = s.isAnnualLeave ? 0 : calculateAnnualLeaveHours(paidHours);
       const annualLeaveUsed = s.isAnnualLeave ? paidHours : 0;
+      const sickLeaveUsed = s.isSickLeave ? paidHours : 0;
       const wages = calculateWages(paidHours, s.hourlyWage);
       return [
         format(parseISO(s.startTime), 'yyyy-MM-dd'),
@@ -117,6 +118,9 @@ export default function App() {
         s.isAnnualLeave ? 'Yes' : 'No',
         annualLeaveUsed.toFixed(2),
         annualLeaveEarned.toFixed(2),
+        s.isSickLeave ? 'Yes' : 'No',
+        sickLeaveUsed.toFixed(2),
+        s.isOvertime ? 'Yes' : 'No',
         s.hourlyWage,
         wages.toFixed(2),
         `"${(s.notes || '').replace(/"/g, '""')}"`
@@ -174,6 +178,9 @@ export default function App() {
     const breakIdx = csvHeaders.indexOf('Break (min)');
     const isLeaveIdx = csvHeaders.indexOf('Is Annual Leave');
     const leaveUsedIdx = csvHeaders.indexOf('Annual Leave Used (h)');
+    const isSickIdx = csvHeaders.indexOf('Is Sick Leave');
+    const sickUsedIdx = csvHeaders.indexOf('Sick Leave Used (h)');
+    const isOvertimeIdx = csvHeaders.indexOf('Is Overtime');
     const wageIdx = csvHeaders.indexOf('Hourly Wage');
     const notesIdx = csvHeaders.indexOf('Notes');
 
@@ -211,6 +218,9 @@ export default function App() {
         const breakMinutes = breakIdx !== -1 ? parseInt(values[breakIdx]) || 0 : 0;
         const isAnnualLeave = isLeaveIdx !== -1 ? values[isLeaveIdx] === 'Yes' : false;
         const annualLeaveHours = isAnnualLeave && leaveUsedIdx !== -1 ? parseFloat(values[leaveUsedIdx]) || undefined : undefined;
+        const isSickLeave = isSickIdx !== -1 ? values[isSickIdx] === 'Yes' : false;
+        const sickLeaveHours = isSickLeave && sickUsedIdx !== -1 ? parseFloat(values[sickUsedIdx]) || undefined : undefined;
+        const isOvertime = isOvertimeIdx !== -1 ? values[isOvertimeIdx] === 'Yes' : false;
         const hourlyWage = wageIdx !== -1 ? parseFloat(values[wageIdx]) || 0 : 0;
         const notes = notesIdx !== -1 ? values[notesIdx] || '' : '';
 
@@ -234,7 +244,10 @@ export default function App() {
               hourlyWage,
               notes,
               isAnnualLeave,
-              annualLeaveHours
+              annualLeaveHours,
+              isSickLeave,
+              sickLeaveHours,
+              isOvertime
             });
           }
         } catch (err) {

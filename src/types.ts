@@ -7,6 +7,9 @@ export interface Shift {
   notes: string;
   isAnnualLeave?: boolean;
   annualLeaveHours?: number;
+  isSickLeave?: boolean;
+  sickLeaveHours?: number;
+  isOvertime?: boolean;
   photoUrl?: string;
   reminders?: number[];
   alarmIds?: number[];
@@ -25,7 +28,7 @@ export interface AppSettings {
   defaultHourlyWage: number;
   currency: string;
   defaultBreakMinutes: number;
-  theme: 'light' | 'dark' | 'color01' | 'color02';
+  theme: 'light' | 'dark' | 'color02';
   enableUKTaxes?: boolean;
   language?: 'zh' | 'en';
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;

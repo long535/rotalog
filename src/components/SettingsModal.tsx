@@ -255,7 +255,6 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
               >
                 <option value="light">{t.themeLight}</option>
                 <option value="dark">{t.themeDark}</option>
-                <option value="color01">{t.themeColor01}</option>
                 <option value="color02">{t.themeColor02}</option>
               </select>
             </div>
@@ -433,7 +432,7 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
           >
             {t.saveSettings}
           </button>
-          <div className="text-center mt-3 text-xs text-slate-400">Version 1.3.3</div>
+          <div className="text-center mt-3 text-xs text-slate-400">Version 1.4.0</div>
         </div>
       </div>
     </div>

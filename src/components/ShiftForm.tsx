@@ -34,7 +34,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
   const [breakMinutes, setBreakMinutes] = useState(shift ? shift.breakMinutes.toString() : (defaultJob?.defaultBreakMinutes?.toString() || settings.defaultBreakMinutes.toString()));
   const [hourlyWage, setHourlyWage] = useState(shift ? shift.hourlyWage.toString() : (defaultJob?.defaultHourlyWage?.toString() || settings.defaultHourlyWage.toString()));
   const [notes, setNotes] = useState(shift ? shift.notes : '');
-  const [shiftType, setShiftType] = useState<ShiftType>(shift?.isAnnualLeave ? 'annual' : 'regular');
+  const [shiftType, setShiftType] = useState<ShiftType>(shift?.isAnnualLeave ? 'annual' : shift?.isSickLeave ? 'sick' : shift?.isOvertime ? 'overtime' : 'regular');
   const [annualLeaveHours, setAnnualLeaveHours] = useState(shift?.annualLeaveHours?.toString() || '');
   const [photoUrl, setPhotoUrl] = useState<string | undefined>(shift?.photoUrl);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
@@ -45,6 +45,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
   const t = useTranslation(settings.language);
 
   const isAnnualLeave = shiftType === 'annual';
+  const isSickLeave = shiftType === 'sick';
   const selectedJob = selectedJobId ? localJobs.find(j => j.id === selectedJobId) : null;
 
   const handleJobChange = (jobId: string | null) => {
@@ -120,6 +121,9 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
         notes,
         isAnnualLeave: shiftType === 'annual',
         annualLeaveHours: shiftType === 'annual' ? (annualLeaveHours !== '' ? parseFloat(annualLeaveHours) : calculatedHours) : undefined,
+        isSickLeave: shiftType === 'sick',
+        sickLeaveHours: shiftType === 'sick' ? (isEditing && shift?.sickLeaveHours ? shift.sickLeaveHours : calculatedHours) : undefined,
+        isOvertime: shiftType === 'overtime',
         photoUrl,
         reminders,
         jobId: selectedJobId,

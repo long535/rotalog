@@ -16,6 +16,9 @@ export function getShiftPaidHours(shift: Shift): number {
   if (shift.isAnnualLeave && shift.annualLeaveHours !== undefined) {
     return shift.annualLeaveHours;
   }
+  if (shift.isSickLeave && shift.sickLeaveHours !== undefined) {
+    return shift.sickLeaveHours;
+  }
   return calculatePaidHours(shift.startTime, shift.endTime, shift.breakMinutes);
 }
 
