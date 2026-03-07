@@ -2,9 +2,9 @@
 
 <div align="center">
 
-**版本 / Version:** 1.2.2
+**版本 / Version:** 1.4.1 (628491)
 
-**下載 / Download:** [app-debug.apk (7.3MB)](https://github.com/long535/worklog/releases/latest/download/app-debug.apk)
+**下載 / Download:** [app-debug.apk (7.3MB)](https://github.com/long535/rotalog/releases/download/v1.4.1/app-debug.apk)
 
 **簡潔強大的工時與薪資追蹤工具**  
 **A simple yet powerful work hours and wage tracking app**
@@ -26,6 +26,7 @@
 - **年假追蹤** - 追蹤年假獲得與使用，顯示結餘
 - **多工作地點** - 可設定不同的工作地點，各自擁有獨立的時薪和休息時間設定
 - **工作分組顯示** - 可按工作地點分組顯示班次
+- **病假管理** - 新增病假時數輸入，自動從總工時扣除無薪病假，精確計算實得工資
 
 #### 檢視模式
 - **列表檢視** - 傳統列表方式顯示班次
@@ -40,7 +41,8 @@
 #### 資料管理
 - **CSV 匯出** - 將班次資料匯出為 CSV 檔案
 - **CSV 匯入** - 從 CSV 檔案匯入班次資料
-- **本地儲存** - 資料安全儲存在裝置上
+- **本地儲存** - 支援直接儲存至裝置 Documents 資料夾，並自動處理權限衝突
+- **資料安全** - 所有資料安全儲存在您的裝置上，不經伺服器
 
 #### 使用者體驗
 - **滑動切換** - 左右滑動底部區域切換月份
@@ -164,6 +166,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 - **Annual Leave Tracking** - Track earned and used annual leave with balance
 - **Multiple Jobs** - Manage different job locations with their own hourly wage and break time settings
 - **Group by Job** - Group shifts by job location for better organization
+- **Sick Leave Management** - Explicit sick leave hours input, automatic unpaid deduction, and precise wage calculation
 
 #### View Modes
 - **List View** - Traditional list format for shifts
@@ -178,6 +181,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 #### Data Management
 - **CSV Export** - Export shifts to CSV file
 - **CSV Import** - Import shifts from CSV file
+- **Save to Device** - Direct saving to Documents folder with automated permission handling and unique timestamps
 - **Local Storage** - Data securely stored on device
 
 #### User Experience
