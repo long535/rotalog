@@ -195,7 +195,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
   const periodEarnedLeave = filteredShifts.filter(s => !s.isAnnualLeave).reduce((acc, s) => acc + calculateAnnualLeaveHours(getShiftPaidHours(s)), 0);
   const periodUsedLeave = filteredShifts.filter(s => s.isAnnualLeave).reduce((acc, s) => acc + getShiftPaidHours(s), 0);
   
-  const regularHours = totalHours - filteredShifts.filter(s => s.isAnnualLeave || s.isSickLeave).reduce((acc, s) => acc + getShiftPaidHours(s), 0);
+  const regularHours = totalHours - filteredShifts.filter(s => s.isAnnualLeave).reduce((acc, s) => acc + getShiftPaidHours(s), 0);
 
   const ukDeductions = settings.enableUKTaxes ? calculateUKDeductions(totalWages, filter) : null;
 
@@ -473,8 +473,8 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
                 {(() => {
                   const totalHours = shifts.reduce((acc, s) => acc + getShiftPaidHours(s), 0);
                   const annualLeave = shifts.filter(s => s.isAnnualLeave).reduce((acc, s) => acc + (s.annualLeaveHours || getShiftPaidHours(s)), 0);
-                  const sickLeave = shifts.filter(s => s.isSickLeave).reduce((acc, s) => acc + (s.sickLeaveHours || getShiftPaidHours(s)), 0);
-                  return (totalHours - annualLeave - sickLeave).toFixed(1);
+                  const sickLeave = shifts.filter(s => s.isSickLeave).reduce((acc, s) => acc + (s.sickLeaveHours || 0), 0);
+                  return (totalHours - annualLeave).toFixed(1);
                 })()}h
               </div>
               <div className="text-xs text-emerald-400">Excludes sick leave & annual leave</div>
@@ -494,7 +494,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
               <div className="bg-red-50 rounded-xl p-3 border border-red-100">
                 <div className="text-xs text-red-600 mb-1">{t.sickLeave || 'Sick Leave'}</div>
                 <div className="text-lg font-bold text-red-700">
-                  {shifts.filter(s => s.isSickLeave).reduce((acc, s) => acc + (s.sickLeaveHours || getShiftPaidHours(s)), 0).toFixed(1)}h
+                  {shifts.filter(s => s.isSickLeave).reduce((acc, s) => acc + (s.sickLeaveHours || 0), 0).toFixed(1)}h
                 </div>
                 <div className="text-xs text-red-400">Used</div>
               </div>
@@ -549,9 +549,9 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
                 const hours = monthShifts.reduce((acc, s) => acc + getShiftPaidHours(s), 0);
                 const earnings = monthShifts.reduce((acc, s) => acc + calculateWages(getShiftPaidHours(s), s.hourlyWage), 0);
                 const annualLeaveUsed = monthShifts.filter(s => s.isAnnualLeave).reduce((acc, s) => acc + (s.annualLeaveHours || getShiftPaidHours(s)), 0);
-                const sickLeaveUsed = monthShifts.filter(s => s.isSickLeave).reduce((acc, s) => acc + (s.sickLeaveHours || getShiftPaidHours(s)), 0);
+                const sickLeaveUsed = monthShifts.filter(s => s.isSickLeave).reduce((acc, s) => acc + (s.sickLeaveHours || 0), 0);
                 const overtimeHours = monthShifts.filter(s => s.isOvertime).reduce((acc, s) => acc + getShiftPaidHours(s), 0);
-                const regularHours = hours - annualLeaveUsed - sickLeaveUsed;
+                const regularHours = hours - annualLeaveUsed;
                 return (
                   <div className="space-y-3">
                     <div className="grid grid-cols-3 gap-2">
