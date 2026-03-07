@@ -143,35 +143,16 @@ export default function App() {
         await Filesystem.writeFile({
           path: filename,
           data: btoa(unescape(encodeURIComponent(fullContent))),
-          directory: Directory.Cache,
+          directory: Directory.Documents,
           recursive: true
         });
 
         const fileUri = await Filesystem.getUri({
           path: filename,
-          directory: Directory.Cache
+          directory: Directory.Documents
         });
 
-        if (navigator.share && navigator.canShare?.({ files: [] })) {
-          const response = await fetch(fileUri.uri);
-          const blob = await response.blob();
-          const file = new File([blob], filename, { type: 'text/csv' });
-          
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              title: 'Save Shift Data',
-              text: 'Save CSV file',
-              files: [file]
-            });
-            return;
-          }
-        }
-
-        await Share.share({
-          title: 'Save Shift Data',
-          text: '選擇保存位置或分享給其他 App',
-          url: fileUri.uri
-        });
+        alert('已成功保存至本地文檔:\n' + fileUri.uri);
       } else {
         const blob = new Blob([fullContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);

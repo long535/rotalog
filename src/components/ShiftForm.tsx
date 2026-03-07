@@ -36,6 +36,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
   const [notes, setNotes] = useState(shift ? shift.notes : '');
   const [shiftType, setShiftType] = useState<ShiftType>(shift?.isAnnualLeave ? 'annual' : shift?.isSickLeave ? 'sick' : shift?.isOvertime ? 'overtime' : 'regular');
   const [annualLeaveHours, setAnnualLeaveHours] = useState(shift?.annualLeaveHours?.toString() || '');
+  const [sickLeaveHoursInput, setSickLeaveHoursInput] = useState(shift?.sickLeaveHours?.toString() || '');
   const [photoUrl, setPhotoUrl] = useState<string | undefined>(shift?.photoUrl);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [reminder1h, setReminder1h] = useState(shift?.reminders?.includes(60) ?? false);
@@ -82,7 +83,11 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
     parseInt(breakMinutes) || 0
   );
 
-  const finalPaidHours = isAnnualLeave && annualLeaveHours !== '' ? parseFloat(annualLeaveHours) || 0 : calculatedHours;
+  const finalPaidHours = isAnnualLeave && annualLeaveHours !== '' 
+    ? parseFloat(annualLeaveHours) || 0 
+    : isSickLeave
+      ? Math.max(0, calculatedHours - (sickLeaveHoursInput !== '' ? parseFloat(sickLeaveHoursInput) || 0 : 0))
+      : calculatedHours;
 
   const calendarDays = useMemo(() => {
     const monthStart = startOfWeek(currentMonth, { weekStartsOn: settings.weekStartsOn ?? 1 });
@@ -122,6 +127,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
         isAnnualLeave: shiftType === 'annual',
         annualLeaveHours: shiftType === 'annual' ? (annualLeaveHours !== '' ? parseFloat(annualLeaveHours) : calculatedHours) : undefined,
         isSickLeave: shiftType === 'sick',
+        sickLeaveHours: shiftType === 'sick' ? (sickLeaveHoursInput !== '' ? parseFloat(sickLeaveHoursInput) : 0) : undefined,
         isOvertime: shiftType === 'overtime',
         photoUrl,
         reminders,
@@ -388,18 +394,20 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
           </div>
         </div>
 
-        {/* Annual Leave Hours */}
-        {shiftType === 'annual' && (
+        {/* Annual/Sick Leave Hours */}
+        {(shiftType === 'annual' || shiftType === 'sick') && (
           <div className="animate-fade-in">
-            <label className="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">{t.useHours}</label>
+            <label className="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">
+              {shiftType === 'annual' ? t.useHours : 'Sick Leave (Unpaid Hours)'}
+            </label>
             <input
               type="number"
               min="0"
               step="0.5"
-              value={annualLeaveHours}
-              onChange={(e) => setAnnualLeaveHours(e.target.value)}
-              placeholder={`${t.default}: ${calculatedHours.toFixed(1)}`}
-              className="w-full p-4 bg-slate-50 border-none rounded-xl text-slate-800 font-medium"
+              value={shiftType === 'annual' ? annualLeaveHours : sickLeaveHoursInput}
+              onChange={(e) => shiftType === 'annual' ? setAnnualLeaveHours(e.target.value) : setSickLeaveHoursInput(e.target.value)}
+              placeholder={`${t.default}: ${shiftType === 'annual' ? calculatedHours.toFixed(1) : 0}`}
+              className="w-full p-4 bg-slate-50 dark:bg-gray-700 border-none rounded-xl text-slate-800 dark:text-gray-100 font-medium"
             />
           </div>
         )}

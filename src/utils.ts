@@ -16,11 +16,13 @@ export function getShiftPaidHours(shift: Shift): number {
   if (shift.isAnnualLeave && shift.annualLeaveHours !== undefined) {
     return shift.annualLeaveHours;
   }
-  // Sick leave = 0 paid hours (part-time, leaving early is unpaid)
+  const calculatedHours = calculatePaidHours(shift.startTime, shift.endTime, shift.breakMinutes);
+  
   if (shift.isSickLeave) {
-    return 0;
+    const sickHours = shift.sickLeaveHours || 0;
+    return Math.max(0, calculatedHours - sickHours);
   }
-  return calculatePaidHours(shift.startTime, shift.endTime, shift.breakMinutes);
+  return calculatedHours;
 }
 
 /** Get the total scheduled hours for a shift (without break deduction), used for display/tracking only */
@@ -91,7 +93,7 @@ export function generateCSVContent(shifts: Shift[], settings: AppSettings): stri
     const paidHours = getShiftPaidHours(s);
     const annualLeaveEarned = s.isAnnualLeave ? 0 : calculateAnnualLeaveHours(paidHours);
     const annualLeaveUsed = s.isAnnualLeave ? paidHours : 0;
-    const sickLeaveHours = s.isSickLeave ? getShiftTotalHours(s) : 0;
+    const sickLeaveHours = s.isSickLeave ? (s.sickLeaveHours || 0) : 0;
     const wages = calculateWages(paidHours, s.hourlyWage);
     return [
       format(parseISO(s.startTime), 'yyyy-MM-dd'),
