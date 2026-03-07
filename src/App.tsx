@@ -140,19 +140,35 @@ export default function App() {
       const filename = `shifts_export_${format(new Date(), 'yyyyMMdd')}.csv`;
 
       if (Capacitor.isNativePlatform()) {
-        await Filesystem.writeFile({
-          path: filename,
-          data: btoa(unescape(encodeURIComponent(fullContent))),
-          directory: Directory.Documents,
-          recursive: true
-        });
+        const permStatus = await Filesystem.requestPermissions();
+        if (permStatus.publicStorage === 'denied') {
+          alert('需要儲存權限才能儲存檔案至設備。');
+          return;
+        }
 
-        const fileUri = await Filesystem.getUri({
-          path: filename,
-          directory: Directory.Documents
-        });
+        try {
+          await Filesystem.writeFile({
+            path: filename,
+            data: btoa(unescape(encodeURIComponent(fullContent))),
+            directory: Directory.Documents,
+            recursive: true
+          });
 
-        alert('已成功保存至本地文檔:\n' + fileUri.uri);
+          const fileUri = await Filesystem.getUri({
+            path: filename,
+            directory: Directory.Documents
+          });
+
+          alert('已成功保存至本地文檔:\n' + fileUri.uri);
+        } catch (writeErr: any) {
+          console.error('Write error:', writeErr);
+          if (writeErr.message?.includes('EACCES') || writeErr.message?.includes('Permission')) {
+            alert('系統限制了直接寫入 Documents 資料夾的權限。將為您開啟分享選單，請選擇「儲存到裝置」或發送給自己。');
+            handleShareCSV();
+          } else {
+            alert('保存失敗: ' + writeErr.message);
+          }
+        }
       } else {
         const blob = new Blob([fullContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);

@@ -102,7 +102,12 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
                 <span className="w-1 h-1 rounded-full bg-slate-300" />
               </>
             ) : null}
-            <span className={`font-medium ${shift.isSickLeave ? 'text-red-600' : 'text-[var(--color-primary)]'}`}>{paidHours.toFixed(1)} hrs</span>
+            <span className={`font-medium ${shift.isAnnualLeave ? 'text-[var(--color-primary)]' : 'text-slate-700 dark:text-gray-200'}`}>
+              {paidHours.toFixed(1)} hrs
+              {shift.isSickLeave && (shift.sickLeaveHours || 0) > 0 && (
+                <span className="text-xs text-red-500 ml-1">(-{shift.sickLeaveHours}h unpaid)</span>
+              )}
+            </span>
           </div>
         </div>
         
@@ -736,7 +741,12 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
                           <p className="text-sm font-semibold text-slate-800">
                             {format(parseISO(shift.startTime), 'HH:mm')} - {format(parseISO(shift.endTime), 'HH:mm')}
                           </p>
-                          <p className={`text-xs ${shift.isSickLeave ? 'text-red-600' : 'text-slate-500'}`}>{paidHours.toFixed(1)} hours</p>
+                          <p className={`text-xs ${shift.isAnnualLeave ? 'text-[var(--color-primary)]' : 'text-slate-500'}`}>
+                            {paidHours.toFixed(1)} hours
+                            {shift.isSickLeave && (shift.sickLeaveHours || 0) > 0 && (
+                              <span className="text-red-500 ml-1">(-{shift.sickLeaveHours}h unpaid)</span>
+                            )}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
