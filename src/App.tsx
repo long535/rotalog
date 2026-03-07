@@ -105,7 +105,7 @@ export default function App() {
 
   const handleExportCSV = async () => {
     const fullContent = generateCSVContent(shifts, settings);
-    const filename = `shifts_export_${format(new Date(), 'yyyyMMdd')}.csv`;
+    const filename = `shifts_export_${format(new Date(), 'yyyyMMdd_HHmmss')}.csv`;
 
     if (Capacitor.isNativePlatform()) {
       try {
@@ -137,7 +137,7 @@ export default function App() {
   const handleSaveToDevice = async () => {
     try {
       const fullContent = generateCSVContent(shifts, settings);
-      const filename = `shifts_export_${format(new Date(), 'yyyyMMdd')}.csv`;
+      const filename = `shifts_export_${format(new Date(), 'yyyyMMdd_HHmmss')}.csv`;
 
       if (Capacitor.isNativePlatform()) {
         const permStatus = await Filesystem.requestPermissions();
@@ -190,7 +190,7 @@ export default function App() {
 
   const handleShareCSV = async () => {
     const fullContent = generateCSVContent(shifts, settings);
-    const filename = `shifts_export_${format(new Date(), 'yyyyMMdd')}.csv`;
+    const filename = `shifts_export_${format(new Date(), 'yyyyMMdd_HHmmss')}.csv`;
 
     if (Capacitor.isNativePlatform()) {
       try {
