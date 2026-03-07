@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Rotalog</string>
+    <string name="title_activity_main">Rotalog</string>
+    <string name="package_name">com.rotalog.app</string>
+    <string name="custom_url_scheme">com.rotalog.app</string>
+</resources>
