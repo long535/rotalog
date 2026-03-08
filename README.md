@@ -119,9 +119,9 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 ### 📸 App 截圖
 
-<img src="https://raw.githubusercontent.com/long535/worklog/main/screenshot/Screenshot_20260302-234053.png" width="250" />
+<img src="https://raw.githubusercontent.com/long535/rotalog/main/screenshot/1000068062.png" width="250" />
 
-<img src="https://raw.githubusercontent.com/long535/worklog/main/screenshot/Screenshot_20260302-234058.png" width="250" />
+<img src="https://raw.githubusercontent.com/long535/rotalog/main/screenshot/1000068063.png" width="250" />
 
 ---
 
