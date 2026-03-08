@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1a1a2e"
+    tools:context=".activities.AlarmActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp">
+
+        <TextView
+            android:id="@+id/alarmTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textSize="72sp"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-light" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏰"
+            android:textSize="80sp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:id="@+id/alarmTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="提醒"
+            android:textSize="32sp"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/alarmBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="20sp"
+            android:textColor="#b0b0b0"
+            android:gravity="center"
+            android:layout_marginBottom="48dp" />
+
+        <Button
+            android:id="@+id/dismissBtn"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="關閉"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#ffffff"
+            android:background="@drawable/dismiss_button_bg"
+            android:layout_marginTop="32dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

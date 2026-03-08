@@ -1,0 +1,313 @@
+# Rotalog - 班次記錄器 / Shift Tracker
+
+<div align="center">
+
+**版本 / Version:** 1.5.0 (Google Play Release)
+
+**下載 / Download:** [app-debug.apk (6.5MB)](https://github.com/long535/rotalog/releases/download/v1.5.0/app-debug.apk) | [app-release.aab](https://github.com/long535/rotalog/releases/download/v1.5.0/rotalog-v1.5.0-v5.aab)
+
+**簡潔強大的工時與薪資追蹤工具**  
+**A simple yet powerful work hours and wage tracking app**
+
+[繁體中文](#繁體中文) | [English](#english)
+
+</div>
+
+---
+
+## 繁體中文
+
+### 📱 功能總覽
+
+#### 核心功能
+- **班次管理** - 新增、編輯、複製、刪除班次記錄
+- **工時計算** - 自動計算有薪工時（扣除休息時間）
+- **薪資計算** - 根據時薪自動計算薪資
+- **年假追蹤** - 追蹤年假獲得與使用，顯示結餘
+- **多工作地點** - 可設定不同的工作地點，各自擁有獨立的時薪和休息時間設定
+- **工作分組顯示** - 可按工作地點分組顯示班次
+- **病假管理** - 新增病假時數輸入，自動從總工時扣除無薪病假，精確計算實得工資
+- **進階統計儀表板** - 全新的統計圖表頁面，支援週/月/年/自定義時段檢視
+- **薪資與工時圖表** - 使用純 CSS/SVG 繪製的柱形圖，直觀顯示數據變化
+- **平均數據分析** - 自動計算日平均工時、日平均薪資等關鍵指標
+- **各項工作佔比** - 圓柱圖顯示不同工作地點的時數與薪資分配
+- **休假平衡圖表** - 進度條式顯示年假獲得、使用與剩餘狀況
+
+#### 檢視模式
+- **列表檢視** - 傳統列表方式顯示班次
+- **月曆檢視** - 月曆格式查看整月班次分佈
+- **篩選功能** - 支援全部 / 週 / 月 / 年篩選
+
+#### 照片附件
+- **拍照上傳** - 直接拍攝工時單或相關文件
+- **相簿選擇** - 從相簿選擇現有照片
+- **照片預覽** - 在列表和月曆中快速查看照片
+
+#### 資料管理
+- **CSV 匯出** - 將班次資料匯出為 CSV 檔案
+- **CSV 匯入** - 從 CSV 檔案匯入班次資料
+- **本地儲存** - 支援直接儲存至裝置 Documents 資料夾，並自動處理權限衝突
+- **資料安全** - 所有資料安全儲存在您的裝置上，不經伺服器
+
+#### 使用者體驗
+- **滑動切換** - 左右滑動底部區域切換月份
+- **觸覺回饋** - 按鈕操作提供震動回饋
+- **雙語介面** - 支援繁體中文 / English
+- **主題切換** - 淺色 / 深色主題
+
+#### 進階功能
+- **英國稅務估算** - 自動估算 Tax, N.I., Pension（可選）
+- **多日新增** - 一次新增多天的相同班次
+- **快速日期選擇** - 點選星期幾快速選擇同週班次
+- **一週的第一天** - 可設定週日或週一為一週的第一天
+
+#### 提醒與計時器
+- **上班提醒** - 設定上班前 1 小時 / 30 分鐘提醒通知（使用系統鬧鐘，關閉 APP 也會觸發）
+- **午休計時器** - 60 / 30 分鐘快速計時，支援背景運作
+- **暫停/繼續** - 計時中可隨時暫停或繼續
+- **提前提醒** - 計時結束前 20 秒提醒準備打卡
+- **系統鬧鐘整合** - 鬧鐘顯示在系統時鐘 App 中，支援全螢幕提醒
+- **隱私優先** - 無廣告 ID，僅保留必要權限，資料 100% 本地化儲存
+- **Google Play 合規性** - 移除冗餘權限，符合最新 Android 安全規範
+
+---
+
+### 🛠️ 技術棧
+
+- **Frontend:** React 19, TypeScript
+- **Styling:** TailwindCSS 4
+- **Mobile:** Capacitor 8 (Android)
+- **Date Handling:** date-fns
+- **Icons:** Lucide React
+
+---
+
+### 📋 安裝與執行
+
+#### 環境需求
+- Node.js 18+
+- Android Studio (for Android build)
+
+#### 本地開發
+
+```bash
+# 安裝依賴
+npm install
+
+# 開發模式
+npm run dev
+
+# 建置生產版本
+npm run build
+
+# Android 建置
+npx cap sync android
+cd android && gradle assembleDebug
+```
+
+#### 安裝到 Android 裝置
+
+```bash
+# 建置 APK
+cd android && gradle assembleDebug
+
+# 安裝到連接的裝置
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+---
+
+### 📸 App 截圖
+
+<img src="https://raw.githubusercontent.com/long535/worklog/main/screenshot/Screenshot_20260302-234053.png" width="250" />
+
+<img src="https://raw.githubusercontent.com/long535/worklog/main/screenshot/Screenshot_20260302-234058.png" width="250" />
+
+---
+
+### 📸 使用說明
+
+#### 新增班次
+1. 點擊底部 **+** 按鈕
+2. 選擇日期（可多選）
+3. 設定開始/結束時間
+4. 輸入休息時間（無薪）
+5. 確認時薪
+6. 可選擇拍照或從相簿選擇照片
+7. 儲存
+
+- **統計儀表板** - 點擊底部 **Stats** (📊) 分頁，查看詳細的圖表分析與休假狀況
+- **年假結餘** - 在 Stats 頁面中查看進度條形式的年假結餘
+- **工作佔比** - 在 Stats 頁面下拉查看不同工作的貢獻比例概覽
+
+#### 切換月份
+- 點擊 **<** / **>** 按鈕
+- 或在底部區域 **左右滑動**
+
+#### 設定上班提醒
+1. 新增或編輯班次
+2. 在「提醒」區塊勾選 1 小時前 / 30 分鐘前
+3. 儲存後，系統會在指定時間發送通知
+4. 提醒會顯示在系統時鐘 App 的鬧鐘列表中，即使關閉 APP 也會觸發
+
+#### 使用午休計時器
+1. 點擊底部橘色計時器按鈕
+2. 選擇 60 分鐘、30 分鐘或 1 分鐘（測試用）
+3. 點擊開始
+4. 即使切換到其他 App（如 YouTube），計時仍會在背景運作
+5. 計時中可點擊「暫停」按鈕暫停計時
+6. 暫停後可點擊「繼續」恢復計時
+7. 結束前 20 秒會收到「準備打卡」通知
+8. 計時結束會收到「午休結束」通知
+
+---
+
+## English
+
+### 📱 Features Overview
+
+#### Core Features
+- **Shift Management** - Add, edit, duplicate, and delete shift records
+- **Hours Calculation** - Automatic paid hours calculation (minus break time)
+- **Wage Calculation** - Automatic wage calculation based on hourly rate
+- **Annual Leave Tracking** - Track earned and used annual leave with balance
+- **Multiple Jobs** - Manage different job locations with their own hourly wage and break time settings
+- **Group by Job** - Group shifts by job location for better organization
+- **Sick Leave Management** - Explicit sick leave hours input, automatic unpaid deduction, and precise wage calculation
+- **Advanced Stats Dashboard** - Brand new statistics page supporting Week/Month/Year/Custom duration views
+- **Visual Charts** - Pure CSS/SVG bar charts for visualizing work hours and earnings trends
+- **Key Metrics & Averages** - Auto-calculation of daily averages, longest shifts, and productivity metrics
+- **Job Breakdown** - Visual comparison of hours and earnings across multiple jobs
+- **Leave Progress Tracking** - Progress bar visualization for annual leave balance and usage
+
+#### View Modes
+- **List View** - Traditional list format for shifts
+- **Calendar View** - Monthly calendar format to see shift distribution
+- **Filtering** - Support for All / Week / Month / Year filters
+
+#### Photo Attachments
+- **Take Photo** - Directly capture timesheet or related documents
+- **Choose from Gallery** - Select existing photos from album
+- **Photo Preview** - Quick view photos in list and calendar views
+
+#### Data Management
+- **CSV Export** - Export shifts to CSV file
+- **CSV Import** - Import shifts from CSV file
+- **Save to Device** - Direct saving to Documents folder with automated permission handling and unique timestamps
+- **Local Storage** - Data securely stored on device
+
+#### User Experience
+- **Swipe Navigation** - Swipe left/right on bottom area to change month
+- **Haptic Feedback** - Vibration feedback on button actions
+- **Bilingual Interface** - Support for 繁體中文 / English
+- **Theme Toggle** - Light / Dark theme
+
+#### Advanced Features
+- **UK Tax Estimation** - Auto estimate Tax, N.I., Pension (optional)
+- **Multi-day Entry** - Add same shift for multiple days at once
+- **Quick Date Selection** - Click weekday to quickly select same week shifts
+- **First Day of Week** - Customize whether week starts on Sunday or Monday
+
+#### Reminders & Timer
+- **Work Reminders** - Set notifications 1 hour / 30 min before shift starts (uses system alarms, works even when app is closed)
+- **Break Timer** - 60 / 30 min quick timer with background support
+- **Pause/Resume** - Pause and resume timer anytime
+- **Early Warning** - 20 seconds advance notice before timer ends
+- **System Alarm Integration** - Alarms appear in system clock app with fullscreen reminder UI
+
+---
+
+### 🛠️ Tech Stack
+
+- **Frontend:** React 19, TypeScript
+- **Styling:** TailwindCSS 4
+- **Mobile:** Capacitor 8 (Android)
+- **Date Handling:** date-fns
+- **Icons:** Lucide React
+
+---
+
+### 📋 Installation & Running
+
+#### Requirements
+- Node.js 18+
+- Android Studio (for Android build)
+
+#### Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Development mode
+npm run dev
+
+# Build production version
+npm run build
+
+# Android build
+npx cap sync android
+cd android && gradle assembleDebug
+```
+
+#### Install to Android Device
+
+```bash
+# Build APK
+cd android && gradle assembleDebug
+
+# Install to connected device
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+---
+
+### 📸 Usage Guide
+
+#### Add Shift
+1. Tap the **+** button at bottom
+2. Select date(s) (multiple selection supported)
+3. Set start/end time
+4. Enter break time (unpaid)
+5. Confirm hourly wage
+6. Optionally take photo or choose from gallery
+7. Save
+
+#### View Statistics
+- **Stats Dashboard** - Tap the **Stats** (📊) tab at the bottom for detailed charts and analysis
+- **Leave Progress** - View your annual leave balance as a progress bar in the Stats tab
+- **Job Breakdown** - Scroll down in the Stats tab to see the proportion of hours/earnings per job
+
+#### Change Month
+- Tap **<** / **>** buttons
+- Or **swipe left/right** on the bottom area
+
+#### Set Work Reminders
+1. Add or edit a shift
+2. In the "Reminders" section, check 1 hour before / 30 min before
+3. After saving, notifications will be sent at the specified times
+4. Reminders appear in system clock app alarm list, triggers even when app is closed
+
+#### Use Break Timer
+1. Tap the orange timer button at the bottom
+2. Select 60 minutes, 30 minutes, or 1 minute (test mode)
+3. Tap Start
+4. Timer runs in background even when switching to other apps (e.g., YouTube)
+5. Tap "Pause" to pause the timer anytime
+6. Tap "Resume" to continue from where you left off
+7. 20 seconds before end, you'll receive a "Get Ready" notification
+8. When timer ends, you'll receive a "Break Ended" notification
+
+---
+
+## License
+
+MIT License - feel free to use and modify as needed.
+
+---
+
+<div align="center">
+
+**Made with ❤️ for shift workers everywhere**
+
+</div>

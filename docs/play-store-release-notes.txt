@@ -1,0 +1,20 @@
+<en-US>
+- Added a full Statistics Dashboard
+- Support for bar charts, averages, and custom date ranges
+- Annual leave and sick leave tracking
+- Bug fixes and performance improvements
+</en-US>
+
+<zh-HK>
+- 全新統計儀表板
+- 支援柱形圖、平均數和自訂日期範圍查詢
+- 新增年假和病假追蹤功能
+- 修正錯誤及提升效能
+</zh-HK>
+
+<zh-TW>
+- 全新統計儀表板
+- 支援柱形圖、平均數和自訂日期範圍查詢
+- 新增年假和病假追蹤功能
+- 修正錯誤及提升效能
+</zh-TW>

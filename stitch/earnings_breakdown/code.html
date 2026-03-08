@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rotalog - Earnings Breakdown</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4a8fd9",
+                        "accent-sakura": "#FFB7C5",
+                        "accent-mint": "#98D7C2",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#121920",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "1.5rem",
+                        "xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-6 py-4 flex items-center gap-4">
+<button class="size-10 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 shadow-sm border border-slate-200/50 dark:border-slate-700/50">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="text-xl font-semibold tracking-tight">Earnings Breakdown</h1>
+</header>
+<main class="flex-1 px-6 pb-24 max-w-2xl mx-auto w-full">
+<!-- Period Selector -->
+<div class="flex gap-2 p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl mb-6">
+<button class="flex-1 py-2 text-sm font-medium rounded-lg bg-white dark:bg-slate-700 shadow-sm text-primary">This Month</button>
+<button class="flex-1 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">Last Month</button>
+<button class="flex-1 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">Custom</button>
+</div>
+<!-- Summary Card -->
+<div class="relative overflow-hidden bg-primary text-white rounded-xl p-8 mb-6 shadow-xl shadow-primary/20">
+<div class="relative z-10">
+<p class="text-white/80 text-sm font-medium mb-1 uppercase tracking-widest">Total Net Pay</p>
+<h2 class="text-4xl font-bold mb-6">£2,450.00</h2>
+<div class="grid grid-cols-3 gap-4 pt-6 border-t border-white/20">
+<div>
+<p class="text-white/70 text-[10px] uppercase font-bold tracking-tighter">Gross</p>
+<p class="text-lg font-semibold">£3,100</p>
+</div>
+<div>
+<p class="text-white/70 text-[10px] uppercase font-bold tracking-tighter">Tax</p>
+<p class="text-lg font-semibold">£450</p>
+</div>
+<div>
+<p class="text-white/70 text-[10px] uppercase font-bold tracking-tighter">Deduct</p>
+<p class="text-lg font-semibold">£200</p>
+</div>
+</div>
+</div>
+<!-- Japanese Minimalist Patterns (Abstract shapes) -->
+<div class="absolute -right-8 -top-8 size-48 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute -left-12 -bottom-12 size-40 bg-accent-sakura/20 rounded-full blur-2xl"></div>
+</div>
+<!-- Earnings Trend (Simulated Line Chart) -->
+<section class="mb-8">
+<div class="flex justify-between items-end mb-4">
+<h3 class="font-semibold text-lg">Earnings Trend</h3>
+<span class="text-accent-mint text-sm font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> +12.5%
+                </span>
+</div>
+<div class="h-40 bg-white dark:bg-slate-800 rounded-xl p-4 flex items-end justify-between gap-1 shadow-sm border border-slate-100 dark:border-slate-700">
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-1/4">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-sm h-1/2"></div>
+</div>
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-2/4">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-sm h-3/4"></div>
+</div>
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-3/4">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-sm h-2/3"></div>
+</div>
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-2/4">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-sm h-1/2"></div>
+</div>
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-4/5">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-sm h-full"></div>
+</div>
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-2/3">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-sm h-4/5"></div>
+</div>
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-3/4">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-sm h-2/3"></div>
+</div>
+</div>
+<div class="flex justify-between px-1 mt-2 text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+<span>Week 1</span>
+<span>Week 2</span>
+<span>Week 3</span>
+<span>Week 4</span>
+</div>
+</section>
+<!-- Detailed Shift List -->
+<section class="mb-8">
+<h3 class="font-semibold text-lg mb-4">Shift Details</h3>
+<div class="space-y-3">
+<!-- Shift Item 1 -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl flex items-center justify-between border border-slate-100 dark:border-slate-700 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-accent-sakura/20 flex flex-col items-center justify-center text-accent-sakura leading-none">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-lg font-bold">14</span>
+</div>
+<div>
+<p class="font-semibold text-slate-800 dark:text-slate-100">Senior Shift</p>
+<p class="text-xs text-slate-500">8.5 hrs • £18.50/hr</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-primary">£157.25</p>
+<p class="text-[10px] text-accent-mint font-bold uppercase tracking-widest">Paid</p>
+</div>
+</div>
+<!-- Shift Item 2 -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl flex items-center justify-between border border-slate-100 dark:border-slate-700 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-primary/10 flex flex-col items-center justify-center text-primary leading-none">
+<span class="text-[10px] font-bold uppercase">Oct</span>
+<span class="text-lg font-bold">12</span>
+</div>
+<div>
+<p class="font-semibold text-slate-800 dark:text-slate-100">Night Shift</p>
+<p class="text-xs text-slate-500">12 hrs • £16.00/hr</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-primary">£192.00</p>
+<p class="text-[10px] text-accent-mint font-bold uppercase tracking-widest">Paid</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Tax & Benefits Breakdown -->
+<section class="mb-8">
+<h3 class="font-semibold text-lg mb-4">Tax &amp; Contributions</h3>
+<div class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700 shadow-sm">
+<div class="p-4 flex justify-between items-center border-b border-slate-50 dark:border-slate-700/50">
+<span class="text-sm text-slate-600 dark:text-slate-400">Income Tax (PAYE)</span>
+<span class="text-sm font-semibold text-slate-800 dark:text-slate-100">£312.40</span>
+</div>
+<div class="p-4 flex justify-between items-center border-b border-slate-50 dark:border-slate-700/50">
+<span class="text-sm text-slate-600 dark:text-slate-400">National Insurance</span>
+<span class="text-sm font-semibold text-slate-800 dark:text-slate-100">£98.60</span>
+</div>
+<div class="p-4 flex justify-between items-center border-b border-slate-50 dark:border-slate-700/50">
+<span class="text-sm text-slate-600 dark:text-slate-400">Pension Contribution</span>
+<span class="text-sm font-semibold text-slate-800 dark:text-slate-100">£39.00</span>
+</div>
+<div class="p-4 bg-slate-50/50 dark:bg-slate-700/30 flex justify-between items-center">
+<span class="text-sm font-bold text-primary uppercase tracking-widest">Total Deductions</span>
+<span class="text-sm font-bold text-primary">£450.00</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-6 py-3 flex justify-between items-center z-50">
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">calendar_month</span>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-primary transition-colors">Calendar</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">list_alt</span>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-primary transition-colors">Shifts</span>
+</a>
+<a class="flex flex-col items-center gap-1 group relative" href="#">
+<span class="material-symbols-outlined text-primary font-bold">payments</span>
+<span class="text-[10px] font-bold text-primary">Earnings</span>
+<div class="absolute -top-1 size-1 bg-primary rounded-full"></div>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">account_circle</span>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-primary transition-colors">Profile</span>
+</a>
+</nav>
+</body></html>
