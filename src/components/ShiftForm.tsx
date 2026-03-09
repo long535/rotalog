@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, Image, X, Bell, Briefcase, ChevronDown, ChevronLeft, ChevronRight, ImagePlus, Images } from 'lucide-react';
-import { format, parseISO, addDays, startOfWeek, getDaysInMonth, getDay, isSameMonth, isToday } from 'date-fns';
+import { format, parseISO, addDays, addMonths, startOfWeek, startOfMonth, getDaysInMonth, getDay, isSameMonth, isToday } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { Shift, AppSettings, Job } from '../types';
 import { calculatePaidHours, calculateAnnualLeaveHours, scheduleShiftAlarms, cancelAlarms } from '../utils';
@@ -41,7 +41,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [reminder1h, setReminder1h] = useState(shift?.reminders?.includes(60) ?? false);
   const [reminder30m, setReminder30m] = useState(shift?.reminders?.includes(30) ?? false);
-  const [currentMonth, setCurrentMonth] = useState(new Date(baseDate));
+  const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date(baseDate)));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslation(settings.language);
 
@@ -90,13 +90,14 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
       : calculatedHours;
 
   const calendarDays = useMemo(() => {
-    const monthStart = startOfWeek(currentMonth, { weekStartsOn: settings.weekStartsOn ?? 1 });
+    const firstDay = startOfMonth(currentMonth);
+    const weekStart = startOfWeek(firstDay, { weekStartsOn: settings.weekStartsOn ?? 1 });
     const days: Date[] = [];
     for (let i = 0; i < 42; i++) {
-      days.push(addDays(monthStart, i));
+      days.push(addDays(weekStart, i));
     }
     return days;
-  }, [currentMonth]);
+  }, [currentMonth, settings.weekStartsOn]);
 
   const handleDateSelect = async (date: Date) => {
     await haptic.selection();
@@ -265,14 +266,14 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
             {/* Month Navigation */}
             <div className="flex items-center justify-between mb-4">
               <button 
-                onClick={() => setCurrentMonth(addDays(currentMonth, -30))} 
+                onClick={() => setCurrentMonth(addMonths(currentMonth, -1))} 
                 className="p-2 hover:bg-slate-50 rounded-full transition-colors"
               >
                 <ChevronLeft size={20} className="text-slate-600" />
               </button>
               <span className="font-bold text-slate-800 dark:text-gray-100 text-lg">{format(currentMonth, 'MMMM yyyy')}</span>
               <button 
-                onClick={() => setCurrentMonth(addDays(currentMonth, 30))} 
+                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} 
                 className="p-2 hover:bg-slate-50 rounded-full transition-colors"
               >
                 <ChevronRight size={20} className="text-slate-600" />
@@ -301,8 +302,10 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
                 return (
                   <button
                     key={index}
-                    onClick={() => handleDateSelect(date)}
-                    disabled={!isCurrentMonth}
+                    onClick={() => {
+                      if (!isCurrentMonth) setCurrentMonth(startOfMonth(date));
+                      handleDateSelect(date);
+                    }}
                     className={`aspect-square flex items-center justify-center rounded-full font-medium transition-colors ${
                       isSelectedDate 
                         ? 'bg-[var(--color-primary)] text-white shadow-lg shadow-[var(--color-primary)]/30' 
