@@ -30,9 +30,10 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
   const [selectedDates, setSelectedDates] = useState<string[]>([initialDate]);
   const [timeStart, setTimeStart] = useState(initialTimeStart);
   const [timeEnd, setTimeEnd] = useState(initialTimeEnd);
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(shift?.jobId || defaultJob?.id || null);
-  const [breakMinutes, setBreakMinutes] = useState(shift ? shift.breakMinutes.toString() : (defaultJob?.defaultBreakMinutes?.toString() || settings.defaultBreakMinutes.toString()));
-  const [hourlyWage, setHourlyWage] = useState(shift ? shift.hourlyWage.toString() : (defaultJob?.defaultHourlyWage?.toString() || settings.defaultHourlyWage.toString()));
+  const autoJobId = defaultJob?.id || (localJobs.length > 0 ? localJobs[0].id : null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(shift?.jobId || autoJobId);
+  const [breakMinutes, setBreakMinutes] = useState(shift ? shift.breakMinutes.toString() : (defaultJob?.defaultBreakMinutes?.toString() || (localJobs.length > 0 ? localJobs[0].defaultBreakMinutes.toString() : settings.defaultBreakMinutes.toString())));
+  const [hourlyWage, setHourlyWage] = useState(shift ? shift.hourlyWage.toString() : (defaultJob?.defaultHourlyWage?.toString() || (localJobs.length > 0 ? localJobs[0].defaultHourlyWage.toString() : settings.defaultHourlyWage.toString())));
   const [notes, setNotes] = useState(shift ? shift.notes : '');
   const [shiftType, setShiftType] = useState<ShiftType>(shift?.isAnnualLeave ? 'annual' : shift?.isSickLeave ? 'sick' : shift?.isOvertime ? 'overtime' : 'regular');
   const [annualLeaveHours, setAnnualLeaveHours] = useState(shift?.annualLeaveHours?.toString() || '');
@@ -248,7 +249,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
               onChange={(e) => handleJobChange(e.target.value || null)}
               className="w-full appearance-none bg-slate-50 dark:bg-gray-700 border-none rounded-xl px-4 py-4 text-slate-800 dark:text-gray-100 focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all font-medium"
             >
-              <option value="">{t.noJob}</option>
+              {localJobs.length === 0 && <option value="">{t.noJob}</option>}
               {localJobs.map((job) => (
                 <option key={job.id} value={job.id}>{job.name}</option>
               ))}

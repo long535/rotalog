@@ -474,7 +474,28 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
                             ) : (
                               <>
                                 <div className="w-3 h-3 rounded-full bg-slate-400" />
-                                <span className="font-semibold text-sm text-slate-500">{t.noJob || 'No Job'}</span>
+                                <span className="font-semibold text-sm text-slate-500">{t.noJob || 'Unassigned'}</span>
+                                {localJobs.length > 0 && (
+                                  <button
+                                    onClick={() => {
+                                      if (localJobs.length === 1) {
+                                        // Quick assign if only 1 job option
+                                        const singleJobId = localJobs[0].id;
+                                        const updatedShifts = jobShifts.map(s => ({ ...s, jobId: singleJobId }));
+                                        updatedShifts.forEach(onEdit);
+                                      } else {
+                                        // Open a quick assign dialog or just alert for now - 
+                                        // For simplicity, we assign to the default Job if available, or first job
+                                        const targetJobId = settings.defaultJobId || localJobs[0].id;
+                                        const updatedShifts = jobShifts.map(s => ({ ...s, jobId: targetJobId }));
+                                        updatedShifts.forEach(onEdit);
+                                      }
+                                    }}
+                                    className="ml-2 px-2 py-0.5 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded text-xs font-semibold uppercase tracking-wider transition-colors"
+                                  >
+                                    {t.assignJob || 'Assign'}
+                                  </button>
+                                )}
                               </>
                             )}
                           </div>

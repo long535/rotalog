@@ -32,7 +32,29 @@ const defaultTimerState: TimerState = {
 export function useAppStore() {
   const [shifts, setShifts] = useState<Shift[]>(() => {
     const saved = localStorage.getItem(SHIFTS_KEY);
-    return saved ? JSON.parse(saved) : [];
+    const parsedShifts: Shift[] = saved ? JSON.parse(saved) : [];
+    
+    // Auto-migrate old shifts if there is exactly one job
+    const savedSettings = localStorage.getItem(SETTINGS_KEY);
+    const settingsObj = savedSettings ? JSON.parse(savedSettings) : null;
+    if (settingsObj && settingsObj.jobs && settingsObj.jobs.length === 1) {
+      const singleJobId = settingsObj.jobs[0].id;
+      let migrated = false;
+      const updatedShifts = parsedShifts.map(s => {
+        if (!s.jobId) {
+          migrated = true;
+          return { ...s, jobId: singleJobId };
+        }
+        return s;
+      });
+      
+      if (migrated) {
+        localStorage.setItem(SHIFTS_KEY, JSON.stringify(updatedShifts));
+        return updatedShifts;
+      }
+    }
+    
+    return parsedShifts;
   });
 
   const [settings, setSettings] = useState<AppSettings>(() => {
