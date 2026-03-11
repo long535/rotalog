@@ -147,24 +147,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
             builder.setFullScreenIntent(fullscreenPendingIntent, true);
-            
-            // Play alarm sound in loop using Ringtone
-            try {
-                android.media.Ringtone ringtone = android.media.RingtoneManager.getRingtone(context, alarmSound);
-                if (ringtone != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        ringtone.setLooping(true);
-                    }
-                    AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build();
-                    ringtone.setAudioAttributes(audioAttributes);
-                    ringtone.play();
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to play ringtone: " + e.getMessage());
-            }
+
 
             notificationManager.notify(NOTIFICATION_ID, builder.build());
             Log.d(TAG, "Ongoing notification shown");
