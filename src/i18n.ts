@@ -102,6 +102,8 @@ export const translations = {
     noJobsYet: '尚未新增工作地點',
     jobColor: '顏色',
     groupBy: '按工作分組',
+    liveEarning: '正在賺取',
+    excludeBreak: '扣除休息',
   },
   en: {
     appTitle: 'Shifts Tracker',
@@ -206,6 +208,8 @@ export const translations = {
     noJobsYet: 'No jobs added yet',
     jobColor: 'Color',
     groupBy: 'Group by Job',
+    liveEarning: 'Earning Now',
+    excludeBreak: 'Exclude Break',
   }
 };
 

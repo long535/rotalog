@@ -303,3 +303,221 @@
   --tw-gradient-from: var(--color-primary) !important;
   --tw-gradient-to: var(--color-accent) !important;
 }
+
+/* ============================================
+   Live Earning Banner — Neon Slot Machine
+   ============================================ */
+
+.live-earning-banner {
+  margin: 12px 16px 4px;
+  padding: 12px 16px 14px;
+  min-height: 110px;
+  background: linear-gradient(145deg, #0a0f1a 0%, #111827 50%, #0f172a 100%);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.5),
+    0 0 30px -8px rgba(0, 255, 136, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.live-earning-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse at 50% 80%, rgba(0, 255, 136, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Header row: label left, toggle right */
+.live-earning-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 6px;
+}
+
+.live-earning-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-earning-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #00ff88, #00cc6a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a0f1a;
+  box-shadow: 0 2px 8px -2px rgba(0, 255, 136, 0.4);
+}
+
+.live-earning-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #00ff88;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.3);
+}
+
+.live-earning-pulse {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #00ff88;
+  box-shadow: 0 0 6px 2px rgba(0, 255, 136, 0.5);
+  animation: earningPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes earningPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.7); }
+}
+
+/* Toggle Switch (top right) */
+.live-earning-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.live-earning-toggle-track {
+  width: 26px;
+  height: 14px;
+  border-radius: 999px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.live-earning-toggle-track.active {
+  background: #064e2e;
+  border-color: #00ff88;
+  box-shadow: 0 0 6px rgba(0, 255, 136, 0.3);
+}
+
+.live-earning-toggle-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #64748b;
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.live-earning-toggle-track.active .live-earning-toggle-thumb {
+  transform: translateX(12px);
+  background: #00ff88;
+  box-shadow: 0 0 4px rgba(0, 255, 136, 0.5);
+}
+
+.live-earning-toggle-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Center: Neon Odometer */
+.live-earning-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.live-earning-currency-neon {
+  font-size: 20px;
+  font-weight: 800;
+  color: #00ff88;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.4), 0 0 20px rgba(0, 255, 136, 0.15);
+  margin-right: 4px;
+  font-family: 'Lexend', 'SF Mono', monospace;
+}
+
+/* Neon Odometer container */
+.odometer-neon {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  gap: 2px;
+}
+
+/* Each digit cell — slot machine style */
+.odometer-neon .odometer-digit {
+  display: inline-block;
+  width: 22px;
+  height: 36px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(180deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+  border-radius: 4px;
+  border: 1px solid #1e2a3a;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.4),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.2),
+    0 0 6px rgba(0, 255, 136, 0.04);
+}
+
+.odometer-neon .odometer-strip {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+.odometer-neon .odometer-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 36px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #00ff88;
+  text-shadow:
+    0 0 6px rgba(0, 255, 136, 0.35),
+    0 0 14px rgba(0, 255, 136, 0.12);
+  font-variant-numeric: tabular-nums;
+  font-family: 'Courier New', 'SF Mono', 'Menlo', monospace;
+}
+
+/* Separator (decimal point) — no grid cell background */
+.odometer-neon .odometer-separator {
+  font-size: 24px;
+  font-weight: 800;
+  color: #00ff88;
+  text-shadow: 0 0 6px rgba(0, 255, 136, 0.3);
+  width: 10px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+}
+

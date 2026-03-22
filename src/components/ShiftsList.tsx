@@ -7,6 +7,7 @@ import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
 import TimerModal from './TimerModal';
 import StatsDashboard from './StatsDashboard';
+import LiveEarningBanner from './LiveEarningBanner';
 
 type FilterType = 'ALL' | 'WEEK' | 'MONTH' | 'YEAR';
 type ViewMode = 'LIST' | 'CALENDAR';
@@ -423,6 +424,11 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto pb-28" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        {/* Live Earning Banner - only on LIST view */}
+        {pageView === 'LIST' && (
+          <LiveEarningBanner shifts={shifts} settings={settings} />
+        )}
+
         {pageView === 'HISTORY' ? (
           /* History View - All shifts with pagination style */
           <div className="p-4">

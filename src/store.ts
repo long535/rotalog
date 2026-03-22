@@ -14,7 +14,7 @@ const defaultSettings: AppSettings = {
   defaultBreakMinutes: 60,
   theme: 'dark',
   enableUKTaxes: false,
-  language: 'zh',
+  language: 'en',
   weekStartsOn: 1,
   jobs: [],
   defaultJobId: null,
