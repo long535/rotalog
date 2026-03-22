@@ -285,6 +285,7 @@ export default function App() {
     const sickUsedIdx = csvHeaders.indexOf('Sick Leave Used (h)');
     const isOvertimeIdx = csvHeaders.indexOf('Is Overtime');
     const wageIdx = csvHeaders.indexOf('Hourly Wage');
+    const jobIdIdx = csvHeaders.indexOf('Job ID');
     const notesIdx = csvHeaders.indexOf('Notes');
 
     const importedShifts: Shift[] = [];
@@ -350,7 +351,8 @@ export default function App() {
               annualLeaveHours,
               isSickLeave,
               sickLeaveHours,
-              isOvertime
+              isOvertime,
+              jobId: jobIdIdx !== -1 && values[jobIdIdx] ? values[jobIdIdx] : null,
             });
           }
         } catch (err) {
