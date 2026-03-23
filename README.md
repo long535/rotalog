@@ -2,9 +2,9 @@
 
 <div align="center">
 
-**版本 / Version:** 1.5.0 (Google Play Release)
+**版本 / Version:** 1.5.7 (Google Play Release)
 
-**下載 / Download:** [app-debug.apk (6.5MB)](https://github.com/long535/rotalog/releases/download/v1.5.0/app-debug.apk) | [app-release.aab](https://github.com/long535/rotalog/releases/download/v1.5.0/rotalog-v1.5.0-v5.aab)
+**下載 / Download:** [app-debug.apk (6.5MB)](https://github.com/long535/rotalog/releases/download/v1.5.7/app-debug.apk) | [app-release.aab](https://github.com/long535/rotalog/releases/download/v1.5.7/rotalog-v1.5.7-v5.aab)
 
 **簡潔強大的工時與薪資追蹤工具**  
 **A simple yet powerful work hours and wage tracking app**
@@ -26,6 +26,7 @@
 - **年假追蹤** - 追蹤年假獲得與使用，顯示結餘
 - **多工作地點** - 可設定不同的工作地點，各自擁有獨立的時薪和休息時間設定
 - **工作分組顯示** - 可按工作地點分組顯示班次
+- **即時薪資橫幅 (Live Earning)** - 班次進行中時，首頁頂部會顯示如老虎機般跳動的「正在賺取」金額、下班倒數及預計總收入，讓上班更有動力
 - **病假管理** - 新增病假時數輸入，自動從總工時扣除無薪病假，精確計算實得工資
 - **進階統計儀表板** - 全新的統計圖表頁面，支援週/月/年/自定義時段檢視
 - **薪資與工時圖表** - 使用純 CSS/SVG 繪製的柱形圖，直觀顯示數據變化
@@ -45,7 +46,7 @@
 
 #### 資料管理
 - **CSV 匯出** - 將班次資料匯出為 CSV 檔案
-- **CSV 匯入** - 從 CSV 檔案匯入班次資料
+- **CSV 匯入與衝突處理** - 從 CSV 檔案匯入班次資料，自動偵測重複班次並提供「跳過、覆蓋、全部新增」選項
 - **本地儲存** - 支援直接儲存至裝置 Documents 資料夾，並自動處理權限衝突
 - **資料安全** - 所有資料安全儲存在您的裝置上，不經伺服器
 
@@ -173,6 +174,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 - **Annual Leave Tracking** - Track earned and used annual leave with balance
 - **Multiple Jobs** - Manage different job locations with their own hourly wage and break time settings
 - **Group by Job** - Group shifts by job location for better organization
+- **Live Earning Banner** - Neon slot-machine style banner displaying real-time earnings, countdown to shift end, and projected totals while you work
 - **Sick Leave Management** - Explicit sick leave hours input, automatic unpaid deduction, and precise wage calculation
 - **Advanced Stats Dashboard** - Brand new statistics page supporting Week/Month/Year/Custom duration views
 - **Visual Charts** - Pure CSS/SVG bar charts for visualizing work hours and earnings trends
@@ -192,7 +194,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 #### Data Management
 - **CSV Export** - Export shifts to CSV file
-- **CSV Import** - Import shifts from CSV file
+- **CSV Import & Conflict Resolution** - Import shifts with automatic duplicate detection (Skip, Overwrite, Add All options)
 - **Save to Device** - Direct saving to Documents folder with automated permission handling and unique timestamps
 - **Local Storage** - Data securely stored on device
 
