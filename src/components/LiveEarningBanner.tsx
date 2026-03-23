@@ -42,6 +42,16 @@ function formatEarning(amount: number): string[] {
   return formatted.split('');
 }
 
+/** Format seconds remaining as "Xh Ym" or "Ym Zs" */
+function formatCountdown(totalSeconds: number): string {
+  if (totalSeconds <= 0) return '0m 0s';
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = Math.floor(totalSeconds % 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m ${s}s`;
+}
+
 export default function LiveEarningBanner({ shifts, settings }: Props) {
   const t = useTranslation(settings.language);
   const [now, setNow] = useState(() => Date.now());
@@ -93,7 +103,6 @@ export default function LiveEarningBanner({ shifts, settings }: Props) {
     const start = parseISO(activeShift.startTime).getTime();
     const elapsedMs = Math.max(0, now - start);
     const elapsedSeconds = elapsedMs / 1000;
-
     const wagePerSecond = activeShift.hourlyWage / 3600;
 
     if (excludeBreak && activeShift.breakMinutes > 0) {
@@ -105,11 +114,35 @@ export default function LiveEarningBanner({ shifts, settings }: Props) {
     return elapsedSeconds * wagePerSecond;
   }, [activeShift, now, excludeBreak]);
 
+  // Calculate remaining seconds until shift ends
+  const secondsLeft = useMemo(() => {
+    if (!activeShift) return 0;
+    const end = parseISO(activeShift.endTime).getTime();
+    return Math.max(0, Math.floor((end - now) / 1000));
+  }, [activeShift, now]);
+
+  // Calculate projected total earnings for the full shift
+  const projectedTotal = useMemo(() => {
+    if (!activeShift) return 0;
+    const start = parseISO(activeShift.startTime).getTime();
+    const end = parseISO(activeShift.endTime).getTime();
+    const totalSeconds = Math.max(0, (end - start) / 1000);
+    const wagePerSecond = activeShift.hourlyWage / 3600;
+
+    if (excludeBreak && activeShift.breakMinutes > 0) {
+      const effectiveSeconds = Math.max(0, totalSeconds - activeShift.breakMinutes * 60);
+      return effectiveSeconds * wagePerSecond;
+    }
+
+    return totalSeconds * wagePerSecond;
+  }, [activeShift, excludeBreak]);
+
   // Don't render if no active shift
   if (!activeShift) return null;
 
   const digits = formatEarning(earning);
   const currencySymbol = getCurrencySymbol(settings.currency);
+  const countdownStr = formatCountdown(secondsLeft);
 
   return (
     <div className="live-earning-banner animate-slide-up">
@@ -142,6 +175,17 @@ export default function LiveEarningBanner({ shifts, settings }: Props) {
               <OdometerDigit digit={char} />
             </span>
           ))}
+        </span>
+      </div>
+
+      {/* Footer row: countdown left, projected total right */}
+      <div className="live-earning-footer">
+        <span className="live-earning-footer-item">
+          ⏱ <strong>{countdownStr}</strong> {t.timeLeft || 'left'}
+        </span>
+        <span className="live-earning-footer-sep">·</span>
+        <span className="live-earning-footer-item">
+          {t.projectedTotal || 'Projected'} <strong>{currencySymbol}{projectedTotal.toFixed(2)}</strong>
         </span>
       </div>
     </div>

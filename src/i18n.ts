@@ -104,6 +104,12 @@ export const translations = {
     groupBy: '按工作分組',
     liveEarning: '正在賺取',
     excludeBreak: '扣除休息',
+    timeLeft: '距離下班',
+    projectedTotal: '預計總收入',
+    importConflict: '發現 {count} 個重複班次（起止時間完全相同），請選擇：',
+    importConflictSkip: '跳過重複',
+    importConflictAddAll: '全部新增',
+    importConflictOverwrite: '覆蓋重複',
   },
   en: {
     appTitle: 'Shifts Tracker',
@@ -210,6 +216,12 @@ export const translations = {
     groupBy: 'Group by Job',
     liveEarning: 'Earning Now',
     excludeBreak: 'Exclude Break',
+    timeLeft: 'Left',
+    projectedTotal: 'Projected',
+    importConflict: '{count} duplicate shift(s) found (same start & end time). Choose:',
+    importConflictSkip: 'Skip Duplicates',
+    importConflictAddAll: 'Add All',
+    importConflictOverwrite: 'Overwrite',
   }
 };
 

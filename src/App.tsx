@@ -22,6 +22,11 @@ export default function App() {
   const [view, setView] = useState<View>('LIST');
   const [editingShift, setEditingShift] = useState<Shift | undefined>(undefined);
   const [showSettings, setShowSettings] = useState(false);
+  const [importPending, setImportPending] = useState<{
+    newShifts: Shift[];
+    conflictingShifts: Shift[];
+    settingsData: any;
+  } | null>(null);
   const t = useTranslation(settings.language);
 
   useEffect(() => {
@@ -361,8 +366,29 @@ export default function App() {
       }
     }
 
-    if (importedShifts.length > 0) {
-      addShifts(importedShifts);
+    if (importedShifts.length > 0 || settingsData) {
+      // Detect conflicts: exact same startTime + endTime
+      const newShifts: Shift[] = [];
+      const conflictingShifts: Shift[] = [];
+      for (const imp of importedShifts) {
+        const isConflict = shifts.some(
+          s => s.startTime === imp.startTime && s.endTime === imp.endTime
+        );
+        if (isConflict) {
+          conflictingShifts.push(imp);
+        } else {
+          newShifts.push(imp);
+        }
+      }
+
+      if (conflictingShifts.length > 0) {
+        // Pause and ask user how to handle conflicts
+        setImportPending({ newShifts, conflictingShifts, settingsData });
+        return -1; // signal: pending
+      }
+
+      // No conflicts — import directly
+      if (newShifts.length > 0) addShifts(newShifts);
     }
     
     // Apply imported settings
@@ -393,7 +419,9 @@ export default function App() {
       if (!content) return;
       
       const count = parseCSVContent(content);
-      if (count > 0) {
+      if (count === -1) {
+        // Conflict dialog will be shown — do nothing here
+      } else if (count > 0) {
         alert(t.importSuccess.replace('{count}', count.toString()));
       } else {
         alert(t.importError);
@@ -402,6 +430,51 @@ export default function App() {
     reader.readAsText(file);
     
     event.target.value = '';
+  };
+
+  const handleResolveConflict = (action: 'skip' | 'addAll' | 'overwrite') => {
+    if (!importPending) return;
+    const { newShifts, conflictingShifts, settingsData } = importPending;
+
+    if (action === 'skip') {
+      // Only add non-conflicting shifts
+      if (newShifts.length > 0) addShifts(newShifts);
+    } else if (action === 'addAll') {
+      // Add everything regardless of conflicts
+      addShifts([...newShifts, ...conflictingShifts]);
+    } else if (action === 'overwrite') {
+      // Add new shifts + replace conflicting ones
+      if (newShifts.length > 0) addShifts(newShifts);
+      for (const imp of conflictingShifts) {
+        // Find the existing shift with same startTime + endTime and update it
+        const existing = shifts.find(
+          s => s.startTime === imp.startTime && s.endTime === imp.endTime
+        );
+        if (existing) {
+          updateShift({ ...imp, id: existing.id });
+        }
+      }
+    }
+
+    // Apply settings regardless of action
+    if (settingsData) {
+      setSettings(prev => ({
+        ...prev,
+        language: settingsData.language || prev.language,
+        currency: settingsData.currency || prev.currency,
+        defaultBreakMinutes: settingsData.defaultBreakMinutes ?? prev.defaultBreakMinutes,
+        defaultHourlyWage: settingsData.defaultHourlyWage ?? prev.defaultHourlyWage,
+        defaultJobId: settingsData.defaultJobId ?? prev.defaultJobId,
+        jobs: settingsData.jobs || prev.jobs,
+      }));
+    }
+
+    const totalImported = action === 'skip' ? newShifts.length
+      : action === 'addAll' ? newShifts.length + conflictingShifts.length
+      : newShifts.length + conflictingShifts.length;
+
+    setImportPending(null);
+    alert(t.importSuccess.replace('{count}', totalImported.toString()));
   };
 
   return (
@@ -450,6 +523,37 @@ export default function App() {
           onSaveToDevice={handleSaveToDevice}
           onImport={handleImportCSV}
         />
+      )}
+
+      {/* Import Conflict Resolution Modal */}
+      {importPending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{background:'rgba(0,0,0,0.7)'}}>
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <p className="text-white text-sm mb-5 leading-relaxed">
+              {(t.importConflict || '{count} duplicate shift(s) found. Choose:').replace('{count}', String(importPending.conflictingShifts.length))}
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleResolveConflict('skip')}
+                className="w-full py-2.5 rounded-xl bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold transition-colors"
+              >
+                {t.importConflictSkip || 'Skip Duplicates'}
+              </button>
+              <button
+                onClick={() => handleResolveConflict('overwrite')}
+                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
+              >
+                {t.importConflictOverwrite || 'Overwrite'}
+              </button>
+              <button
+                onClick={() => handleResolveConflict('addAll')}
+                className="w-full py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm font-semibold border border-gray-600 transition-colors"
+              >
+                {t.importConflictAddAll || 'Add All'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

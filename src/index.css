@@ -521,3 +521,33 @@
   height: 36px;
 }
 
+
+/* Banner footer: countdown + projected total */
+.live-earning-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.live-earning-footer-item {
+  font-size: 10px;
+  color: #4ade80;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.live-earning-footer-item strong {
+  color: #00ff88;
+  opacity: 1;
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(0, 255, 136, 0.25);
+}
+
+.live-earning-footer-sep {
+  font-size: 10px;
+  color: #2d4a38;
+}
