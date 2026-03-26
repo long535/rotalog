@@ -46,7 +46,17 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
 
   const handleChange = (key: keyof AppSettings, value: any) => {
     haptic.selection();
-    setLocalSettings({ ...localSettings, [key]: value });
+    
+    let updatedJobs = localSettings.jobs;
+    // Sync default wage and break minutes to the default job
+    if ((key === 'defaultHourlyWage' || key === 'defaultBreakMinutes') && localSettings.jobs.length > 0) {
+      const targetJobId = localSettings.defaultJobId || localSettings.jobs[0].id;
+      updatedJobs = localSettings.jobs.map(job => 
+        job.id === targetJobId ? { ...job, [key]: value } : job
+      );
+    }
+    
+    setLocalSettings({ ...localSettings, [key]: value, jobs: updatedJobs });
   };
 
   const handleSave = async () => {
@@ -448,7 +458,7 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
           >
             {t.saveSettings}
           </button>
-          <div className="text-center mt-3 text-xs text-slate-400">Version 1.5.4 (100342)</div>
+          <div className="text-center mt-3 text-xs text-slate-400">Version 1.5.8 (13)</div>
         </div>
       </div>
     </div>
