@@ -502,6 +502,7 @@ export default function App() {
       ) : (
         <ShiftForm
           shift={editingShift}
+          lastShift={shifts.length > 0 ? shifts[shifts.length - 1] : undefined}
           settings={settings}
           onSave={handleSaveShifts}
           onCancel={() => setView('LIST')}

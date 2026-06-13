@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, subMonths, addMonths, subYears, addYears, subWeeks, addWeeks, getDay, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, isSameDay, startOfDay } from 'date-fns';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, Clock, DollarSign, Palmtree, Stethoscope, Briefcase, Zap, BarChart3, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, TrendingUp, Clock, DollarSign, Palmtree, Stethoscope, Briefcase, Zap, BarChart3, Award, FileText } from 'lucide-react';
 import { Shift, AppSettings, Job } from '../types';
 import { calculateWages, calculateAnnualLeaveHours, formatCurrency, getShiftPaidHours } from '../utils';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
+import GoalTracker from './GoalTracker';
+import MonthlyReport from './MonthlyReport';
 
 type StatsPeriod = 'WEEK' | 'MONTH' | 'YEAR' | 'CUSTOM';
 
@@ -216,6 +218,8 @@ export default function StatsDashboard({ shifts, settings, jobs }: Props) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [customStart, setCustomStart] = useState(format(subMonths(new Date(), 2), 'yyyy-MM-dd'));
   const [customEnd, setCustomEnd] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [showReport, setShowReport] = useState(false);
 
   // Period range
   const { start, end } = useMemo(() => {
@@ -226,10 +230,16 @@ export default function StatsDashboard({ shifts, settings, jobs }: Props) {
     return { start: parseISO(customStart), end: parseISO(customEnd) };
   }, [period, currentDate, customStart, customEnd]);
 
-  // Filtered shifts
+  // Job-filtered shifts (applied before period filter)
+  const jobFilteredShifts = useMemo(() => {
+    if (!selectedJobId) return shifts;
+    return shifts.filter(s => s.jobId === selectedJobId);
+  }, [shifts, selectedJobId]);
+
+  // Filtered shifts (period + job)
   const filtered = useMemo(() => {
-    return shifts.filter(s => isWithinInterval(parseISO(s.startTime), { start, end }));
-  }, [shifts, start, end]);
+    return jobFilteredShifts.filter(s => isWithinInterval(parseISO(s.startTime), { start, end }));
+  }, [jobFilteredShifts, start, end]);
 
   // Aggregated stats
   const stats = useMemo(() => {
@@ -260,9 +270,9 @@ export default function StatsDashboard({ shifts, settings, jobs }: Props) {
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const mostProductiveDay = dayAvgs[bestDayIdx] > 0 ? dayNames[bestDayIdx] : '—';
 
-    // Annual leave: all-time earned vs used
-    const globalEarnedLeave = shifts.filter(s => !s.isAnnualLeave).reduce((a, s) => a + calculateAnnualLeaveHours(getShiftPaidHours(s)), 0);
-    const globalUsedLeave = shifts.filter(s => s.isAnnualLeave).reduce((a, s) => a + getShiftPaidHours(s), 0);
+    // Annual leave: all-time earned vs used (scoped to selected job)
+    const globalEarnedLeave = jobFilteredShifts.filter(s => !s.isAnnualLeave).reduce((a, s) => a + calculateAnnualLeaveHours(getShiftPaidHours(s)), 0);
+    const globalUsedLeave = jobFilteredShifts.filter(s => s.isAnnualLeave).reduce((a, s) => a + getShiftPaidHours(s), 0);
     const leaveBalance = globalEarnedLeave - globalUsedLeave;
 
     // Period-specific leave
@@ -274,7 +284,7 @@ export default function StatsDashboard({ shifts, settings, jobs }: Props) {
       avgEarningsPerShift, longestShift, mostProductiveDay, shiftCount: filtered.length,
       globalEarnedLeave, globalUsedLeave, leaveBalance, periodEarned,
     };
-  }, [filtered, shifts]);
+  }, [filtered, jobFilteredShifts]);
 
   // Bar chart data
   const barData: BarData[] = useMemo(() => {
@@ -327,6 +337,36 @@ export default function StatsDashboard({ shifts, settings, jobs }: Props) {
 
   return (
     <div className="p-4 space-y-4 pb-36">
+      {/* ── Job Filter Pills ── */}
+      {jobs.length > 0 && (
+        <div className="flex overflow-x-auto hide-scrollbar gap-2 pb-1">
+          <button
+            onClick={async () => { await haptic.selection(); setSelectedJobId(null); }}
+            className={`px-4 py-1.5 whitespace-nowrap text-xs font-semibold rounded-full transition-all flex-shrink-0 ${
+              selectedJobId === null
+                ? 'bg-slate-800 dark:bg-gray-200 text-white dark:text-gray-900'
+                : 'bg-slate-100 dark:bg-gray-700 text-slate-500 dark:text-gray-400 hover:bg-slate-200 dark:hover:bg-gray-600'
+            }`}
+          >
+            {settings.language === 'zh' ? '全部工作' : 'All Jobs'}
+          </button>
+          {jobs.map(job => (
+            <button
+              key={job.id}
+              onClick={async () => { await haptic.selection(); setSelectedJobId(job.id); }}
+              className={`px-4 py-1.5 whitespace-nowrap text-xs font-semibold rounded-full transition-all flex-shrink-0 flex items-center gap-1.5 ${
+                selectedJobId === job.id
+                  ? 'bg-slate-800 dark:bg-gray-200 text-white dark:text-gray-900'
+                  : 'bg-slate-100 dark:bg-gray-700 text-slate-500 dark:text-gray-400 hover:bg-slate-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: job.color }} />
+              {job.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* ── Period Selector ── */}
       <div>
         <div className="flex gap-1 bg-slate-100 dark:bg-gray-700 rounded-xl p-1 mb-3">
@@ -405,6 +445,26 @@ export default function StatsDashboard({ shifts, settings, jobs }: Props) {
           <div className="text-xl font-bold text-green-600">{formatCurrency(stats.avgDailyEarnings, settings.currency)}</div>
         </div>
       </div>
+
+      {/* ── Goal Tracker ── */}
+      {period === 'MONTH' && (
+        <GoalTracker
+          settings={settings}
+          currentHours={stats.totalHours}
+          currentEarnings={stats.totalEarnings}
+        />
+      )}
+
+      {/* ── Generate Report Button (MONTH only) ── */}
+      {period === 'MONTH' && (
+        <button
+          onClick={async () => { await haptic.medium(); setShowReport(true); }}
+          className="w-full py-3 rounded-xl border-2 border-dashed border-slate-200 dark:border-gray-600 text-slate-500 dark:text-gray-400 text-sm font-semibold flex items-center justify-center gap-2 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors"
+        >
+          <FileText size={16} />
+          {t.generateReport}
+        </button>
+      )}
 
       {/* ── Bar Chart: Hours ── */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-gray-700">
@@ -498,8 +558,8 @@ export default function StatsDashboard({ shifts, settings, jobs }: Props) {
         </div>
       </div>
 
-      {/* ── By Job ── */}
-      {jobs.length > 0 && (
+      {/* ── By Job ── (only shown when viewing All Jobs) */}
+      {jobs.length > 0 && !selectedJobId && (
         <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-3">
             <Briefcase size={16} className="text-blue-500" />
@@ -566,6 +626,18 @@ export default function StatsDashboard({ shifts, settings, jobs }: Props) {
           ))}
         </div>
       </div>
+
+      {/* ── Monthly Report Modal ── */}
+      {showReport && (
+        <MonthlyReport
+          shifts={shifts}
+          settings={settings}
+          jobs={jobs}
+          month={currentDate}
+          selectedJobId={selectedJobId}
+          onClose={() => setShowReport(false)}
+        />
+      )}
     </div>
   );
 }

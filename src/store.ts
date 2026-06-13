@@ -18,6 +18,7 @@ const defaultSettings: AppSettings = {
   weekStartsOn: 1,
   jobs: [],
   defaultJobId: null,
+  monthlyGoal: {},
 };
 
 const defaultTimerState: TimerState = {

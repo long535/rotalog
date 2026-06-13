@@ -449,6 +449,43 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
               </label>
             </div>
           </section>
+
+          {/* Monthly Goal */}
+          <section>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">🎯 {t.monthlyGoal}</h3>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-gray-700 rounded-xl">
+                <div className="flex-1">
+                  <div className="text-xs font-medium text-slate-700 dark:text-gray-200 mb-1">{t.goalHours}</div>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={localSettings.monthlyGoal?.hours || ''}
+                    onChange={e => setLocalSettings(prev => ({
+                      ...prev,
+                      monthlyGoal: { ...prev.monthlyGoal, hours: e.target.value ? Number(e.target.value) : undefined }
+                    }))}
+                    className="w-full text-sm bg-white dark:bg-gray-600 border border-slate-200 dark:border-gray-500 rounded-lg px-3 py-2 text-slate-800 dark:text-gray-100"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs font-medium text-slate-700 dark:text-gray-200 mb-1">{t.goalEarnings} ({localSettings.currency})</div>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={localSettings.monthlyGoal?.earnings || ''}
+                    onChange={e => setLocalSettings(prev => ({
+                      ...prev,
+                      monthlyGoal: { ...prev.monthlyGoal, earnings: e.target.value ? Number(e.target.value) : undefined }
+                    }))}
+                    className="w-full text-sm bg-white dark:bg-gray-600 border border-slate-200 dark:border-gray-500 rounded-lg px-3 py-2 text-slate-800 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
 
         <div className="p-4 border-t border-slate-100 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -458,7 +495,7 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
           >
             {t.saveSettings}
           </button>
-          <div className="text-center mt-3 text-xs text-slate-400">Version 1.5.8 (13)</div>
+          <div className="text-center mt-3 text-xs text-slate-400">Version 1.6.0</div>
         </div>
       </div>
     </div>

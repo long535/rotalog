@@ -24,6 +24,11 @@ export interface Job {
   color: string;
 }
 
+export interface MonthlyGoal {
+  hours?: number;
+  earnings?: number;
+}
+
 export interface AppSettings {
   defaultHourlyWage: number;
   currency: string;
@@ -34,6 +39,7 @@ export interface AppSettings {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   jobs: Job[];
   defaultJobId: string | null;
+  monthlyGoal?: MonthlyGoal;
 }
 
 export interface TimerState {

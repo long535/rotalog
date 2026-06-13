@@ -9,6 +9,7 @@ import { haptic } from '../haptics';
 
 interface Props {
   shift?: Shift;
+  lastShift?: Shift;
   settings: AppSettings;
   onSave: (shifts: Shift[]) => void;
   onCancel: () => void;
@@ -17,11 +18,13 @@ interface Props {
 
 type ShiftType = 'regular' | 'overtime' | 'annual' | 'sick';
 
-export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = [] }: Props) {
+export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel, jobs = [] }: Props) {
   const isEditing = !!shift;
   const initialDate = shift ? format(parseISO(shift.startTime), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
-  const initialTimeStart = shift ? format(parseISO(shift.startTime), 'HH:mm') : '10:00';
-  const initialTimeEnd = shift ? format(parseISO(shift.endTime), 'HH:mm') : '20:00';
+  const defaultStartTime = lastShift ? format(parseISO(lastShift.startTime), 'HH:mm') : '10:00';
+  const defaultEndTime = lastShift ? format(parseISO(lastShift.endTime), 'HH:mm') : '20:00';
+  const initialTimeStart = shift ? format(parseISO(shift.startTime), 'HH:mm') : defaultStartTime;
+  const initialTimeEnd = shift ? format(parseISO(shift.endTime), 'HH:mm') : defaultEndTime;
 
   const localJobs = jobs.length > 0 ? jobs : settings.jobs;
   const defaultJob = settings.defaultJobId ? localJobs.find(j => j.id === settings.defaultJobId) : null;
@@ -42,6 +45,12 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [reminder1h, setReminder1h] = useState(shift?.reminders?.includes(60) ?? false);
   const [reminder30m, setReminder30m] = useState(shift?.reminders?.includes(30) ?? false);
+  // Recurring shifts state
+  const [recurringMode, setRecurringMode] = useState<'none' | 'daily' | 'weekly'>('none');
+  const [recurringDays, setRecurringDays] = useState<number[]>([]); // 0=Sun..6=Sat
+  const [recurringUntil, setRecurringUntil] = useState(
+    format(addDays(new Date(), 28), 'yyyy-MM-dd')
+  );
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date(baseDate)));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslation(settings.language);
@@ -111,6 +120,29 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
     setBaseDate(dateStr);
   };
 
+  // Compute extra dates from recurring settings
+  const computeRecurringDates = (): string[] => {
+    if (recurringMode === 'none' || selectedDates.length === 0) return [];
+    const baseD = parseISO(selectedDates[0]);
+    const until = parseISO(recurringUntil);
+    const extras: string[] = [];
+    let cursor = addDays(baseD, 1);
+    while (cursor <= until) {
+      const dow = getDay(cursor);
+      if (recurringMode === 'daily' || (recurringMode === 'weekly' && recurringDays.includes(dow))) {
+        const ds = format(cursor, 'yyyy-MM-dd');
+        if (!selectedDates.includes(ds)) extras.push(ds);
+      }
+      cursor = addDays(cursor, 1);
+    }
+    return extras;
+  };
+
+  const allRecurringDates = useMemo(() => {
+    return [...selectedDates, ...computeRecurringDates()];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDates, recurringMode, recurringDays, recurringUntil]);
+
   const handleSave = async () => {
     await haptic.success();
     
@@ -118,7 +150,7 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
     if (reminder1h) reminders.push(60);
     if (reminder30m) reminders.push(30);
     
-    const shiftsToSave: Shift[] = selectedDates.map(dateStr => {
+    const shiftsToSave: Shift[] = allRecurringDates.map(dateStr => {
       return {
         id: isEditing ? shift.id : uuidv4(),
         startTime: new Date(getStartDateTime(dateStr, timeStart)).toISOString(),
@@ -544,6 +576,71 @@ export default function ShiftForm({ shift, settings, onSave, onCancel, jobs = []
             </button>
           </div>
         </div>
+
+        {/* Recurring Shifts */}
+        {!isEditing && (
+          <div>
+            <label className="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">{t.recurring}</label>
+            <div className="flex gap-2 mb-3">
+              {(['none', 'daily', 'weekly'] as const).map(mode => (
+                <button
+                  key={mode}
+                  onClick={() => { haptic.selection(); setRecurringMode(mode); if (mode === 'weekly' && recurringDays.length === 0) setRecurringDays([1,2,3,4,5]); }}
+                  className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                    recurringMode === mode
+                      ? 'bg-[var(--color-primary)] text-white'
+                      : 'bg-slate-50 dark:bg-gray-700 text-slate-500 dark:text-gray-400'
+                  }`}
+                >
+                  {mode === 'none' ? t.recurringNone : mode === 'daily' ? t.recurringDaily : t.recurringWeekly}
+                </button>
+              ))}
+            </div>
+
+            {recurringMode !== 'none' && (
+              <div className="space-y-3 animate-fade-in">
+                {recurringMode === 'weekly' && (
+                  <div>
+                    <div className="text-xs text-slate-400 mb-2">{t.recurringDays}</div>
+                    <div className="flex gap-1.5">
+                      {[0,1,2,3,4,5,6].map(dow => (
+                        <button
+                          key={dow}
+                          onClick={() => {
+                            haptic.selection();
+                            setRecurringDays(prev =>
+                              prev.includes(dow) ? prev.filter(d => d !== dow) : [...prev, dow]
+                            );
+                          }}
+                          className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                            recurringDays.includes(dow)
+                              ? 'bg-[var(--color-primary)] text-white'
+                              : 'bg-slate-100 dark:bg-gray-700 text-slate-500'
+                          }`}
+                        >
+                          {t.weekDays[dow]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <div className="text-xs text-slate-400 mb-1">{t.recurringUntil}</div>
+                  <input
+                    type="date"
+                    value={recurringUntil}
+                    min={format(addDays(parseISO(selectedDates[0] || format(new Date(),'yyyy-MM-dd')), 1), 'yyyy-MM-dd')}
+                    onChange={e => setRecurringUntil(e.target.value)}
+                    className="w-full p-3 bg-slate-50 dark:bg-gray-700 border-none rounded-xl text-slate-800 dark:text-gray-100 font-medium text-sm"
+                  />
+                </div>
+                <div className="text-xs text-center font-semibold text-[var(--color-primary)] bg-[var(--color-primary)]/10 rounded-lg py-2">
+                  {t.recurringCount.replace('{count}', String(allRecurringDates.length))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Footer Actions */}
