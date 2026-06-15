@@ -504,6 +504,7 @@ export default function App() {
           shift={editingShift}
           lastShift={shifts.length > 0 ? shifts[shifts.length - 1] : undefined}
           settings={settings}
+          existingShifts={shifts}
           onSave={handleSaveShifts}
           onCancel={() => setView('LIST')}
           jobs={settings.jobs}

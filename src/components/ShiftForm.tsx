@@ -11,6 +11,7 @@ interface Props {
   shift?: Shift;
   lastShift?: Shift;
   settings: AppSettings;
+  existingShifts?: Shift[];
   onSave: (shifts: Shift[]) => void;
   onCancel: () => void;
   jobs?: Job[];
@@ -18,7 +19,7 @@ interface Props {
 
 type ShiftType = 'regular' | 'overtime' | 'annual' | 'sick';
 
-export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel, jobs = [] }: Props) {
+export default function ShiftForm({ shift, lastShift, settings, existingShifts = [], onSave, onCancel, jobs = [] }: Props) {
   const isEditing = !!shift;
   const initialDate = shift ? format(parseISO(shift.startTime), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
   const defaultStartTime = lastShift ? format(parseISO(lastShift.startTime), 'HH:mm') : '10:00';
@@ -55,6 +56,9 @@ export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel
   const [paidBreaks, setPaidBreaks] = useState<PaidBreak[]>(
     shift?.paidBreaks ?? []
   );
+  // Overlap state
+  const [overlapShifts, setOverlapShifts] = useState<Shift[]>([]);
+  const [pendingSave, setPendingSave] = useState<Shift[] | null>(null);
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date(baseDate)));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslation(settings.language);
@@ -174,6 +178,29 @@ export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel
       };
     });
 
+    // Overlap detection
+    const conflicts = existingShifts.filter(existing => {
+      if (existing.id === shift?.id) return false; // skip self
+      const exStart = new Date(existing.startTime).getTime();
+      const exEnd = new Date(existing.endTime).getTime();
+      return shiftsToSave.some(s => {
+        const sStart = new Date(s.startTime).getTime();
+        const sEnd = new Date(s.endTime).getTime();
+        return sStart < exEnd && sEnd > exStart;
+      });
+    });
+
+    if (conflicts.length > 0) {
+      await haptic.medium();
+      setOverlapShifts(conflicts);
+      setPendingSave(shiftsToSave);
+      return;
+    }
+
+    await doSave(shiftsToSave, reminders);
+  };
+
+  const doSave = async (shiftsToSave: Shift[], reminders: number[]) => {
     if (isEditing && shift.alarmIds && shift.alarmIds.length > 0) {
       await cancelAlarms(shift.alarmIds);
     }
@@ -191,6 +218,17 @@ export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel
     }
 
     onSave(shiftsToSave);
+  };
+
+  const handleSaveAnyway = async () => {
+    if (!pendingSave) return;
+    await haptic.success();
+    setOverlapShifts([]);
+    const reminders: number[] = [];
+    if (reminder1h) reminders.push(60);
+    if (reminder30m) reminders.push(30);
+    await doSave(pendingSave, reminders);
+    setPendingSave(null);
   };
 
   const handleTakePhoto = async () => {
@@ -751,6 +789,68 @@ export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel
           Save Shift
         </button>
       </div>
+
+      {/* Overlap Warning Dialog */}
+      {overlapShifts.length > 0 && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+          onClick={() => { setOverlapShifts([]); setPendingSave(null); }}
+        >
+          <div
+            className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-scale-in"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-5 pt-5 pb-3 border-b border-orange-100 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-900/20">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-800 flex items-center justify-center text-xl">⚠️</div>
+                <div>
+                  <h2 className="text-base font-bold text-orange-700 dark:text-orange-300">{t.overlapTitle}</h2>
+                  <p className="text-xs text-orange-500 dark:text-orange-400 mt-0.5">{t.overlapMessage}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Conflicting shifts list */}
+            <div className="px-5 py-3 max-h-48 overflow-y-auto space-y-2">
+              {overlapShifts.map(s => {
+                const job = localJobs.find(j => j.id === s.jobId);
+                return (
+                  <div key={s.id} className="flex items-center gap-3 p-2.5 bg-slate-50 dark:bg-gray-700 rounded-xl">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: job?.color ?? '#6366f1' }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold text-slate-800 dark:text-gray-100">
+                        {format(parseISO(s.startTime), 'MMM dd')} &nbsp;
+                        {format(parseISO(s.startTime), 'HH:mm')}–{format(parseISO(s.endTime), 'HH:mm')}
+                      </div>
+                      {job && <div className="text-xs text-slate-400 truncate">{job.name}</div>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Actions */}
+            <div className="px-5 pb-5 pt-3 flex gap-3">
+              <button
+                onClick={() => { setOverlapShifts([]); setPendingSave(null); }}
+                className="flex-1 py-3.5 rounded-2xl bg-slate-100 dark:bg-gray-700 text-slate-600 dark:text-gray-300 font-bold text-sm hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                {t.overlapCancel}
+              </button>
+              <button
+                onClick={handleSaveAnyway}
+                className="flex-1 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm shadow-lg shadow-orange-200 dark:shadow-orange-900/30 transition-all"
+              >
+                {t.overlapSaveAnyway}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

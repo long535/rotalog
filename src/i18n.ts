@@ -160,6 +160,11 @@ export const translations = {
     coffeeBreak: '☕ 咖啡 Break',
     startCoffeeBreak: '開始 {min} 分鐘 Break',
     noPaidBreak: '未設定帶薪 Break',
+    // Overlap
+    overlapTitle: '班次時間重疊',
+    overlapMessage: '以下班次與即將儲存的班次時間重疊：',
+    overlapSaveAnyway: '仍然儲存',
+    overlapCancel: '返回修改',
   },
   en: {
     appTitle: 'Shifts Tracker',
@@ -322,6 +327,11 @@ export const translations = {
     coffeeBreak: '☕ Coffee Break',
     startCoffeeBreak: 'Start {min} min Break',
     noPaidBreak: 'No paid breaks set',
+    // Overlap
+    overlapTitle: 'Shift Time Overlap',
+    overlapMessage: 'The following existing shifts overlap with your new shift:',
+    overlapSaveAnyway: 'Save Anyway',
+    overlapCancel: 'Go Back',
   }
 };
 
