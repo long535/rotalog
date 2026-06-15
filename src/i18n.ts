@@ -146,6 +146,20 @@ export const translations = {
     recurringPreview: '預覽班次',
     recurringCount: '共 {count} 個班次',
     recurringSelectDays: '請選擇至少一天',
+    // Paid Breaks
+    paidBreaks: '帶薪 Break',
+    addPaidBreak: '+ 加入咖啡 Break',
+    paidBreakDuration: '每次時長（分鐘）',
+    paidBreakCount: '次數',
+    paidBreakReminder: '開始/結束提醒',
+    paidBreakStart: '☕ 咖啡 Break',
+    paidBreakReturn: '⏰ 返回工作',
+    paidBreakLabel: '帶薪 Break ×{count}（每次 {min} 分鐘）',
+    paidBreakTotal: '帶薪 Break 合計',
+    removePaidBreak: '移除',
+    coffeeBreak: '☕ 咖啡 Break',
+    startCoffeeBreak: '開始 {min} 分鐘 Break',
+    noPaidBreak: '未設定帶薪 Break',
   },
   en: {
     appTitle: 'Shifts Tracker',
@@ -294,6 +308,20 @@ export const translations = {
     recurringPreview: 'Preview Shifts',
     recurringCount: '{count} shifts will be created',
     recurringSelectDays: 'Please select at least one day',
+    // Paid Breaks
+    paidBreaks: 'Paid Breaks',
+    addPaidBreak: '+ Add Coffee Break',
+    paidBreakDuration: 'Duration (minutes)',
+    paidBreakCount: 'Count',
+    paidBreakReminder: 'Start/End Reminder',
+    paidBreakStart: '☕ Coffee Break',
+    paidBreakReturn: '⏰ Back to Work',
+    paidBreakLabel: 'Paid Break ×{count} ({min} min each)',
+    paidBreakTotal: 'Total Paid Break',
+    removePaidBreak: 'Remove',
+    coffeeBreak: '☕ Coffee Break',
+    startCoffeeBreak: 'Start {min} min Break',
+    noPaidBreak: 'No paid breaks set',
   }
 };
 

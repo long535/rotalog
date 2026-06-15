@@ -8,6 +8,7 @@ import { scheduleBreakTimer, cancelAlarms } from '../utils';
 interface Props {
   timer: TimerState;
   language?: 'zh' | 'en';
+  initialDuration?: number;
   onStart: (durationMinutes: number, notificationIds: number[]) => void;
   onStop: () => void;
   onPause: (remainingSeconds: number) => void;
@@ -15,9 +16,9 @@ interface Props {
   onClose: () => void;
 }
 
-export default function TimerModal({ timer, language = 'zh', onStart, onStop, onPause, onResume, onClose }: Props) {
+export default function TimerModal({ timer, language = 'zh', initialDuration, onStart, onStop, onPause, onResume, onClose }: Props) {
   const t = useTranslation(language);
-  const [selectedDuration, setSelectedDuration] = useState<number>(60);
+  const [selectedDuration, setSelectedDuration] = useState<number>(initialDuration ?? 60);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 

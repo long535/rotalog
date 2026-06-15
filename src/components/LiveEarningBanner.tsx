@@ -2,13 +2,15 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { parseISO } from 'date-fns';
 import { Shift, AppSettings } from '../types';
 import { useTranslation } from '../i18n';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Coffee } from 'lucide-react';
+import { haptic } from '../haptics';
 
 const BREAK_EXCLUDE_KEY = 'live_earning_exclude_break';
 
 interface Props {
   shifts: Shift[];
   settings: AppSettings;
+  onStartBreak?: (minutes: number) => void;
 }
 
 /** Single odometer digit with vertical slide animation inside a slot-machine cell */
@@ -52,7 +54,7 @@ function formatCountdown(totalSeconds: number): string {
   return `${m}m ${s}s`;
 }
 
-export default function LiveEarningBanner({ shifts, settings }: Props) {
+export default function LiveEarningBanner({ shifts, settings, onStartBreak }: Props) {
   const t = useTranslation(settings.language);
   const [now, setNow] = useState(() => Date.now());
   const [excludeBreak, setExcludeBreak] = useState(() => {
@@ -188,6 +190,22 @@ export default function LiveEarningBanner({ shifts, settings }: Props) {
           {t.projectedTotal || 'Projected'} <strong>{currencySymbol}{projectedTotal.toFixed(2)}</strong>
         </span>
       </div>
+
+      {/* Coffee Break Buttons */}
+      {onStartBreak && activeShift.paidBreaks && activeShift.paidBreaks.length > 0 && (
+        <div className="live-earning-breaks">
+          {activeShift.paidBreaks.map((pb, idx) => (
+            <button
+              key={idx}
+              onClick={async () => { await haptic.medium(); onStartBreak(pb.durationMinutes); }}
+              className="live-earning-break-btn"
+            >
+              <Coffee size={13} />
+              <span>{pb.durationMinutes}min ×{pb.count}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

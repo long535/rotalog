@@ -1,3 +1,9 @@
+export interface PaidBreak {
+  durationMinutes: number;
+  count: number;
+  withReminder: boolean;
+}
+
 export interface Shift {
   id: string;
   startTime: string;
@@ -14,7 +20,9 @@ export interface Shift {
   reminders?: number[];
   alarmIds?: number[];
   jobId?: string | null;
+  paidBreaks?: PaidBreak[];
 }
+
 
 export interface Job {
   id: string;

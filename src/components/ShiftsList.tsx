@@ -49,12 +49,18 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
   const [expandedPhotoId, setExpandedPhotoId] = useState<string | null>(null);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [showTimer, setShowTimer] = useState(false);
+  const [breakDuration, setBreakDuration] = useState<number | undefined>(undefined);
   const [jobFilter, setJobFilter] = useState<string | null>(null);
   const [groupByJob, setGroupByJob] = useState(false);
   const [bottomNavPage, setBottomNavPage] = useState<BottomNavPage>('home');
   const t = useTranslation(settings.language);
 
   const localJobs = jobs.length > 0 ? jobs : settings.jobs;
+
+  const handleStartBreak = (minutes: number) => {
+    setBreakDuration(minutes);
+    setShowTimer(true);
+  };
 
   const getJobColor = (jobId: string | null | undefined) => {
     if (!jobId) return JOB_COLORS[1];
@@ -426,7 +432,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
       <div className="flex-1 overflow-y-auto pb-28" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {/* Live Earning Banner - only on LIST view */}
         {pageView === 'LIST' && (
-          <LiveEarningBanner shifts={shifts} settings={settings} />
+          <LiveEarningBanner shifts={shifts} settings={settings} onStartBreak={handleStartBreak} />
         )}
 
         {pageView === 'HISTORY' ? (
@@ -707,11 +713,12 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
         <TimerModal
           timer={timer}
           language={settings.language}
+          initialDuration={breakDuration}
           onStart={onStartTimer}
           onStop={onStopTimer}
           onPause={onPauseTimer}
           onResume={onResumeTimer}
-          onClose={() => setShowTimer(false)}
+          onClose={() => { setShowTimer(false); setBreakDuration(undefined); }}
         />
       )}
       

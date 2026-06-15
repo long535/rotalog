@@ -1,8 +1,8 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, Image, X, Bell, Briefcase, ChevronDown, ChevronLeft, ChevronRight, ImagePlus, Images } from 'lucide-react';
+import { ArrowLeft, Check, Info, Clock, DollarSign, FileText, Calendar, Camera, Image, X, Bell, Briefcase, ChevronDown, ChevronLeft, ChevronRight, ImagePlus, Images, Coffee, Plus, Trash2 } from 'lucide-react';
 import { format, parseISO, addDays, addMonths, startOfWeek, startOfMonth, getDaysInMonth, getDay, isSameMonth, isToday } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import { Shift, AppSettings, Job } from '../types';
+import { Shift, AppSettings, Job, PaidBreak } from '../types';
 import { calculatePaidHours, calculateAnnualLeaveHours, scheduleShiftAlarms, cancelAlarms } from '../utils';
 import { useTranslation } from '../i18n';
 import { haptic } from '../haptics';
@@ -50,6 +50,10 @@ export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel
   const [recurringDays, setRecurringDays] = useState<number[]>([]); // 0=Sun..6=Sat
   const [recurringUntil, setRecurringUntil] = useState(
     format(addDays(new Date(), 28), 'yyyy-MM-dd')
+  );
+  // Paid breaks state
+  const [paidBreaks, setPaidBreaks] = useState<PaidBreak[]>(
+    shift?.paidBreaks ?? []
   );
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date(baseDate)));
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -166,6 +170,7 @@ export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel
         photoUrl,
         reminders,
         jobId: selectedJobId,
+        paidBreaks: paidBreaks.length > 0 ? paidBreaks : undefined,
       };
     });
 
@@ -575,6 +580,93 @@ export default function ShiftForm({ shift, lastShift, settings, onSave, onCancel
               {t.reminder30m}
             </button>
           </div>
+        </div>
+
+        {/* Paid Coffee Breaks */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-semibold text-slate-500 ml-1 uppercase tracking-wider">
+              <Coffee size={13} className="inline mr-1 mb-0.5" />
+              {t.paidBreaks}
+            </label>
+            <button
+              onClick={async () => {
+                await haptic.light();
+                setPaidBreaks(prev => [...prev, { durationMinutes: 15, count: 1, withReminder: true }]);
+              }}
+              className="text-xs font-semibold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-3 py-1.5 rounded-full flex items-center gap-1"
+            >
+              <Plus size={12} /> {t.addPaidBreak.replace('+ ', '')}
+            </button>
+          </div>
+
+          {paidBreaks.length === 0 ? (
+            <div className="text-xs text-slate-400 text-center py-3 bg-slate-50 dark:bg-gray-700 rounded-xl">
+              {t.noPaidBreak}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {paidBreaks.map((pb, idx) => (
+                <div key={idx} className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Coffee size={14} className="text-amber-600 flex-shrink-0" />
+                    <span className="text-xs font-bold text-amber-700 dark:text-amber-400 flex-1">☕ Break #{idx + 1}</span>
+                    <button
+                      onClick={async () => {
+                        await haptic.light();
+                        setPaidBreaks(prev => prev.filter((_, i) => i !== idx));
+                      }}
+                      className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    <div>
+                      <div className="text-xs text-slate-500 dark:text-gray-400 mb-1">{t.paidBreakDuration}</div>
+                      <div className="flex items-center bg-white dark:bg-gray-700 rounded-lg border border-slate-200 dark:border-gray-600 overflow-hidden">
+                        <button
+                          onClick={async () => { await haptic.selection(); setPaidBreaks(prev => prev.map((b, i) => i === idx ? { ...b, durationMinutes: Math.max(5, b.durationMinutes - 5) } : b)); }}
+                          className="px-2 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-600 font-bold text-lg leading-none"
+                        >−</button>
+                        <span className="flex-1 text-center text-sm font-bold text-slate-700 dark:text-gray-200">{pb.durationMinutes}</span>
+                        <button
+                          onClick={async () => { await haptic.selection(); setPaidBreaks(prev => prev.map((b, i) => i === idx ? { ...b, durationMinutes: b.durationMinutes + 5 } : b)); }}
+                          className="px-2 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-600 font-bold text-lg leading-none"
+                        >+</button>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-slate-500 dark:text-gray-400 mb-1">{t.paidBreakCount}</div>
+                      <div className="flex items-center bg-white dark:bg-gray-700 rounded-lg border border-slate-200 dark:border-gray-600 overflow-hidden">
+                        <button
+                          onClick={async () => { await haptic.selection(); setPaidBreaks(prev => prev.map((b, i) => i === idx ? { ...b, count: Math.max(1, b.count - 1) } : b)); }}
+                          className="px-2 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-600 font-bold text-lg leading-none"
+                        >−</button>
+                        <span className="flex-1 text-center text-sm font-bold text-slate-700 dark:text-gray-200">{pb.count}</span>
+                        <button
+                          onClick={async () => { await haptic.selection(); setPaidBreaks(prev => prev.map((b, i) => i === idx ? { ...b, count: b.count + 1 } : b)); }}
+                          className="px-2 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-gray-600 font-bold text-lg leading-none"
+                        >+</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-500 dark:text-gray-400">{t.paidBreakReminder}</span>
+                    <button
+                      onClick={async () => { await haptic.selection(); setPaidBreaks(prev => prev.map((b, i) => i === idx ? { ...b, withReminder: !b.withReminder } : b)); }}
+                      className={`relative w-10 h-5 rounded-full transition-colors ${ pb.withReminder ? 'bg-[var(--color-primary)]' : 'bg-slate-300 dark:bg-gray-600'}`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${ pb.withReminder ? 'translate-x-5' : ''}`} />
+                    </button>
+                  </div>
+                  <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium">
+                    {t.paidBreakLabel.replace('{count}', String(pb.count)).replace('{min}', String(pb.durationMinutes))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Recurring Shifts */}
