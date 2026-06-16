@@ -624,36 +624,6 @@ export default function ShiftForm({ shift, lastShift, settings, existingShifts =
           </div>
         </div>
 
-        {/* Mood Emoji */}
-        <div>
-          <label className="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">
-            {t.moodLabel}
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {['😊','💪','😐','😓','🥱','😤','🤩','😌','🤒','😴'].map(emoji => (
-              <button
-                key={emoji}
-                onClick={async () => { await haptic.selection(); setMoodEmoji(prev => prev === emoji ? '' : emoji); }}
-                className={`text-2xl w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
-                  moodEmoji === emoji
-                    ? 'bg-[var(--color-primary)]/15 ring-2 ring-[var(--color-primary)] scale-110'
-                    : 'bg-slate-50 dark:bg-gray-700 hover:bg-slate-100 dark:hover:bg-gray-600'
-                }`}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
-          {moodEmoji && (
-            <button
-              onClick={async () => { await haptic.light(); setMoodEmoji(''); }}
-              className="mt-2 text-xs text-slate-400 hover:text-slate-600 underline"
-            >
-              {t.moodNone}
-            </button>
-          )}
-        </div>
-
         {/* Paid Coffee Breaks */}
         <div>
           <div className="flex items-center justify-between mb-2">

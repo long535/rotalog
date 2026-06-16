@@ -108,6 +108,12 @@ export default function App() {
     duplicateShift(id, uuidv4());
   };
 
+  const handleUpdateMood = (id: string, emoji: string) => {
+    const s = shifts.find(s => s.id === id);
+    if (!s) return;
+    updateShift({ ...s, moodEmoji: emoji || undefined });
+  };
+
   const handleExportCSV = async () => {
     const fullContent = generateCSVContent(shifts, settings);
     const filename = `shifts_export_${format(new Date(), 'yyyyMMdd_HHmmss')}.csv`;
@@ -497,6 +503,7 @@ export default function App() {
           onStopTimer={stopTimer}
           onPauseTimer={pauseTimer}
           onResumeTimer={resumeTimer}
+          onUpdateMood={handleUpdateMood}
           jobs={settings.jobs}
         />
       ) : (

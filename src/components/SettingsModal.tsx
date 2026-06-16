@@ -495,7 +495,7 @@ export default function SettingsModal({ settings, onSave, onClose, jobs = [], on
           >
             {t.saveSettings}
           </button>
-          <div className="text-center mt-3 text-xs text-slate-400">Version 1.8.1</div>
+          <div className="text-center mt-3 text-xs text-slate-400">Version 1.8.2</div>
         </div>
       </div>
     </div>

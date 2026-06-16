@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval, subWeeks, addWeeks, subMonths, addMonths, subYears, addYears, isSameDay, isToday, getDaysInMonth, getDay } from 'date-fns';
 import { Plus, Settings as SettingsIcon, MoreVertical, Copy, Edit2, Trash2, List, Calendar as CalendarIcon, History, ArrowLeft, ChevronLeft, ChevronRight, BarChart3, Home, Palmtree, Clock, TrendingUp, DollarSign, Award, Stethoscope, Zap, Briefcase, Thermometer } from 'lucide-react';
 import { Shift, AppSettings, TimerState, Job } from '../types';
@@ -31,6 +31,7 @@ interface Props {
   onStopTimer: () => void;
   onPauseTimer: (remainingSeconds: number) => void;
   onResumeTimer: () => void;
+  onUpdateMood?: (shiftId: string, emoji: string) => void;
   jobs?: Job[];
 }
 
@@ -40,7 +41,133 @@ const JOB_COLORS = [
   { name: 'Mint', value: '#e8f5e9', accent: '#66bb6a' },
 ];
 
-export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST', onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onShowHistory, onShowStats, onBackToList, onStartTimer, onStopTimer, onPauseTimer, onResumeTimer, jobs = [] }: Props) {
+const MOODS = ['😊','💪','😐','😓','🥱','😤','🤩','😌','🤒','😴'];
+const ITEM_H = 56; // px per drum item
+
+function MoodDrumPicker({ shiftId, current, language, onSelect, onClose }: {
+  shiftId: string; current: string; language: 'zh' | 'en';
+  onSelect: (id: string, emoji: string) => void;
+  onClose: () => void;
+}) {
+  const drumRef = useRef<HTMLDivElement>(null);
+  const initIdx = MOODS.indexOf(current) >= 0 ? MOODS.indexOf(current) : 0;
+  const [selectedIdx, setSelectedIdx] = useState(initIdx);
+  const label = language === 'zh' ? '心情記錄' : 'Mood';
+  const cancelTxt = language === 'zh' ? '取消' : 'Cancel';
+  const noneTxt = language === 'zh' ? '不記錄心情' : 'No mood';
+
+  useEffect(() => {
+    if (drumRef.current) {
+      drumRef.current.scrollTop = initIdx * ITEM_H;
+    }
+  }, []);
+
+  const handleScroll = () => {
+    if (!drumRef.current) return;
+    const idx = Math.round(drumRef.current.scrollTop / ITEM_H);
+    setSelectedIdx(Math.max(0, Math.min(idx, MOODS.length - 1)));
+  };
+
+  const handleConfirm = () => {
+    onSelect(shiftId, MOODS[selectedIdx]);
+    onClose();
+  };
+
+  const handleNone = () => {
+    onSelect(shiftId, '');
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-t-3xl shadow-2xl overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Handle bar */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-slate-200 dark:bg-gray-600" />
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            className="text-sm font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 px-2 py-1"
+          >
+            {cancelTxt}
+          </button>
+          <h3 className="text-base font-bold text-slate-800 dark:text-gray-100">{label}</h3>
+          <button
+            onClick={handleConfirm}
+            className="text-sm font-bold text-[var(--color-primary)] px-2 py-1"
+          >
+            ✓
+          </button>
+        </div>
+
+        {/* Drum roller */}
+        <div className="relative mx-5 my-4" style={{ height: ITEM_H * 5 }}>
+          {/* Centre highlight bar */}
+          <div
+            className="absolute left-0 right-0 pointer-events-none z-10 rounded-2xl"
+            style={{
+              top: ITEM_H * 2,
+              height: ITEM_H,
+              background: 'var(--color-primary-alpha, rgba(16,185,129,0.08))',
+              border: '1.5px solid var(--color-primary)',
+              opacity: 0.5,
+            }}
+          />
+          {/* Top + bottom fade */}
+          <div
+            className="absolute inset-0 pointer-events-none z-10"
+            style={{ background: 'linear-gradient(to bottom, white 0%, transparent 35%, transparent 65%, white 100%)' }}
+          />
+          {/* Scrollable drum */}
+          <div
+            ref={drumRef}
+            onScroll={handleScroll}
+            className="h-full overflow-y-scroll dark:bg-gray-800"
+            style={{
+              scrollSnapType: 'y mandatory',
+              paddingTop: ITEM_H * 2,
+              paddingBottom: ITEM_H * 2,
+              scrollbarWidth: 'none',
+            }}
+          >
+            {MOODS.map((emoji, i) => (
+              <div
+                key={emoji}
+                style={{ height: ITEM_H, scrollSnapAlign: 'center' }}
+                className={`flex items-center justify-center text-4xl transition-all duration-100 ${
+                  i === selectedIdx ? 'scale-125' : 'scale-90 opacity-40'
+                }`}
+              >
+                {emoji}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Clear / no mood */}
+        <div className="px-5 pb-8">
+          <button
+            onClick={handleNone}
+            className="w-full py-3 text-sm text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 font-medium border border-slate-100 dark:border-gray-700 rounded-2xl"
+          >
+            {noneTxt}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST', onAdd, onEdit, onDelete, onDuplicate, onOpenSettings, onShowHistory, onShowStats, onBackToList, onStartTimer, onStopTimer, onPauseTimer, onResumeTimer, onUpdateMood, jobs = [] }: Props) {
   const [filter, setFilter] = useState<FilterType>('MONTH');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
@@ -50,6 +177,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [showTimer, setShowTimer] = useState(false);
   const [breakDuration, setBreakDuration] = useState<number | undefined>(undefined);
+  const [moodPickerShiftId, setMoodPickerShiftId] = useState<string | null>(null);
   const [jobFilter, setJobFilter] = useState<string | null>(null);
   const [groupByJob, setGroupByJob] = useState(false);
   const [bottomNavPage, setBottomNavPage] = useState<BottomNavPage>('home');
@@ -120,9 +248,11 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
         </div>
         
           <div className="flex items-center gap-3">
-          <div
-            className="size-12 rounded-lg flex items-center justify-center text-2xl"
+          <button
+            className="size-12 rounded-lg flex items-center justify-center text-2xl active:scale-95 transition-transform cursor-pointer"
             style={{ backgroundColor: shift.isAnnualLeave ? '#fce4ec' : shift.isSickLeave ? '#fee2e2' : jobColor.value }}
+            onClick={async (e) => { e.stopPropagation(); await haptic.selection(); setMoodPickerShiftId(shift.id); }}
+            title="Set mood"
           >
             {shift.moodEmoji ? (
               <span>{shift.moodEmoji}</span>
@@ -135,7 +265,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
             ) : (
               <span className="text-[var(--color-primary)]"><Clock size={18} /></span>
             )}
-          </div>
+          </button>
           
           <button
             onClick={() => handleMenuOpen(shift.id)}
@@ -723,7 +853,21 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
           onClose={() => { setShowTimer(false); setBreakDuration(undefined); }}
         />
       )}
-      
+
+      {/* Mood Drum Picker */}
+      {moodPickerShiftId && (() => {
+        const s = shifts.find(s => s.id === moodPickerShiftId);
+        return s ? (
+          <MoodDrumPicker
+            shiftId={moodPickerShiftId}
+            current={s.moodEmoji ?? ''}
+            language={settings.language}
+            onSelect={(id, emoji) => { if (onUpdateMood) onUpdateMood(id, emoji); }}
+            onClose={() => setMoodPickerShiftId(null)}
+          />
+        ) : null;
+      })()}
+
       {/* Menu Backdrop */}
       {menuOpenId && (
         <div className="fixed inset-0 z-25" onClick={() => setMenuOpenId(null)} />
