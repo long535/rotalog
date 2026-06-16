@@ -31,7 +31,8 @@ export default function ShiftForm({ shift, lastShift, settings, existingShifts =
   const defaultJob = settings.defaultJobId ? localJobs.find(j => j.id === settings.defaultJobId) : null;
 
   const [baseDate, setBaseDate] = useState(initialDate);
-  const [selectedDates, setSelectedDates] = useState<string[]>([initialDate]);
+  // New shifts: no date pre-selected. Editing: keep original date.
+  const [selectedDates, setSelectedDates] = useState<string[]>(isEditing ? [initialDate] : []);
   const [timeStart, setTimeStart] = useState(initialTimeStart);
   const [timeEnd, setTimeEnd] = useState(initialTimeEnd);
   const autoJobId = defaultJob?.id || (localJobs.length > 0 ? localJobs[0].id : null);
@@ -59,7 +60,9 @@ export default function ShiftForm({ shift, lastShift, settings, existingShifts =
   // Overlap state
   const [overlapShifts, setOverlapShifts] = useState<Shift[]>([]);
   const [pendingSave, setPendingSave] = useState<Shift[] | null>(null);
-  const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date(baseDate)));
+  const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
+  // Mood emoji
+  const [moodEmoji, setMoodEmoji] = useState<string>(shift?.moodEmoji ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslation(settings.language);
 
@@ -175,6 +178,7 @@ export default function ShiftForm({ shift, lastShift, settings, existingShifts =
         reminders,
         jobId: selectedJobId,
         paidBreaks: paidBreaks.length > 0 ? paidBreaks : undefined,
+        moodEmoji: moodEmoji || undefined,
       };
     });
 
@@ -618,6 +622,36 @@ export default function ShiftForm({ shift, lastShift, settings, existingShifts =
               {t.reminder30m}
             </button>
           </div>
+        </div>
+
+        {/* Mood Emoji */}
+        <div>
+          <label className="block text-sm font-semibold text-slate-500 mb-2 ml-1 uppercase tracking-wider">
+            {t.moodLabel}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {['😊','💪','😐','😓','🥱','😤','🤩','😌','🤒','😴'].map(emoji => (
+              <button
+                key={emoji}
+                onClick={async () => { await haptic.selection(); setMoodEmoji(prev => prev === emoji ? '' : emoji); }}
+                className={`text-2xl w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                  moodEmoji === emoji
+                    ? 'bg-[var(--color-primary)]/15 ring-2 ring-[var(--color-primary)] scale-110'
+                    : 'bg-slate-50 dark:bg-gray-700 hover:bg-slate-100 dark:hover:bg-gray-600'
+                }`}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+          {moodEmoji && (
+            <button
+              onClick={async () => { await haptic.light(); setMoodEmoji(''); }}
+              className="mt-2 text-xs text-slate-400 hover:text-slate-600 underline"
+            >
+              {t.moodNone}
+            </button>
+          )}
         </div>
 
         {/* Paid Coffee Breaks */}

@@ -160,6 +160,10 @@ export const translations = {
     coffeeBreak: '☕ 咖啡 Break',
     startCoffeeBreak: '開始 {min} 分鐘 Break',
     noPaidBreak: '未設定帶薪 Break',
+    // Mood
+    mood: '心情記錄',
+    moodLabel: '今日心情（可選）',
+    moodNone: '不記錄',
     // Overlap
     overlapTitle: '班次時間重疊',
     overlapMessage: '以下班次與即將儲存的班次時間重疊：',
@@ -327,6 +331,10 @@ export const translations = {
     coffeeBreak: '☕ Coffee Break',
     startCoffeeBreak: 'Start {min} min Break',
     noPaidBreak: 'No paid breaks set',
+    // Mood
+    mood: 'Mood',
+    moodLabel: 'Today\'s Mood (optional)',
+    moodNone: 'None',
     // Overlap
     overlapTitle: 'Shift Time Overlap',
     overlapMessage: 'The following existing shifts overlap with your new shift:',

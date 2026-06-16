@@ -21,6 +21,7 @@ export interface Shift {
   alarmIds?: number[];
   jobId?: string | null;
   paidBreaks?: PaidBreak[];
+  moodEmoji?: string;
 }
 
 

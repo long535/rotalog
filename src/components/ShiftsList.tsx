@@ -120,11 +120,13 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
         </div>
         
           <div className="flex items-center gap-3">
-          <div 
-            className="size-12 rounded-lg flex items-center justify-center"
+          <div
+            className="size-12 rounded-lg flex items-center justify-center text-2xl"
             style={{ backgroundColor: shift.isAnnualLeave ? '#fce4ec' : shift.isSickLeave ? '#fee2e2' : jobColor.value }}
           >
-            {shift.isAnnualLeave ? (
+            {shift.moodEmoji ? (
+              <span>{shift.moodEmoji}</span>
+            ) : shift.isAnnualLeave ? (
               <span className="text-purple-500"><Palmtree size={18} /></span>
             ) : shift.isSickLeave ? (
               <span className="text-red-500"><Thermometer size={18} /></span>
@@ -135,9 +137,9 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
             )}
           </div>
           
-          <button 
-            onClick={() => handleMenuOpen(shift.id)} 
-            className="p-2 text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity"
+          <button
+            onClick={() => handleMenuOpen(shift.id)}
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-gray-200 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors"
           >
             <MoreVertical size={18} />
           </button>
