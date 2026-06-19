@@ -10,9 +10,8 @@ import StatsDashboard from './StatsDashboard';
 import LiveEarningBanner from './LiveEarningBanner';
 
 type FilterType = 'ALL' | 'WEEK' | 'MONTH' | 'YEAR';
-type ViewMode = 'LIST' | 'CALENDAR';
 type PageView = 'LIST' | 'HISTORY' | 'STATS';
-type BottomNavPage = 'home' | 'history' | 'stats' | 'settings';
+type BottomNavPage = 'home' | 'history' | 'stats' | 'settings' | 'calendar';
 
 interface Props {
   shifts: Shift[];
@@ -171,7 +170,6 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
   const [filter, setFilter] = useState<FilterType>('MONTH');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('LIST');
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | null>(null);
   const [expandedPhotoId, setExpandedPhotoId] = useState<string | null>(null);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
@@ -182,6 +180,9 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
   const [groupByJob, setGroupByJob] = useState(false);
   const [bottomNavPage, setBottomNavPage] = useState<BottomNavPage>('home');
   const t = useTranslation(settings.language);
+
+  const shiftCardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [hasAutoScrolled, setHasAutoScrolled] = useState(false);
 
   const localJobs = jobs.length > 0 ? jobs : settings.jobs;
 
@@ -207,6 +208,7 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
     return (
       <div 
         key={shift.id} 
+        ref={el => { shiftCardRefs.current[shift.id] = el; }}
         className="group relative flex items-center justify-between p-5 bg-white dark:bg-gray-800 rounded-[1rem] shadow-sm border border-slate-50 dark:border-gray-700 hover:shadow-md transition-all duration-200"
         style={{ animationDelay: `${index * 50}ms` }}
       >
@@ -321,8 +323,35 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
       if (!groups[jobId]) groups[jobId] = [];
       groups[jobId].push(shift);
     });
-    return groups as { [jobId: string]: Shift[] };
-  }, [filteredShifts, groupByJob, localJobs]);
+    return groups;
+  }, [filteredShifts, groupByJob]);
+
+  // Auto-scroll to next shift on home page
+  useEffect(() => {
+    if (pageView === 'LIST' && bottomNavPage === 'home') {
+      if (!hasAutoScrolled && filteredShifts.length > 0) {
+        const now = new Date();
+        const sorted = [...filteredShifts].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+        const nextShift = sorted.find(s => new Date(s.endTime) > now);
+        if (nextShift && shiftCardRefs.current[nextShift.id]) {
+          setTimeout(() => {
+            shiftCardRefs.current[nextShift.id]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const el = shiftCardRefs.current[nextShift.id];
+            if (el) {
+              el.style.transition = 'box-shadow 0.5s';
+              el.style.boxShadow = '0 0 0 3px var(--color-primary-alpha, rgba(16,185,129,0.3))';
+              setTimeout(() => { el.style.boxShadow = ''; }, 2000);
+            }
+            setHasAutoScrolled(true);
+          }, 300);
+        } else {
+          setHasAutoScrolled(true);
+        }
+      }
+    } else {
+      setHasAutoScrolled(false);
+    }
+  }, [pageView, bottomNavPage, filteredShifts, hasAutoScrolled]);
 
   const globalEarnedLeave = useMemo(() => {
     return shifts.filter(s => !s.isAnnualLeave).reduce((acc, s) => acc + calculateAnnualLeaveHours(getShiftPaidHours(s)), 0);
@@ -375,17 +404,6 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
   const handleFilterChange = async (f: FilterType) => {
     await haptic.selection();
     setFilter(f);
-  };
-
-  const handleViewModeChange = async (mode: ViewMode) => {
-    await haptic.selection();
-    if (pageView !== 'LIST' && mode === 'CALENDAR') {
-      if (onBackToList) onBackToList();
-    }
-    setViewMode(mode);
-    if (mode === 'CALENDAR') {
-      setFilter('MONTH');
-    }
   };
 
   const handleAdd = async () => {
@@ -481,6 +499,9 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
       onShowHistory();
     } else if (page === 'stats' && onShowStats) {
       onShowStats();
+    } else if (page === 'calendar') {
+      if (onBackToList) onBackToList();
+      setFilter('MONTH');
     }
     setBottomNavPage(page);
   };
@@ -507,8 +528,8 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
           </div>
         </div>
         
-        {/* Tabs - only show on LIST view */}
-        {pageView === 'LIST' && (
+        {/* Tabs - only show on LIST view and home page */}
+        {pageView === 'LIST' && bottomNavPage === 'home' && (
         <div className="flex px-4 space-x-6 pb-2">
           {(['ALL', 'WEEK', 'MONTH'] as FilterType[]).map(f => (
             <button
@@ -530,8 +551,8 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
         )}
       </header>
 
-      {/* Job Filter Pills - only show on LIST view */}
-      {pageView === 'LIST' && localJobs.length > 0 && (
+      {/* Job Filter Pills - only show on LIST view and home page */}
+      {pageView === 'LIST' && bottomNavPage === 'home' && localJobs.length > 0 && (
         <div className="flex overflow-x-auto px-4 py-3 border-b border-slate-100 dark:border-gray-700 hide-scrollbar gap-2">
           <button
             onClick={() => setJobFilter(null)}
@@ -562,8 +583,8 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto pb-28" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        {/* Live Earning Banner - only on LIST view */}
-        {pageView === 'LIST' && (
+        {/* Live Earning Banner - only on LIST view and home page */}
+        {pageView === 'LIST' && bottomNavPage === 'home' && (
           <LiveEarningBanner shifts={shifts} settings={settings} onStartBreak={handleStartBreak} />
         )}
 
@@ -586,9 +607,9 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
               </div>
             </div>
           </div>
-        ) : pageView === 'STATS' ? (
+        ) : pageView === 'STATS' || bottomNavPage === 'stats' ? (
           <StatsDashboard shifts={shifts} settings={settings} jobs={localJobs} />
-        ) : viewMode === 'LIST' ? (
+        ) : bottomNavPage === 'home' ? (
           <div className="p-4">
             <div className="mb-6">
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
@@ -824,8 +845,8 @@ export default function ShiftsList({ shifts, settings, timer, pageView = 'LIST',
             <span className="text-xs font-bold uppercase tracking-wider">Stats</span>
           </button>
           <button 
-            onClick={() => handleViewModeChange(viewMode === 'LIST' ? 'CALENDAR' : 'LIST')}
-            className={`flex flex-col items-center gap-0.5 ${viewMode === 'CALENDAR' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
+            onClick={() => handleBottomNav('calendar')}
+            className={`flex flex-col items-center gap-0.5 ${bottomNavPage === 'calendar' ? 'text-[var(--color-primary)]' : 'text-slate-400 hover:text-slate-600'}`}
           >
             <CalendarIcon size={20} />
             <span className="text-xs font-bold uppercase tracking-wider">Calendar</span>
