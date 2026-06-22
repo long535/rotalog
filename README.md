@@ -1,17 +1,182 @@
-# Rotalog - 班次記錄器 / Shift Tracker
+# Rotalog — Shift & Wage Tracker
 
 <div align="center">
 
-**版本 / Version:** 1.5.7 (Google Play Release)
+**Version:** 1.8.3 | **Platform:** Android (Google Play) · iOS (coming soon)
 
-**下載 / Download:** [app-debug.apk (6.5MB)](https://github.com/long535/rotalog/releases/download/v1.5.7/app-debug.apk) | [app-release.aab](https://github.com/long535/rotalog/releases/download/v1.5.7/rotalog-v1.5.7-v5.aab)
+[![Latest Release](https://img.shields.io/github/v/release/long535/rotalog?label=Latest&color=4CAF50)](https://github.com/long535/rotalog/releases/latest)
+[![Android APK](https://img.shields.io/badge/Download-APK-brightgreen)](https://github.com/long535/rotalog/releases/latest)
 
-**簡潔強大的工時與薪資追蹤工具**  
-**A simple yet powerful work hours and wage tracking app**
+**A simple yet powerful app for tracking shift hours, wages, breaks, and leave — built for real shift workers.**
 
-[繁體中文](#繁體中文) | [English](#english)
+[English](#english) | [繁體中文](#繁體中文)
 
 </div>
+
+---
+
+## English
+
+### 📱 Features
+
+#### Core Shift Management
+- **Add / Edit / Duplicate / Delete** shifts with full control
+- **Multi-date Entry** — add the same shift across multiple days at once
+- **No accidental date pre-selection** — calendar opens blank, you choose the date intentionally
+- **Paid Hours Calculation** — automatically deducts unpaid breaks from total hours
+- **Wage Calculation** — real-time pay based on hourly rate
+
+#### Smart Home Screen
+- **Auto-scroll to Next Shift** — on launch or tapping Home, the list scrolls straight to your next upcoming shift with a brief highlight effect
+- **Live Earning Banner** — during an active shift, displays real-time earnings (slot-machine style), countdown to end, and projected total
+
+#### Calendar Page
+- Full-screen **dedicated Calendar view** — tap a date to see its shifts, tap again to add
+- Accessible from the bottom navigation as an independent page (not an overlay)
+
+#### Mood Tracking
+- Tap the shift icon directly on the Home screen to open an **iOS-style drum roller** emoji picker
+- Select from 10 mood emojis: 😊 💪 😐 😓 🥱 😤 🤩 😌 🤒 😴
+- Mood emoji replaces the briefcase icon on the shift card
+
+#### Break & Timer System
+- **Paid Coffee Breaks** — set count and duration per break, with optional reminders
+- **Unpaid Lunch Break** — separate unpaid break deduction
+- **Break Timer** — 60 / 30 min countdown with background operation, pause/resume
+- **Early Warning** — notification 20 seconds before break ends
+
+#### Reminders
+- **Work Reminders** — 1 hour / 30 min before shift (system-level alarms, works when app is closed)
+- **Coffee Break Reminders** — prompt to take your paid break at the right time
+
+#### Leave & Sick Leave
+- **Annual Leave Tracking** — earned, used, and balance displayed as progress bars
+- **Sick Leave Management** — log unpaid sick hours; deducted automatically from wages
+- **Annual Leave Shifts** — mark shifts as annual leave for accurate accrual
+
+#### Statistics Dashboard
+- Weekly / Monthly / Yearly / Custom date range views
+- Bar charts for hours and earnings trends (pure CSS/SVG, no libraries)
+- Key metrics: daily averages, longest shift, total earnings
+- Job breakdown: hours and pay by job with comparison charts
+
+#### Multiple Jobs
+- Add unlimited job profiles, each with its own hourly wage, color, and break settings
+- Filter and group the home list by job
+- Visual job color indicators on every shift card
+
+#### Data Management
+- **CSV Export** — export all records for spreadsheets
+- **CSV Import** — import with conflict detection (Skip / Overwrite / Add All)
+- **Local Storage Only** — all data stays on your device, never sent to any server
+
+#### Overlap Detection
+- Warns if a new shift overlaps with an existing one, with a "Save Anyway / Go Back" prompt
+
+#### UK Tax Estimation *(optional)*
+- Estimates Tax, National Insurance, and Pension contribution
+
+#### UX Details
+- Light / Dark theme
+- Bilingual: English / 繁體中文
+- Haptic feedback
+- Swipe left/right to navigate months
+
+---
+
+### 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React 19 + TypeScript |
+| Styling | TailwindCSS 4 |
+| Mobile | Capacitor 8 |
+| Date | date-fns |
+| Icons | Lucide React |
+| State | Zustand |
+| Build | Vite |
+
+---
+
+### 📋 Development Setup
+
+#### Requirements
+- Node.js 18+
+- Android Studio (for Android)
+- Xcode 15+ on macOS (for iOS — see [iOS Setup](#ios-setup))
+
+#### Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Dev server
+npm run dev
+
+# Production build
+npm run build
+
+# Sync to Android / iOS
+npx cap sync android
+npx cap sync ios
+```
+
+#### Android Build
+
+```bash
+# Release APK
+cd android && ./gradlew assembleRelease
+
+# Release AAB (for Google Play)
+cd android && ./gradlew bundleRelease
+```
+
+#### <a name="ios-setup"></a>iOS Setup (macOS required)
+
+> **Prerequisites before moving to Mac:**
+
+```bash
+# 1. Install CocoaPods (on Mac)
+sudo gem install cocoapods
+
+# 2. Add iOS platform (if not already added)
+npx cap add ios
+
+# 3. Sync and open in Xcode
+npx cap sync ios
+npx cap open ios
+```
+
+**What to prepare before switching to Mac:**
+1. Ensure the project is pushed to GitHub (latest commit on `main`)
+2. Clone the repo on the Mac: `git clone https://github.com/long535/rotalog.git`
+3. Run `npm install` on the Mac
+4. Run `npm run build` then `npx cap sync ios`
+5. Open `ios/App/App.xcworkspace` in Xcode (**not** `.xcodeproj`)
+6. Set your **Apple Developer Team** in Xcode → Signing & Capabilities
+7. Build and run on a connected iPhone or iOS Simulator
+
+**Apple Developer Account required** for:
+- Running on a real device (free account works for development)
+- Submitting to the App Store (paid account: $99/yr)
+
+---
+
+### 📸 Screenshots
+
+<img src="https://raw.githubusercontent.com/long535/rotalog/main/screenshot/1000068062.png" width="250" />
+<img src="https://raw.githubusercontent.com/long535/rotalog/main/screenshot/1000068063.png" width="250" />
+
+---
+
+### 📥 Download
+
+| Platform | Link |
+|---|---|
+| Android APK | [rotalog-v1.8.3.apk](https://github.com/long535/rotalog/releases/latest) |
+| Google Play | Coming soon |
+| iOS App Store | Coming soon |
 
 ---
 
@@ -19,75 +184,84 @@
 
 ### 📱 功能總覽
 
-#### 核心功能
-- **班次管理** - 新增、編輯、複製、刪除班次記錄
-- **工時計算** - 自動計算有薪工時（扣除休息時間）
-- **薪資計算** - 根據時薪自動計算薪資
-- **年假追蹤** - 追蹤年假獲得與使用，顯示結餘
-- **多工作地點** - 可設定不同的工作地點，各自擁有獨立的時薪和休息時間設定
-- **工作分組顯示** - 可按工作地點分組顯示班次
-- **即時薪資橫幅 (Live Earning)** - 班次進行中時，首頁頂部會顯示如老虎機般跳動的「正在賺取」金額、下班倒數及預計總收入，讓上班更有動力
-- **病假管理** - 新增病假時數輸入，自動從總工時扣除無薪病假，精確計算實得工資
-- **進階統計儀表板** - 全新的統計圖表頁面，支援週/月/年/自定義時段檢視
-- **薪資與工時圖表** - 使用純 CSS/SVG 繪製的柱形圖，直觀顯示數據變化
-- **平均數據分析** - 自動計算日平均工時、日平均薪資等關鍵指標
-- **各項工作佔比** - 圓柱圖顯示不同工作地點的時數與薪資分配
-- **休假平衡圖表** - 進度條式顯示年假獲得、使用與剩餘狀況
+#### 核心班次管理
+- **新增 / 編輯 / 複製 / 刪除**班次，完整掌控記錄
+- **多日新增** — 一次將相同班次加入多天
+- **不自動選擇日期** — 月曆開啟時無預設選取，防止錯誤輸入
+- **有薪工時計算** — 自動扣除無薪休息時間
+- **薪資計算** — 根據時薪即時計算
 
-#### 檢視模式
-- **列表檢視** - 傳統列表方式顯示班次
-- **月曆檢視** - 月曆格式查看整月班次分佈
-- **篩選功能** - 支援全部 / 週 / 月 / 年篩選
+#### 智慧首頁
+- **自動定位下個班次** — 打開 APP 或點擊 Home，列表自動滾動到你的下一個班次並短暫高亮提示
+- **即時薪資橫幅** — 班次進行中，頂部如老虎機般顯示即時收入、剩餘時間及預計總收入
 
-#### 照片附件
-- **拍照上傳** - 直接拍攝工時單或相關文件
-- **相簿選擇** - 從相簿選擇現有照片
-- **照片預覽** - 在列表和月曆中快速查看照片
+#### 月曆頁面
+- 獨立的**全螢幕月曆視圖** — 不再浮疊在列表上
+- 點選日期可查看當日班次，再次點擊可快速新增
+
+#### 心情記錄
+- 在主畫面直接 tap 班次圖示，彈出 **iOS 鼓輪式** Emoji 選取器
+- 十種心情：😊 💪 😐 😓 🥱 😤 🤩 😌 🤒 😴
+- 選定的 Emoji 會在班次卡上取代行李圖示顯示
+
+#### 休息與計時器
+- **帶薪咖啡 Break** — 可設定次數與時長，附提醒功能
+- **無薪午休** — 獨立設定，自動從工時扣除
+- **休息計時器** — 60 / 30 分鐘倒數，支援背景運作及暫停/繼續
+- **提前 20 秒提醒** — 休息結束前通知準備打卡
+
+#### 提醒
+- **上班提醒** — 班次前 1 小時 / 30 分鐘（系統鬧鐘，APP 關閉也能觸發）
+- **咖啡 Break 提醒** — 提醒你準時去休息
+
+#### 年假與病假
+- **年假追蹤** — 獲得、使用與結餘以進度條顯示
+- **病假管理** — 輸入無薪病假時數，自動從薪資扣除
+- **年假班次** — 標記年假，精確計算假期累積
+
+#### 統計儀表板
+- 支援週 / 月 / 年 / 自訂時段
+- 工時與薪資柱形圖（純 CSS/SVG）
+- 關鍵指標：日均工時、最長班次、總收入
+- 各工作佔比圖表
+
+#### 多工作地點
+- 無限新增工作，各自設定時薪、顏色與休息時間
+- 首頁可依工作篩選或分組顯示
 
 #### 資料管理
-- **CSV 匯出** - 將班次資料匯出為 CSV 檔案
-- **CSV 匯入與衝突處理** - 從 CSV 檔案匯入班次資料，自動偵測重複班次並提供「跳過、覆蓋、全部新增」選項
-- **本地儲存** - 支援直接儲存至裝置 Documents 資料夾，並自動處理權限衝突
-- **資料安全** - 所有資料安全儲存在您的裝置上，不經伺服器
+- **CSV 匯出** — 匯出全部記錄
+- **CSV 匯入** — 自動偵測衝突（跳過 / 覆蓋 / 全部新增）
+- **本地儲存** — 所有資料存於裝置，不上傳伺服器
 
-#### 使用者體驗
-- **滑動切換** - 左右滑動底部區域切換月份
-- **觸覺回饋** - 按鈕操作提供震動回饋
-- **雙語介面** - 支援繁體中文 / English
-- **主題切換** - 淺色 / 深色主題
+#### 班次時間重疊偵測
+- 新增班次時自動檢查重疊，彈出「仍然儲存 / 返回修改」提示
 
-#### 進階功能
-- **英國稅務估算** - 自動估算 Tax, N.I., Pension（可選）
-- **多日新增** - 一次新增多天的相同班次
-- **快速日期選擇** - 點選星期幾快速選擇同週班次
-- **一週的第一天** - 可設定週日或週一為一週的第一天
-
-#### 提醒與計時器
-- **上班提醒** - 設定上班前 1 小時 / 30 分鐘提醒通知（使用系統鬧鐘，關閉 APP 也會觸發）
-- **午休計時器** - 60 / 30 分鐘快速計時，支援背景運作
-- **暫停/繼續** - 計時中可隨時暫停或繼續
-- **提前提醒** - 計時結束前 20 秒提醒準備打卡
-- **系統鬧鐘整合** - 鬧鐘顯示在系統時鐘 App 中，支援全螢幕提醒
-- **隱私優先** - 無廣告 ID，僅保留必要權限，資料 100% 本地化儲存
-- **Google Play 合規性** - 移除冗餘權限，符合最新 Android 安全規範
+#### 英國稅務估算（可選）
+- 自動估算 Tax、National Insurance、Pension
 
 ---
 
 ### 🛠️ 技術棧
 
-- **Frontend:** React 19, TypeScript
-- **Styling:** TailwindCSS 4
-- **Mobile:** Capacitor 8 (Android)
-- **Date Handling:** date-fns
-- **Icons:** Lucide React
+| 層級 | 技術 |
+|---|---|
+| 框架 | React 19 + TypeScript |
+| 樣式 | TailwindCSS 4 |
+| 行動端 | Capacitor 8 |
+| 日期 | date-fns |
+| 圖示 | Lucide React |
+| 狀態管理 | Zustand |
+| 建置工具 | Vite |
 
 ---
 
-### 📋 安裝與執行
+### 📋 開發環境設定
 
 #### 環境需求
 - Node.js 18+
-- Android Studio (for Android build)
+- Android Studio（Android 建置用）
+- macOS + Xcode 15+（iOS 建置用，需搬移到 Mac）
 
 #### 本地開發
 
@@ -101,210 +275,36 @@ npm run dev
 # 建置生產版本
 npm run build
 
-# Android 建置
+# 同步到 Android / iOS
 npx cap sync android
-cd android && gradle assembleDebug
+npx cap sync ios
 ```
 
-#### 安裝到 Android 裝置
+#### Android 建置
 
 ```bash
-# 建置 APK
-cd android && gradle assembleDebug
+# Release APK
+cd android && ./gradlew assembleRelease
 
-# 安裝到連接的裝置
-adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+# Release AAB（上傳 Google Play 用）
+cd android && ./gradlew bundleRelease
 ```
 
----
+#### iOS 建置（搬到 Mac 前的準備）
 
-### 📸 App 截圖
-
-<img src="https://raw.githubusercontent.com/long535/rotalog/main/screenshot/1000068062.png" width="250" />
-
-<img src="https://raw.githubusercontent.com/long535/rotalog/main/screenshot/1000068063.png" width="250" />
-
----
-
-### 📸 使用說明
-
-#### 新增班次
-1. 點擊底部 **+** 按鈕
-2. 選擇日期（可多選）
-3. 設定開始/結束時間
-4. 輸入休息時間（無薪）
-5. 確認時薪
-6. 可選擇拍照或從相簿選擇照片
-7. 儲存
-
-- **統計儀表板** - 點擊底部 **Stats** (📊) 分頁，查看詳細的圖表分析與休假狀況
-- **年假結餘** - 在 Stats 頁面中查看進度條形式的年假結餘
-- **工作佔比** - 在 Stats 頁面下拉查看不同工作的貢獻比例概覽
-
-#### 切換月份
-- 點擊 **<** / **>** 按鈕
-- 或在底部區域 **左右滑動**
-
-#### 設定上班提醒
-1. 新增或編輯班次
-2. 在「提醒」區塊勾選 1 小時前 / 30 分鐘前
-3. 儲存後，系統會在指定時間發送通知
-4. 提醒會顯示在系統時鐘 App 的鬧鐘列表中，即使關閉 APP 也會觸發
-
-#### 使用午休計時器
-1. 點擊底部橘色計時器按鈕
-2. 選擇 60 分鐘、30 分鐘或 1 分鐘（測試用）
-3. 點擊開始
-4. 即使切換到其他 App（如 YouTube），計時仍會在背景運作
-5. 計時中可點擊「暫停」按鈕暫停計時
-6. 暫停後可點擊「繼續」恢復計時
-7. 結束前 20 秒會收到「準備打卡」通知
-8. 計時結束會收到「午休結束」通知
-
----
-
-## English
-
-### 📱 Features Overview
-
-#### Core Features
-- **Shift Management** - Add, edit, duplicate, and delete shift records
-- **Hours Calculation** - Automatic paid hours calculation (minus break time)
-- **Wage Calculation** - Automatic wage calculation based on hourly rate
-- **Annual Leave Tracking** - Track earned and used annual leave with balance
-- **Multiple Jobs** - Manage different job locations with their own hourly wage and break time settings
-- **Group by Job** - Group shifts by job location for better organization
-- **Live Earning Banner** - Neon slot-machine style banner displaying real-time earnings, countdown to shift end, and projected totals while you work
-- **Sick Leave Management** - Explicit sick leave hours input, automatic unpaid deduction, and precise wage calculation
-- **Advanced Stats Dashboard** - Brand new statistics page supporting Week/Month/Year/Custom duration views
-- **Visual Charts** - Pure CSS/SVG bar charts for visualizing work hours and earnings trends
-- **Key Metrics & Averages** - Auto-calculation of daily averages, longest shifts, and productivity metrics
-- **Job Breakdown** - Visual comparison of hours and earnings across multiple jobs
-- **Leave Progress Tracking** - Progress bar visualization for annual leave balance and usage
-
-#### View Modes
-- **List View** - Traditional list format for shifts
-- **Calendar View** - Monthly calendar format to see shift distribution
-- **Filtering** - Support for All / Week / Month / Year filters
-
-#### Photo Attachments
-- **Take Photo** - Directly capture timesheet or related documents
-- **Choose from Gallery** - Select existing photos from album
-- **Photo Preview** - Quick view photos in list and calendar views
-
-#### Data Management
-- **CSV Export** - Export shifts to CSV file
-- **CSV Import & Conflict Resolution** - Import shifts with automatic duplicate detection (Skip, Overwrite, Add All options)
-- **Save to Device** - Direct saving to Documents folder with automated permission handling and unique timestamps
-- **Local Storage** - Data securely stored on device
-
-#### User Experience
-- **Swipe Navigation** - Swipe left/right on bottom area to change month
-- **Haptic Feedback** - Vibration feedback on button actions
-- **Bilingual Interface** - Support for 繁體中文 / English
-- **Theme Toggle** - Light / Dark theme
-
-#### Advanced Features
-- **UK Tax Estimation** - Auto estimate Tax, N.I., Pension (optional)
-- **Multi-day Entry** - Add same shift for multiple days at once
-- **Quick Date Selection** - Click weekday to quickly select same week shifts
-- **First Day of Week** - Customize whether week starts on Sunday or Monday
-
-#### Reminders & Timer
-- **Work Reminders** - Set notifications 1 hour / 30 min before shift starts (uses system alarms, works even when app is closed)
-- **Break Timer** - 60 / 30 min quick timer with background support
-- **Pause/Resume** - Pause and resume timer anytime
-- **Early Warning** - 20 seconds advance notice before timer ends
-- **System Alarm Integration** - Alarms appear in system clock app with fullscreen reminder UI
-
----
-
-### 🛠️ Tech Stack
-
-- **Frontend:** React 19, TypeScript
-- **Styling:** TailwindCSS 4
-- **Mobile:** Capacitor 8 (Android)
-- **Date Handling:** date-fns
-- **Icons:** Lucide React
-
----
-
-### 📋 Installation & Running
-
-#### Requirements
-- Node.js 18+
-- Android Studio (for Android build)
-
-#### Local Development
-
-```bash
-# Install dependencies
-npm install
-
-# Development mode
-npm run dev
-
-# Build production version
-npm run build
-
-# Android build
-npx cap sync android
-cd android && gradle assembleDebug
-```
-
-#### Install to Android Device
-
-```bash
-# Build APK
-cd android && gradle assembleDebug
-
-# Install to connected device
-adb install -r android/app/build/outputs/apk/debug/app-debug.apk
-```
-
----
-
-### 📸 Usage Guide
-
-#### Add Shift
-1. Tap the **+** button at bottom
-2. Select date(s) (multiple selection supported)
-3. Set start/end time
-4. Enter break time (unpaid)
-5. Confirm hourly wage
-6. Optionally take photo or choose from gallery
-7. Save
-
-#### View Statistics
-- **Stats Dashboard** - Tap the **Stats** (📊) tab at the bottom for detailed charts and analysis
-- **Leave Progress** - View your annual leave balance as a progress bar in the Stats tab
-- **Job Breakdown** - Scroll down in the Stats tab to see the proportion of hours/earnings per job
-
-#### Change Month
-- Tap **<** / **>** buttons
-- Or **swipe left/right** on the bottom area
-
-#### Set Work Reminders
-1. Add or edit a shift
-2. In the "Reminders" section, check 1 hour before / 30 min before
-3. After saving, notifications will be sent at the specified times
-4. Reminders appear in system clock app alarm list, triggers even when app is closed
-
-#### Use Break Timer
-1. Tap the orange timer button at the bottom
-2. Select 60 minutes, 30 minutes, or 1 minute (test mode)
-3. Tap Start
-4. Timer runs in background even when switching to other apps (e.g., YouTube)
-5. Tap "Pause" to pause the timer anytime
-6. Tap "Resume" to continue from where you left off
-7. 20 seconds before end, you'll receive a "Get Ready" notification
-8. When timer ends, you'll receive a "Break Ended" notification
+1. 確保 GitHub 上的 `main` 分支是最新版本
+2. 在 Mac 上 `git clone https://github.com/long535/rotalog.git`
+3. 執行 `npm install` 和 `npm run build`
+4. 執行 `npx cap add ios`（若尚未加入）然後 `npx cap sync ios`
+5. 用 Xcode 開啟 `ios/App/App.xcworkspace`
+6. 在 Xcode 的「Signing & Capabilities」設定你的 Apple Developer Team
+7. 連接 iPhone 或使用模擬器進行建置與測試
 
 ---
 
 ## License
 
-MIT License - feel free to use and modify as needed.
+MIT License — free to use and modify.
 
 ---
 
